@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>overview</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Hệ Thống Thực Hành QA – Tổng Quan</h1>
+<p>Chào mừng bạn đến với hệ thống thực hành QA.</p>
+<p>Dự án này mô phỏng một hệ thống backend thực tế, trong đó yêu cầu, tài liệu và phần triển khai có thể không hoàn toàn nhất quán với nhau.</p>
+<p>Mục tiêu của bạn là:</p>
+<ul>
+<li>Hiểu rõ hành vi của hệ thống</li>
+<li>Kiểm tra chức năng API</li>
+<li>Xác minh tính nhất quán của dữ liệu</li>
+<li>Phát hiện và báo cáo các vấn đề</li>
+</ul>
+<hr>
+<h2>📌 Phạm Vi</h2>
+<p>Đây là một Hệ thống Quản lý Công việc đơn giản với các module sau:</p>
+<ul>
+<li>Xác thực người dùng (đăng ký, đăng nhập)</li>
+<li>Quản lý dự án</li>
+<li>Quản lý công việc (task)</li>
+</ul>
+<hr>
+<h2>📚 Tài Liệu Có Sẵn</h2>
+<p>Bạn được cung cấp các tài liệu sau:</p>
+<h3>1. Đặc Tả API</h3>
+<p>👉 Xem: <code>./api-spec.md</code></p>
+<p>Bao gồm:</p>
+<ul>
+<li>Danh sách các endpoint</li>
+<li>Ví dụ về request và response</li>
+<li>Hành vi mong đợi của hệ thống</li>
+</ul>
+<h3>2. Jira Tickets</h3>
+<p>👉 Xem: <code>./jira-tickets.md</code></p>
+<p>Bao gồm:</p>
+<ul>
+<li>Mô tả tính năng</li>
+<li>Yêu cầu nghiệp vụ</li>
+<li>Các trường hợp sử dụng</li>
+</ul>
+<h3>3. Swagger UI</h3>
+<p>👉 Truy cập: <code>http://localhost:3000/api-docs</code></p>
+<p>Bao gồm:</p>
+<ul>
+<li>Giao diện thử nghiệm API tương tác</li>
+<li>Schema request/response</li>
+<li>Hỗ trợ xác thực Bearer token</li>
+</ul>
+<hr>
+<h2>🧪 Nhiệm Vụ Của Bạn</h2>
+<p>Với vai trò kỹ sư QA, bạn cần:</p>
+<ol>
+<li>Đọc Jira tickets để hiểu yêu cầu</li>
+<li>Sử dụng đặc tả API để khám phá các endpoint</li>
+<li>Kiểm tra API bằng Postman hoặc công cụ tương tự</li>
+<li>Xác minh dữ liệu trực tiếp trong cơ sở dữ liệu (PostgreSQL)</li>
+<li>Phát hiện các sự không nhất quán, lỗi hoặc hành vi ngoài mong đợi</li>
+<li>Viết báo cáo lỗi rõ ràng và có thể tái hiện</li>
+</ol>
+<hr>
+<h2>⚠️ Lưu Ý Quan Trọng</h2>
+<ul>
+<li>Không phải tất cả tài liệu đều đảm bảo chính xác hoặc đầy đủ</li>
+<li>Một số hành vi của hệ thống có thể khác với tài liệu mô tả</li>
+<li>Bạn có thể cần đối chiếu nhiều nguồn để xác định hành vi mong đợi</li>
+</ul>
+<hr>
+<h2>🎯 Mục Tiêu</h2>
+<p>Mục đích của bài tập này là mô phỏng công việc QA thực tế, trong đó:</p>
+<ul>
+<li>Yêu cầu có thể không rõ ràng hoặc chưa đầy đủ</li>
+<li>Tài liệu có thể lỗi thời hoặc không nhất quán</li>
+<li>Hệ thống có thể chứa các lỗi tiềm ẩn</li>
+</ul>
+<p>Hãy tập trung vào:</p>
+<ul>
+<li>Tư duy phản biện</li>
+<li>Kiểm tra cẩn thận</li>
+<li>Giao tiếp rõ ràng và chuyên nghiệp</li>
+</ul>
+<hr>
+<p>Chúc bạn thành công! 🚀</p>
+
+</body>
+</html>

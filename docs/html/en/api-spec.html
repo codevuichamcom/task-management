@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>api spec</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Task Management API — Specification</h1>
+<p><strong>Base URL:</strong> <code>http://localhost:3000</code>
+<strong>Content-Type:</strong> <code>application/json</code>
+<strong>Authentication:</strong> Bearer token (JWT) via <code>Authorization: Bearer &lt;token&gt;</code> header</p>
+<hr>
+<h2>Authentication</h2>
+<p>All endpoints except <code>POST /auth/register</code> and <code>POST /auth/login</code> require a valid JWT token.</p>
+<p>Tokens expire after <strong>24 hours</strong>. Obtain a token by logging in.</p>
+<hr>
+<h2>Error Codes</h2>
+<table>
+<thead>
+<tr>
+<th>HTTP Status</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>400</td>
+<td>Bad Request — invalid or missing fields</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Unauthorized — missing or invalid token</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Forbidden — authenticated but not permitted</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Not Found — resource does not exist</td>
+</tr>
+<tr>
+<td>409</td>
+<td>Conflict — duplicate resource (e.g. email already registered)</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Internal Server Error</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Auth Endpoints</h2>
+<h3>POST /auth/register</h3>
+<p>Register a new user account.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;email&quot;: &quot;user@example.com&quot;,
+  &quot;password&quot;: &quot;SecurePass123!&quot;,
+  &quot;role&quot;: &quot;USER&quot;
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>email</td>
+<td>string</td>
+<td>yes</td>
+<td>Valid email address, must be unique</td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+<td>yes</td>
+<td>Minimum 8 characters</td>
+</tr>
+<tr>
+<td>role</td>
+<td>string</td>
+<td>no</td>
+<td><code>USER</code> or <code>ADMIN</code>, defaults to <code>USER</code></td>
+</tr>
+</tbody></table>
+<p><strong>Response 201:</strong></p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;email&quot;: &quot;user@example.com&quot;,
+  &quot;role&quot;: &quot;USER&quot;
+}
+</code></pre>
+<p><strong>Response 409:</strong></p>
+<pre><code class="language-json">{
+  &quot;statusCode&quot;: 409,
+  &quot;message&quot;: &quot;Email already in use&quot;
+}
+</code></pre>
+<hr>
+<h3>POST /auth/login</h3>
+<p>Authenticate and receive a JWT token.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;email&quot;: &quot;user@example.com&quot;,
+  &quot;password&quot;: &quot;SecurePass123!&quot;
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>email</td>
+<td>string</td>
+<td>yes</td>
+<td>Registered email</td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+<td>yes</td>
+<td>Account password</td>
+</tr>
+</tbody></table>
+<p><strong>Response 200:</strong></p>
+<pre><code class="language-json">{
+  &quot;access_token&quot;: &quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;,
+  &quot;user&quot;: {
+    &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+    &quot;email&quot;: &quot;user@example.com&quot;
+  }
+}
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> Use the value of <code>access_token</code> as the Bearer token in subsequent requests.</p>
+</blockquote>
+<p><strong>Response 401:</strong></p>
+<pre><code class="language-json">{
+  &quot;statusCode&quot;: 401,
+  &quot;message&quot;: &quot;Invalid credentials&quot;
+}
+</code></pre>
+<hr>
+<h2>Projects Endpoints</h2>
+<p>All project endpoints require authentication.</p>
+<h3>POST /projects</h3>
+<p>Create a new project. The authenticated user becomes the owner.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;My New Project&quot;
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>name</td>
+<td>string</td>
+<td>yes</td>
+<td>Project name, non-empty</td>
+</tr>
+</tbody></table>
+<p><strong>Response 201:</strong></p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;name&quot;: &quot;My New Project&quot;,
+  &quot;ownerId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;createdAt&quot;: &quot;2024-01-15T10:30:00.000Z&quot;
+}
+</code></pre>
+<hr>
+<h3>GET /projects</h3>
+<p>List all projects owned by the authenticated user.</p>
+<p><strong>Response 200:</strong></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
+    &quot;name&quot;: &quot;Alpha Project&quot;,
+    &quot;ownerId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+    &quot;createdAt&quot;: &quot;2024-01-10T08:00:00.000Z&quot;
+  }
+]
+</code></pre>
+<hr>
+<h3>PATCH /projects/:id</h3>
+<p>Update a project. Only the project owner may update it.</p>
+<p><strong>Path Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>UUID</td>
+<td>Project ID</td>
+</tr>
+</tbody></table>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Updated Project Name&quot;
+}
+</code></pre>
+<p><strong>Response 200:</strong></p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;name&quot;: &quot;Updated Project Name&quot;,
+  &quot;ownerId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;createdAt&quot;: &quot;2024-01-10T08:00:00.000Z&quot;
+}
+</code></pre>
+<p><strong>Response 404:</strong></p>
+<pre><code class="language-json">{
+  &quot;statusCode&quot;: 404,
+  &quot;message&quot;: &quot;Project not found&quot;
+}
+</code></pre>
+<hr>
+<h3>DELETE /projects/:id</h3>
+<p>Delete a project and all its associated tasks. Only the project owner may delete it.</p>
+<p><strong>Path Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>UUID</td>
+<td>Project ID</td>
+</tr>
+</tbody></table>
+<p><strong>Response 200:</strong></p>
+<pre><code class="language-json">{
+  &quot;message&quot;: &quot;deleted&quot;
+}
+</code></pre>
+<hr>
+<h2>Tasks Endpoints</h2>
+<p>All task endpoints require authentication.</p>
+<h3>POST /tasks</h3>
+<p>Create a new task.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;title&quot;: &quot;Implement login feature&quot;,
+  &quot;description&quot;: &quot;Build the JWT login endpoint&quot;,
+  &quot;status&quot;: &quot;TODO&quot;,
+  &quot;projectId&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>title</td>
+<td>string</td>
+<td>yes</td>
+<td>Task title, non-empty</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>no</td>
+<td>Detailed description</td>
+</tr>
+<tr>
+<td>status</td>
+<td>string</td>
+<td>no</td>
+<td><code>TODO</code>, <code>IN_PROGRESS</code>, or <code>DONE</code>. Defaults to <code>TODO</code></td>
+</tr>
+<tr>
+<td>projectId</td>
+<td>UUID</td>
+<td>yes</td>
+<td>ID of the parent project</td>
+</tr>
+<tr>
+<td>assigneeId</td>
+<td>UUID</td>
+<td>no</td>
+<td>User ID to assign the task to</td>
+</tr>
+</tbody></table>
+<p><strong>Response 201:</strong></p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;770e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;title&quot;: &quot;Implement login feature&quot;,
+  &quot;description&quot;: &quot;Build the JWT login endpoint&quot;,
+  &quot;status&quot;: &quot;TODO&quot;,
+  &quot;projectId&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;createdAt&quot;: &quot;2024-01-15T11:00:00.000Z&quot;
+}
+</code></pre>
+<hr>
+<h3>GET /tasks</h3>
+<p>List tasks with optional filtering and pagination.</p>
+<p><strong>Query Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>page</td>
+<td>number</td>
+<td>Page number, 1-indexed. <code>page=1</code> returns the first page. Default: <code>1</code></td>
+</tr>
+<tr>
+<td>limit</td>
+<td>number</td>
+<td>Items per page. Default: <code>10</code></td>
+</tr>
+<tr>
+<td>statusFilter</td>
+<td>string</td>
+<td>Filter by exact status: <code>TODO</code>, <code>IN_PROGRESS</code>, or <code>DONE</code></td>
+</tr>
+<tr>
+<td>projectId</td>
+<td>UUID</td>
+<td>Filter tasks belonging to a specific project</td>
+</tr>
+</tbody></table>
+<p><strong>Example Request:</strong></p>
+<pre><code>GET /tasks?page=1&amp;limit=5&amp;statusFilter=TODO&amp;projectId=660e8400-e29b-41d4-a716-446655440001
+</code></pre>
+<p><strong>Response 200:</strong></p>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;id&quot;: &quot;770e8400-e29b-41d4-a716-446655440001&quot;,
+      &quot;title&quot;: &quot;Implement login feature&quot;,
+      &quot;description&quot;: &quot;Build the JWT login endpoint&quot;,
+      &quot;status&quot;: &quot;TODO&quot;,
+      &quot;projectId&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
+      &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+      &quot;createdAt&quot;: &quot;2024-01-15T11:00:00.000Z&quot;,
+      &quot;project&quot;: { &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;, &quot;name&quot;: &quot;Alpha Project&quot; },
+      &quot;assignee&quot;: { &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;, &quot;email&quot;: &quot;alice@test.com&quot; }
+    }
+  ],
+  &quot;meta&quot;: {
+    &quot;page&quot;: 1,
+    &quot;limit&quot;: 5,
+    &quot;total&quot;: 42
+  }
+}
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>meta.page</code> is a number. <code>statusFilter</code> performs an exact, case-insensitive match.</p>
+</blockquote>
+<hr>
+<h3>PATCH /tasks/:id</h3>
+<p>Update a task. Only users who belong to the task&#39;s project may update it.</p>
+<p><strong>Path Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>UUID</td>
+<td>Task ID</td>
+</tr>
+</tbody></table>
+<p><strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;title&quot;: &quot;Updated task title&quot;,
+  &quot;description&quot;: &quot;Updated description&quot;,
+  &quot;status&quot;: &quot;IN_PROGRESS&quot;,
+  &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>title</td>
+<td>string</td>
+<td>no</td>
+<td>New task title</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>no</td>
+<td>New description</td>
+</tr>
+<tr>
+<td>status</td>
+<td>string</td>
+<td>no</td>
+<td>Must be <code>TODO</code>, <code>IN_PROGRESS</code>, or <code>DONE</code></td>
+</tr>
+<tr>
+<td>assigneeId</td>
+<td>UUID</td>
+<td>no</td>
+<td>Reassign to another user</td>
+</tr>
+</tbody></table>
+<p><strong>Response 200:</strong></p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;770e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;title&quot;: &quot;Updated task title&quot;,
+  &quot;description&quot;: &quot;Updated description&quot;,
+  &quot;status&quot;: &quot;IN_PROGRESS&quot;,
+  &quot;projectId&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;createdAt&quot;: &quot;2024-01-15T11:00:00.000Z&quot;
+}
+</code></pre>
+<hr>
+<h3>DELETE /tasks/:id</h3>
+<p>Delete a task. Only users who belong to the task&#39;s project may delete it.</p>
+<p><strong>Path Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>UUID</td>
+<td>Task ID</td>
+</tr>
+</tbody></table>
+<p><strong>Response 200:</strong></p>
+<pre><code class="language-json">{
+  &quot;message&quot;: &quot;deleted&quot;
+}
+</code></pre>
+<hr>
+<h2>Seed Users</h2>
+<p>The following users are pre-loaded on first startup:</p>
+<table>
+<thead>
+<tr>
+<th>Email</th>
+<th>Password</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="mailto:admin@test.com">admin@test.com</a></td>
+<td>Admin123!</td>
+<td>ADMIN</td>
+</tr>
+<tr>
+<td><a href="mailto:alice@test.com">alice@test.com</a></td>
+<td>Alice123!</td>
+<td>USER</td>
+</tr>
+<tr>
+<td><a href="mailto:bob@test.com">bob@test.com</a></td>
+<td>Bob123!</td>
+<td>USER</td>
+</tr>
+<tr>
+<td><a href="mailto:charlie@test.com">charlie@test.com</a></td>
+<td>Charlie123!</td>
+<td>USER</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Status Values</h2>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>TODO</code></td>
+<td>Task not yet started</td>
+</tr>
+<tr>
+<td><code>IN_PROGRESS</code></td>
+<td>Task currently being worked on</td>
+</tr>
+<tr>
+<td><code>DONE</code></td>
+<td>Task completed</td>
+</tr>
+</tbody></table>
+<p>Valid status transitions: any status can be changed to any other status value.</p>
+
+</body>
+</html>

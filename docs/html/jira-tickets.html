@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jira tickets</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>JIRA Tickets — Task Management System</h1>
+<p><strong>Project:</strong> TMS
+<strong>Sprint:</strong> 1
+<strong>Status Legend:</strong> To Do | In Progress | Done | Blocked</p>
+<hr>
+<h2>TASK-001 — User Registration</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> High
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As a new user, I want to register an account so that I can access the task management system.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>User can submit an email and password to create an account</li>
+<li>Email must be unique across the system; duplicate registration returns an error</li>
+<li>Password is stored securely (hashed, never plaintext)</li>
+<li>Successful registration returns the created user&#39;s id, email, and role</li>
+<li>Default role is USER if not specified</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Admin accounts can be created by passing <code>role: &quot;ADMIN&quot;</code> in the request body</li>
+<li>No email verification required for this sprint</li>
+</ul>
+<hr>
+<h2>TASK-002 — User Login</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> High
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As a registered user, I want to log in with my email and password to receive an authentication token.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>User submits email and password</li>
+<li>Returns a JWT token on success</li>
+<li>Returns 401 if credentials are invalid</li>
+<li>Token must be usable for all protected endpoints</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Token expiry is 24 hours</li>
+<li>The response structure should follow the project&#39;s standard auth response format</li>
+</ul>
+<hr>
+<h2>TASK-003 — Create Project</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> High
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As an authenticated user, I want to create a project so I can organize my tasks.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Authenticated user can POST to /projects with a project name</li>
+<li>The creating user automatically becomes the project owner</li>
+<li>Response includes the full project object including id, name, ownerId, and createdAt</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Project name must not be empty</li>
+</ul>
+<hr>
+<h2>TASK-004 — List Projects</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> High
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As a user, I want to see my projects so I can navigate to the right one.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Authenticated user can GET /projects</li>
+<li>Users should only see their own projects</li>
+<li>Response is an array of project objects</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Behavior for admin users seeing all projects vs only their own is not yet defined — defer to sprint 2</li>
+</ul>
+<hr>
+<h2>TASK-005 — Update Project</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> Medium
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As a project owner, I want to rename my project.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Authenticated user can PATCH /projects/:id with a new name</li>
+<li>Returns 404 if project does not exist</li>
+<li>Returns updated project object</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>It is assumed that only the owner should be able to update the project name</li>
+</ul>
+<hr>
+<h2>TASK-006 — Delete Project</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> Medium
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As a project owner, I want to delete a project I no longer need.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Authenticated user can DELETE /projects/:id</li>
+<li>Returns <code>{ &quot;message&quot;: &quot;deleted&quot; }</code> on success</li>
+<li>Returns 404 if project not found</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>What happens to tasks belonging to a deleted project is left to the developer&#39;s discretion for now</li>
+<li>Only the project owner should be able to delete</li>
+</ul>
+<hr>
+<h2>TASK-007 — Create Task</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> High
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As a user, I want to create a task within a project.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Authenticated user can POST to /tasks</li>
+<li>Task must belong to a valid project (projectId required)</li>
+<li>Task can optionally be assigned to a user (assigneeId)</li>
+<li>Status defaults to TODO if not provided</li>
+<li>Response includes the full task object</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Validate task inputs before persisting — required fields must be enforced</li>
+</ul>
+<hr>
+<h2>TASK-008 — List Tasks</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> High
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As a user, I want to list tasks so I can see what needs to be done.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Authenticated user can GET /tasks</li>
+<li>Results include related project and assignee details</li>
+<li>Tasks can be filtered by project and status</li>
+<li>Results are paginated</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>No specific mention of exact vs partial match for status filter — use whatever makes sense</li>
+<li>Pagination details to be finalized</li>
+</ul>
+<hr>
+<h2>TASK-009 — Paginate Task Results</h2>
+<p><strong>Type:</strong> Task
+<strong>Priority:</strong> Medium
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+Task list results should be paginated to avoid returning large datasets.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>GET /tasks accepts <code>page</code> and <code>limit</code> query parameters</li>
+<li>Response includes a <code>meta</code> object with <code>page</code>, <code>limit</code>, and <code>total</code> fields</li>
+<li>Default page size is 10</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Pagination should be consistent — page 1 should return the first set of results</li>
+<li>No specific offset formula documented; developer to implement standard pagination</li>
+</ul>
+<hr>
+<h2>TASK-010 — Filter Tasks by Status</h2>
+<p><strong>Type:</strong> Task
+<strong>Priority:</strong> Medium
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+Users should be able to filter the task list by status value.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>GET /tasks accepts a query parameter to filter by status</li>
+<li>Filtering by <code>TODO</code> returns only TODO tasks</li>
+<li>Filtering by <code>IN_PROGRESS</code> returns only IN_PROGRESS tasks</li>
+<li>Filtering by <code>DONE</code> returns only DONE tasks</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Parameter name not finalized — check with lead developer</li>
+<li>Whether this is exact match or partial match left to developer judgment</li>
+</ul>
+<hr>
+<h2>TASK-011 — Update Task</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> High
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As a user, I want to update a task&#39;s title, description, status, or assignee.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Authenticated user can PATCH /tasks/:id</li>
+<li>Any combination of title, description, status, assigneeId can be updated</li>
+<li>Returns the updated task object</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Status validation: status must be one of the valid enum values</li>
+<li>Only relevant project members should be able to update tasks</li>
+</ul>
+<hr>
+<h2>TASK-012 — Task Status Workflow</h2>
+<p><strong>Type:</strong> Task
+<strong>Priority:</strong> Medium
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+Define and enforce valid task status transitions.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Tasks start in TODO status by default</li>
+<li>Statuses can be changed by authorized users</li>
+<li>Setting status to IN_PROGRESS should correctly update the task to IN_PROGRESS</li>
+<li>Setting status to DONE should correctly update the task to DONE</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>No specific transition restrictions required (e.g. DONE can go back to TODO)</li>
+<li>Make sure the update logic correctly applies the status provided in the request</li>
+</ul>
+<hr>
+<h2>TASK-013 — Delete Task</h2>
+<p><strong>Type:</strong> Story
+<strong>Priority:</strong> Medium
+<strong>Status:</strong> Done</p>
+<p><strong>Description:</strong>
+As a user, I want to delete a task that is no longer relevant.</p>
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>Authenticated user can DELETE /tasks/:id</li>
+<li>Returns <code>{ &quot;message&quot;: &quot;deleted&quot; }</code> on success</li>
+<li>Returns 404 if task not found</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Authorization rules for who can delete a task are not explicitly defined — use reasonable defaults</li>
+<li>Task deletion should be permanent</li>
+</ul>
+<hr>
+
+</body>
+</html>

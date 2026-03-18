@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jira tickets</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>JIRA Tickets — Hệ Thống Quản Lý Công Việc</h1>
+<p><strong>Dự án:</strong> TMS
+<strong>Sprint:</strong> 1
+<strong>Chú thích trạng thái:</strong> To Do | In Progress | Done | Blocked</p>
+<hr>
+<h2>TASK-001 — Đăng Ký Người Dùng</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Cao
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là người dùng mới, tôi muốn đăng ký tài khoản để có thể truy cập hệ thống quản lý công việc.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng có thể gửi email và mật khẩu để tạo tài khoản</li>
+<li>Email phải là duy nhất trong hệ thống; đăng ký trùng lặp sẽ trả về lỗi</li>
+<li>Mật khẩu được lưu trữ an toàn (đã mã hóa, không bao giờ lưu dạng plaintext)</li>
+<li>Đăng ký thành công trả về id, email và role của người dùng vừa tạo</li>
+<li>Role mặc định là USER nếu không chỉ định</li>
+<li>Mật khẩu phải có ít nhất 6 ký tự</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Tài khoản Admin có thể được tạo bằng cách truyền <code>role: &quot;ADMIN&quot;</code> trong request body</li>
+<li>Không yêu cầu xác minh email trong sprint này</li>
+</ul>
+<hr>
+<h2>TASK-002 — Đăng Nhập Người Dùng</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Cao
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là người dùng đã đăng ký, tôi muốn đăng nhập bằng email và mật khẩu để nhận token xác thực.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng gửi email và mật khẩu</li>
+<li>Trả về JWT token khi thành công</li>
+<li>Trả về 401 nếu thông tin đăng nhập không hợp lệ</li>
+<li>Token phải sử dụng được cho tất cả các endpoint được bảo vệ</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Token hết hạn sau 24 giờ</li>
+<li>Cấu trúc response phải tuân theo định dạng xác thực chuẩn của dự án</li>
+</ul>
+<hr>
+<h2>TASK-003 — Tạo Dự Án</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Cao
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là người dùng đã xác thực, tôi muốn tạo một dự án để tổ chức các công việc của mình.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng đã xác thực có thể POST đến /projects với tên dự án</li>
+<li>Người tạo tự động trở thành chủ sở hữu dự án</li>
+<li>Response bao gồm đối tượng dự án đầy đủ gồm id, name, ownerId và createdAt</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Tên dự án không được để trống</li>
+</ul>
+<hr>
+<h2>TASK-004 — Danh Sách Dự Án</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Cao
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là người dùng, tôi muốn xem danh sách dự án để điều hướng đến dự án phù hợp.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng đã xác thực có thể GET /projects</li>
+<li>Người dùng chỉ nhìn thấy các dự án của chính họ</li>
+<li>Response là một mảng các đối tượng dự án</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Chỉ trả về dự án mà người dùng hiện tại là chủ sở hữu</li>
+</ul>
+<hr>
+<h2>TASK-005 — Cập Nhật Dự Án</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Trung bình
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là chủ sở hữu dự án, tôi muốn đổi tên dự án của mình.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng đã xác thực có thể PATCH /projects/:id với tên mới</li>
+<li>Trả về 404 nếu dự án không tồn tại</li>
+<li>Trả về đối tượng dự án đã được cập nhật</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Chỉ chủ sở hữu mới được phép cập nhật tên dự án</li>
+</ul>
+<hr>
+<h2>TASK-006 — Xóa Dự Án</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Trung bình
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là chủ sở hữu dự án, tôi muốn xóa một dự án mà tôi không còn cần nữa.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng đã xác thực có thể DELETE /projects/:id</li>
+<li>Trả về <code>{ &quot;message&quot;: &quot;deleted&quot; }</code> khi thành công</li>
+<li>Trả về 404 nếu dự án không tồn tại</li>
+<li>Khi xóa dự án, tất cả task thuộc dự án đó cũng phải bị xóa theo</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Chỉ chủ sở hữu mới được phép xóa dự án</li>
+</ul>
+<hr>
+<h2>TASK-007 — Tạo Task</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Cao
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là người dùng, tôi muốn tạo một task trong một dự án.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng đã xác thực có thể POST đến /tasks</li>
+<li>Task phải thuộc một dự án hợp lệ (projectId bắt buộc)</li>
+<li>Task có thể được giao tùy chọn cho một người dùng (assigneeId)</li>
+<li>Trạng thái mặc định là TODO nếu không cung cấp</li>
+<li>Response bao gồm đối tượng task đầy đủ</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Xác thực dữ liệu đầu vào trước khi lưu — các trường bắt buộc phải được kiểm tra</li>
+</ul>
+<hr>
+<h2>TASK-008 — Danh Sách Task</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Cao
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là người dùng, tôi muốn xem danh sách task để biết công việc cần làm.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng đã xác thực có thể GET /tasks</li>
+<li>Kết quả bao gồm thông tin dự án và người được giao liên quan</li>
+<li>Task có thể được lọc theo dự án và trạng thái</li>
+<li>Kết quả được phân trang</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Bộ lọc trạng thái phải khớp chính xác với giá trị enum (không phải tìm kiếm một phần)</li>
+<li>Thông số phân trang cần được xác nhận thêm</li>
+</ul>
+<hr>
+<h2>TASK-009 — Phân Trang Kết Quả Task</h2>
+<p><strong>Loại:</strong> Task
+<strong>Độ ưu tiên:</strong> Trung bình
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Kết quả danh sách task cần được phân trang để tránh trả về quá nhiều dữ liệu cùng lúc.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>GET /tasks chấp nhận tham số <code>page</code> và <code>limit</code></li>
+<li>Response bao gồm object <code>meta</code> với các trường <code>page</code>, <code>limit</code> và <code>total</code></li>
+<li>Kích thước trang mặc định là 10</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Phân trang phải nhất quán — page 1 phải trả về tập kết quả đầu tiên</li>
+<li>Công thức offset chưa được ghi lại cụ thể; developer tự triển khai theo chuẩn thông thường</li>
+</ul>
+<hr>
+<h2>TASK-010 — Lọc Task Theo Trạng Thái</h2>
+<p><strong>Loại:</strong> Task
+<strong>Độ ưu tiên:</strong> Trung bình
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Người dùng cần có khả năng lọc danh sách task theo giá trị trạng thái.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>GET /tasks chấp nhận tham số query để lọc theo trạng thái</li>
+<li>Lọc theo <code>TODO</code> chỉ trả về các task có trạng thái TODO</li>
+<li>Lọc theo <code>IN_PROGRESS</code> chỉ trả về các task có trạng thái IN_PROGRESS</li>
+<li>Lọc theo <code>DONE</code> chỉ trả về các task có trạng thái DONE</li>
+<li>Bộ lọc phải khớp chính xác — không chấp nhận kết quả khớp một phần</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Tên tham số query là <code>status</code></li>
+<li>Phân biệt chữ hoa chữ thường không bắt buộc</li>
+</ul>
+<hr>
+<h2>TASK-011 — Cập Nhật Task</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Cao
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là người dùng, tôi muốn cập nhật tiêu đề, mô tả, trạng thái hoặc người được giao của một task.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng đã xác thực có thể PATCH /tasks/:id</li>
+<li>Có thể cập nhật bất kỳ tổ hợp nào của title, description, status, assigneeId</li>
+<li>Trả về đối tượng task đã được cập nhật</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Xác thực trạng thái: status phải là một trong các giá trị enum hợp lệ</li>
+<li>Chỉ thành viên dự án liên quan mới được phép cập nhật task</li>
+</ul>
+<hr>
+<h2>TASK-012 — Quy Trình Trạng Thái Task</h2>
+<p><strong>Loại:</strong> Task
+<strong>Độ ưu tiên:</strong> Trung bình
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Xác định và thực thi các chuyển đổi trạng thái hợp lệ của task.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Task bắt đầu ở trạng thái TODO theo mặc định</li>
+<li>Trạng thái có thể được thay đổi bởi người dùng có quyền</li>
+<li>Đặt trạng thái thành IN_PROGRESS phải cập nhật task thành IN_PROGRESS một cách chính xác</li>
+<li>Đặt trạng thái thành DONE phải cập nhật task thành DONE một cách chính xác</li>
+<li>Task ở trạng thái DONE không thể chuyển ngược về TODO</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Logic cập nhật phải áp dụng chính xác trạng thái được cung cấp trong request</li>
+</ul>
+<hr>
+<h2>TASK-013 — Xóa Task</h2>
+<p><strong>Loại:</strong> Story
+<strong>Độ ưu tiên:</strong> Trung bình
+<strong>Trạng thái:</strong> Done</p>
+<p><strong>Mô tả:</strong>
+Là người dùng, tôi muốn xóa một task không còn liên quan nữa.</p>
+<p><strong>Tiêu chí chấp nhận:</strong></p>
+<ul>
+<li>Người dùng đã xác thực có thể DELETE /tasks/:id</li>
+<li>Trả về <code>{ &quot;message&quot;: &quot;deleted&quot; }</code> khi thành công</li>
+<li>Trả về 404 nếu task không tồn tại</li>
+</ul>
+<p><strong>Ghi chú:</strong></p>
+<ul>
+<li>Quy tắc phân quyền cho việc xóa task chưa được định nghĩa rõ ràng — áp dụng giá trị mặc định hợp lý</li>
+<li>Việc xóa task là vĩnh viễn</li>
+</ul>
+<hr>
+
+</body>
+</html>

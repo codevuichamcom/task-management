@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>known bugs</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Known Bugs — Hidden Reference Document</h1>
+<blockquote>
+<p><strong>INTERNAL USE ONLY — DO NOT SHARE WITH QA TESTERS</strong>
+This document is the answer key for the QA training exercise.
+Each bug listed here corresponds to a deliberate defect in the codebase.</p>
+</blockquote>
+<hr>
+<h2>BUG-01 — Missing Global ValidationPipe</h2>
+<p><strong>Category:</strong> Validation
+<strong>Severity:</strong> High
+<strong>Affected Endpoints:</strong> All — POST /auth/register, POST /auth/login, POST /tasks, PATCH /tasks/:id, POST /projects, PATCH /projects/:id</p>
+<p><strong>Root Cause:</strong>
+<code>src/main.ts</code> does not call <code>app.useGlobalPipes(new ValidationPipe())</code>. As a result, all <code>class-validator</code> decorators in DTOs (<code>@IsEmail</code>, <code>@IsString</code>, <code>@IsNotEmpty</code>, <code>@IsEnum</code>, <code>@IsUUID</code>, etc.) are never executed.</p>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>POST /auth/register with body <code>{ &quot;email&quot;: &quot;not-an-email&quot;, &quot;password&quot;: 12345 }</code></li>
+<li>Expected: 400 Bad Request with validation error messages</li>
+<li>Actual: 201 Created — the invalid payload is accepted and persisted</li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+Invalid request bodies should return HTTP 400 with a descriptive list of validation errors.</p>
+<p><strong>Actual Behavior:</strong>
+All payloads pass through to the service layer regardless of field type or format. The database may throw a constraint error for extreme cases (e.g. null required fields), returning an unhandled 500 instead of a clean 400.</p>
+<p><strong>Fix:</strong></p>
+<pre><code class="language-typescript">// src/main.ts
+import { ValidationPipe } from &#39;@nestjs/common&#39;;
+app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
+</code></pre>
+<p><strong>SQL to Verify:</strong></p>
+<pre><code class="language-sql">SELECT email FROM users WHERE email NOT LIKE &#39;%@%&#39;;
+</code></pre>
+<hr>
+<h2>BUG-02 — Invalid Status Value Accepted on Task Update</h2>
+<p><strong>Category:</strong> Validation
+<strong>Severity:</strong> Medium
+<strong>Affected Endpoints:</strong> PATCH /tasks/:id</p>
+<p><strong>Root Cause:</strong>
+<code>src/tasks/dto/update-task.dto.ts</code> declares <code>status</code> as <code>string</code> with no <code>@IsEnum(TaskStatus)</code> decorator. Even if ValidationPipe were enabled, any string would pass the <code>@IsString()</code> check.</p>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>Login and obtain a JWT token</li>
+<li>PATCH /tasks/:id with body <code>{ &quot;status&quot;: &quot;INVALID_VALUE&quot; }</code></li>
+<li>Expected: 400 Bad Request — invalid enum value</li>
+<li>Actual: Either accepted silently or causes a 500 PostgreSQL enum constraint error</li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+Request rejected with 400 and message indicating valid status values are <code>TODO</code>, <code>IN_PROGRESS</code>, <code>DONE</code>.</p>
+<p><strong>Actual Behavior:</strong>
+Without ValidationPipe (BUG-01), the string passes DTO validation. TypeORM then attempts to persist the invalid enum to PostgreSQL, which throws a DB-level error resulting in an unhandled 500 Internal Server Error.</p>
+<p><strong>Fix:</strong></p>
+<pre><code class="language-typescript">// update-task.dto.ts
+import { IsEnum } from &#39;class-validator&#39;;
+import { TaskStatus } from &#39;../entities/task.entity&#39;;
+
+@IsOptional()
+@IsEnum(TaskStatus)
+status?: TaskStatus;
+</code></pre>
+<hr>
+<h2>BUG-03 — Authorization: All Projects Visible / Editable by Any User</h2>
+<p><strong>Category:</strong> Authorization
+<strong>Severity:</strong> High
+<strong>Affected Endpoints:</strong> GET /projects, PATCH /projects/:id, DELETE /projects/:id</p>
+<p><strong>Root Cause:</strong>
+<code>src/projects/projects.service.ts</code> — <code>findAll()</code> calls <code>this.projectsRepository.find()</code> with no filter. <code>update()</code> and <code>remove()</code> call <code>findOne()</code> by ID only, with no check that <code>ownerId === userId</code>.</p>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>Login as <a href="mailto:alice@test.com">alice@test.com</a>, create a project, note the project ID</li>
+<li>Login as <a href="mailto:bob@test.com">bob@test.com</a></li>
+<li>GET /projects — Actual: Returns alice&#39;s projects too (all projects in DB)</li>
+<li>PATCH /projects/:alice-project-id with <code>{ &quot;name&quot;: &quot;Hacked&quot; }</code> — Actual: 200, project renamed</li>
+<li>DELETE /projects/:alice-project-id — Actual: 200, project deleted</li>
+</ol>
+<p><strong>Expected Behavior:</strong></p>
+<ul>
+<li>GET /projects returns only projects where <code>ownerId = current user</code></li>
+<li>PATCH /DELETE return 403 Forbidden if current user is not the owner</li>
+</ul>
+<p><strong>Actual Behavior:</strong>
+Any authenticated user can view, modify, and delete any project in the system.</p>
+<p><strong>SQL to Verify:</strong></p>
+<pre><code class="language-sql">-- Check project ownership
+SELECT id, name, &quot;ownerId&quot; FROM projects;
+
+-- Simulate filtered query (what the code SHOULD do)
+SELECT id, name FROM projects WHERE &quot;ownerId&quot; = &#39;&lt;alice-user-id&gt;&#39;;
+</code></pre>
+<hr>
+<h2>BUG-04 — Authorization: Task Ownership Not Checked</h2>
+<p><strong>Category:</strong> Authorization
+<strong>Severity:</strong> High
+<strong>Affected Endpoints:</strong> PATCH /tasks/:id, DELETE /tasks/:id</p>
+<p><strong>Root Cause:</strong>
+<code>src/tasks/tasks.service.ts</code> — <code>update()</code> and <code>remove()</code> accept any authenticated user&#39;s <code>userId</code> but never verify the user has any relationship to the task or its project.</p>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>Login as <a href="mailto:alice@test.com">alice@test.com</a></li>
+<li>Login as <a href="mailto:bob@test.com">bob@test.com</a>, note bob&#39;s token</li>
+<li>Using bob&#39;s token: PATCH /tasks/:alice-task-id with <code>{ &quot;title&quot;: &quot;Bob was here&quot; }</code></li>
+<li>Expected: 403 Forbidden</li>
+<li>Actual: 200 OK — task is modified</li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+Only members of a task&#39;s project (or the task&#39;s assignee) should be able to update or delete the task. Others receive 403.</p>
+<p><strong>Actual Behavior:</strong>
+Any authenticated user can modify or delete any task in the system.</p>
+<p><strong>SQL to Verify:</strong></p>
+<pre><code class="language-sql">-- Verify task was modified by unauthorized user
+SELECT id, title, &quot;projectId&quot;, &quot;assigneeId&quot; FROM tasks WHERE id = &#39;&lt;task-id&gt;&#39;;
+</code></pre>
+<hr>
+<h2>BUG-05 — Status Transition Flipped: IN_PROGRESS Sets Status to TODO</h2>
+<p><strong>Category:</strong> Logic
+<strong>Severity:</strong> High
+<strong>Affected Endpoints:</strong> PATCH /tasks/:id</p>
+<p><strong>Root Cause:</strong>
+<code>src/tasks/tasks.service.ts</code> — the <code>update()</code> method contains an inverted conditional:</p>
+<pre><code class="language-typescript">if (dto.status === &#39;IN_PROGRESS&#39;) {
+  task.status = TaskStatus.TODO;   // BUG: should be TaskStatus.IN_PROGRESS
+} else if (dto.status) {
+  task.status = dto.status as TaskStatus;
+}
+</code></pre>
+<p>When a user sends <code>{ &quot;status&quot;: &quot;IN_PROGRESS&quot; }</code>, the task is actually saved as <code>TODO</code>.</p>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>Find a task with status <code>TODO</code></li>
+<li>PATCH /tasks/:id with <code>{ &quot;status&quot;: &quot;IN_PROGRESS&quot; }</code></li>
+<li>Expected: Task status becomes <code>IN_PROGRESS</code></li>
+<li>Actual: Task status remains <code>TODO</code></li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+Setting status to <code>IN_PROGRESS</code> updates the task&#39;s status to <code>IN_PROGRESS</code>.</p>
+<p><strong>Actual Behavior:</strong>
+Setting status to <code>IN_PROGRESS</code> silently keeps the status as <code>TODO</code>. Setting status to <code>TODO</code> or <code>DONE</code> works correctly via the <code>else if</code> branch.</p>
+<p><strong>SQL to Verify:</strong></p>
+<pre><code class="language-sql">-- After PATCH with status=IN_PROGRESS, task should show IN_PROGRESS
+SELECT id, title, status FROM tasks WHERE id = &#39;&lt;task-id&gt;&#39;;
+</code></pre>
+<hr>
+<h2>BUG-06 — Project Delete Orphans Tasks</h2>
+<p><strong>Category:</strong> Logic
+<strong>Severity:</strong> Medium
+<strong>Affected Endpoints:</strong> DELETE /projects/:id</p>
+<p><strong>Root Cause:</strong>
+<code>src/projects/entities/project.entity.ts</code> — the <code>@OneToMany</code> relation has no <code>cascade: [&#39;remove&#39;]</code> option. <code>src/projects/projects.service.ts</code> — <code>remove()</code> only deletes the project row without first deleting or reassigning the related tasks.</p>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>Login, create a project with 3 tasks</li>
+<li>Note the project ID and task IDs</li>
+<li>DELETE /projects/:id</li>
+<li>Expected: Project and all 3 tasks are deleted</li>
+<li>Actual: Project row deleted, 3 tasks remain in the database with a dangling <code>projectId</code> foreign key</li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+Deleting a project should cascade-delete all tasks belonging to that project.</p>
+<p><strong>Actual Behavior:</strong>
+Tasks remain orphaned in the database. Since <code>projectId</code> references a now-deleted row, the tasks become permanently unreachable via normal API endpoints (GET /tasks?projectId=... returns nothing). They still exist in the DB.</p>
+<p><strong>SQL to Verify:</strong></p>
+<pre><code class="language-sql">-- After deleting project, check for orphaned tasks
+SELECT t.id, t.title, t.&quot;projectId&quot;
+FROM tasks t
+LEFT JOIN projects p ON t.&quot;projectId&quot; = p.id
+WHERE p.id IS NULL;
+</code></pre>
+<hr>
+<h2>BUG-07 — Duplicate Rows from Double JOIN</h2>
+<p><strong>Category:</strong> SQL
+<strong>Severity:</strong> Medium
+<strong>Affected Endpoints:</strong> GET /tasks</p>
+<p><strong>Root Cause:</strong>
+<code>src/tasks/tasks.service.ts</code> — the query builder joins <code>task.project</code> twice under different aliases:</p>
+<pre><code class="language-typescript">.leftJoinAndSelect(&#39;task.project&#39;, &#39;project&#39;)
+.leftJoin(&#39;task.project&#39;, &#39;p2&#39;)   // BUG: redundant join on same relation
+</code></pre>
+<p>The extra <code>.leftJoin(&#39;task.project&#39;, &#39;p2&#39;)</code> causes TypeORM&#39;s underlying SQL to have duplicate join logic, which can produce duplicated rows in the result set when the project has multiple related records or when combined with <code>getManyAndCount()</code>.</p>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>GET /tasks with no filters</li>
+<li>Compare the <code>total</code> in <code>meta</code> vs the actual number of unique task IDs in <code>data</code></li>
+<li>Expected: <code>total</code> equals unique task count, each task appears once</li>
+<li>Actual: <code>total</code> may be inflated, duplicate task objects may appear in <code>data</code></li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+Each task appears exactly once in the result set. <code>total</code> reflects the true count of distinct tasks.</p>
+<p><strong>Actual Behavior:</strong>
+Tasks associated with projects that have multiple tasks can appear duplicated. <code>getManyAndCount()</code> may return an inflated total.</p>
+<p><strong>SQL to Verify:</strong></p>
+<pre><code class="language-sql">-- Check for duplicate task IDs in the query
+SELECT &quot;task&quot;.&quot;id&quot;, COUNT(*) as occurrences
+FROM tasks &quot;task&quot;
+LEFT JOIN projects &quot;project&quot; ON &quot;project&quot;.&quot;id&quot; = &quot;task&quot;.&quot;projectId&quot;
+LEFT JOIN projects &quot;p2&quot; ON &quot;p2&quot;.&quot;id&quot; = &quot;task&quot;.&quot;projectId&quot;
+GROUP BY &quot;task&quot;.&quot;id&quot;
+HAVING COUNT(*) &gt; 1;
+</code></pre>
+<hr>
+<h2>BUG-08 — Pagination Off-By-One: Page 1 Skips First Page</h2>
+<p><strong>Category:</strong> SQL / Pagination
+<strong>Severity:</strong> Medium
+<strong>Affected Endpoints:</strong> GET /tasks</p>
+<p><strong>Root Cause:</strong>
+<code>src/tasks/tasks.service.ts</code> — the offset formula is wrong:</p>
+<pre><code class="language-typescript">const offset = pageNum * limit;   // BUG: should be (pageNum - 1) * limit
+</code></pre>
+<p>For <code>page=1, limit=10</code>:</p>
+<ul>
+<li>Correct offset: <code>(1 - 1) * 10 = 0</code> (returns rows 1–10)</li>
+<li>Actual offset: <code>1 * 10 = 10</code> (skips first 10 rows, returns rows 11–20)</li>
+</ul>
+<p>For <code>page=0, limit=10</code>:</p>
+<ul>
+<li>Actual offset: <code>0 * 10 = 0</code> (accidentally returns the first page)</li>
+</ul>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>Seed the database (10 tasks exist)</li>
+<li>GET /tasks?page=1&amp;limit=5</li>
+<li>Expected: Returns first 5 tasks (rows 1–5)</li>
+<li>Actual: Returns tasks 6–10 (offset of 5 applied)</li>
+<li>GET /tasks?page=0&amp;limit=5 — Actual: Returns tasks 1–5 (the &quot;correct&quot; first page)</li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+<code>page=1</code> returns the first page of results. <code>page=2</code> returns the second page, etc.</p>
+<p><strong>Actual Behavior:</strong>
+<code>page=1</code> skips the first page. <code>page=0</code> behaves like the correct <code>page=1</code>. There is no way to retrieve the first page using page=1.</p>
+<p><strong>SQL to Verify:</strong></p>
+<pre><code class="language-sql">-- Manually check what page=1,limit=5 should return
+SELECT * FROM tasks ORDER BY &quot;createdAt&quot; LIMIT 5 OFFSET 0;
+
+-- What the buggy code actually does for page=1, limit=5
+SELECT * FROM tasks ORDER BY &quot;createdAt&quot; LIMIT 5 OFFSET 5;
+</code></pre>
+<hr>
+<h2>BUG-09 — Status Filter Uses ILIKE Wildcard (Partial Match)</h2>
+<p><strong>Category:</strong> SQL
+<strong>Severity:</strong> Medium
+<strong>Affected Endpoints:</strong> GET /tasks?status=...</p>
+<p><strong>Root Cause:</strong>
+<code>src/tasks/tasks.service.ts</code> — the status filter uses a wildcard ILIKE pattern:</p>
+<pre><code class="language-typescript">qb.andWhere(&#39;task.status ILIKE :status&#39;, { status: `%${query.status}%` });
+</code></pre>
+<p>The <code>%</code> wildcards on both sides turn this into a substring match. The query parameter <code>status</code> is also misnamed — the spec documents it as <code>statusFilter</code> but the implementation reads <code>status</code>.</p>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>GET /tasks?status=DO</li>
+<li>Expected: 0 results or 400 error (no status value is exactly &quot;DO&quot;)</li>
+<li>Actual: Returns both TODO and DONE tasks (both contain the substring &quot;DO&quot;)</li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+<code>status=TODO</code> returns only tasks with status exactly <code>TODO</code>. <code>status=DONE</code> returns only DONE tasks. The query parameter should be named <code>statusFilter</code> per spec.</p>
+<p><strong>Actual Behavior:</strong></p>
+<ul>
+<li><code>status=DO</code> matches <code>TODO</code> and <code>DONE</code></li>
+<li><code>status=IN</code> matches <code>IN_PROGRESS</code></li>
+<li><code>status=O</code> matches <code>TODO</code>, <code>IN_PROGRESS</code>, and <code>DONE</code></li>
+<li>The parameter name is <code>status</code> in code but <code>statusFilter</code> in the API spec (mismatch)</li>
+</ul>
+<p><strong>SQL to Verify:</strong></p>
+<pre><code class="language-sql">-- Simulates what the buggy code does for status=DO
+SELECT id, title, status FROM tasks WHERE status ILIKE &#39;%DO%&#39;;
+
+-- What it should do (exact match)
+SELECT id, title, status FROM tasks WHERE status = &#39;TODO&#39;;
+</code></pre>
+<hr>
+<h2>BUG-10 — Login Response Fields Mismatch</h2>
+<p><strong>Category:</strong> API Spec
+<strong>Severity:</strong> High
+<strong>Affected Endpoints:</strong> POST /auth/login</p>
+<p><strong>Root Cause:</strong>
+<code>src/auth/auth.service.ts</code> — the <code>login()</code> method returns:</p>
+<pre><code class="language-json">{ &quot;token&quot;: &quot;...&quot;, &quot;userId&quot;: &quot;...&quot; }
+</code></pre>
+<p>But the API spec documents the response as:</p>
+<pre><code class="language-json">{ &quot;access_token&quot;: &quot;...&quot;, &quot;user&quot;: { &quot;id&quot;: &quot;...&quot;, &quot;email&quot;: &quot;...&quot; } }
+</code></pre>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>POST /auth/login with valid credentials</li>
+<li>Expected: Response body contains <code>access_token</code> and <code>user</code> object</li>
+<li>Actual: Response body contains <code>token</code> and <code>userId</code> — different field names, no email in response</li>
+</ol>
+<p><strong>Expected Behavior:</strong></p>
+<pre><code class="language-json">{
+  &quot;access_token&quot;: &quot;eyJhbGci...&quot;,
+  &quot;user&quot;: {
+    &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+    &quot;email&quot;: &quot;alice@test.com&quot;
+  }
+}
+</code></pre>
+<p><strong>Actual Behavior:</strong></p>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;eyJhbGci...&quot;,
+  &quot;userId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;
+}
+</code></pre>
+<p><strong>Impact:</strong>
+Any frontend or API client that follows the spec and reads <code>response.access_token</code> will receive <code>undefined</code>. The token cannot be used without reading <code>response.token</code> instead.</p>
+<hr>
+<h2>BUG-11 — Pagination Meta: page Returned as String</h2>
+<p><strong>Category:</strong> API Spec
+<strong>Severity:</strong> Low
+<strong>Affected Endpoints:</strong> GET /tasks</p>
+<p><strong>Root Cause:</strong>
+<code>src/tasks/tasks.service.ts</code> — query params are strings in NestJS by default. The <code>page</code> value is read from <code>query.page</code> (a string) and placed directly into the <code>meta</code> response without being parsed to a number:</p>
+<pre><code class="language-typescript">const page = query.page;   // string, e.g. &quot;2&quot;
+// ...
+return {
+  meta: {
+    page: query.page,  // BUG: returns &quot;2&quot; (string) instead of 2 (number)
+    limit,             // limit IS parsed to number via parseInt
+    total,
+  }
+};
+</code></pre>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>GET /tasks?page=2&amp;limit=5</li>
+<li>Inspect the response <code>meta.page</code> field</li>
+<li>Expected: <code>&quot;meta&quot;: { &quot;page&quot;: 2, &quot;limit&quot;: 5, &quot;total&quot;: 10 }</code> (page as integer)</li>
+<li>Actual: <code>&quot;meta&quot;: { &quot;page&quot;: &quot;2&quot;, &quot;limit&quot;: 5, &quot;total&quot;: 10 }</code> (page as string)</li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+<code>meta.page</code> is a number (integer).</p>
+<p><strong>Actual Behavior:</strong>
+<code>meta.page</code> is a string. <code>meta.limit</code> and <code>meta.total</code> are numbers, creating an inconsistent response type.</p>
+<p><strong>SQL to Verify:</strong> N/A (application-level bug)</p>
+<hr>
+<h2>BUG-12 — Create Project Returns Incomplete Response</h2>
+<p><strong>Category:</strong> API Spec
+<strong>Severity:</strong> Low
+<strong>Affected Endpoints:</strong> POST /projects</p>
+<p><strong>Root Cause:</strong>
+<code>src/projects/projects.service.ts</code> — the <code>create()</code> method only returns <code>id</code> and <code>name</code>:</p>
+<pre><code class="language-typescript">return { id: saved.id, name: saved.name };
+</code></pre>
+<p>But the API spec documents the response as containing <code>id</code>, <code>name</code>, <code>ownerId</code>, and <code>createdAt</code>.</p>
+<p><strong>How to Reproduce:</strong></p>
+<ol>
+<li>POST /projects with <code>{ &quot;name&quot;: &quot;Test Project&quot; }</code></li>
+<li>Expected: Response contains <code>id</code>, <code>name</code>, <code>ownerId</code>, <code>createdAt</code></li>
+<li>Actual: Response contains only <code>id</code> and <code>name</code></li>
+</ol>
+<p><strong>Expected Behavior:</strong></p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;name&quot;: &quot;Test Project&quot;,
+  &quot;ownerId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+  &quot;createdAt&quot;: &quot;2024-01-15T10:30:00.000Z&quot;
+}
+</code></pre>
+<p><strong>Actual Behavior:</strong></p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
+  &quot;name&quot;: &quot;Test Project&quot;
+}
+</code></pre>
+<p><strong>Impact:</strong>
+Client applications cannot obtain the <code>ownerId</code> or <code>createdAt</code> from the creation response. They must make a separate GET request to retrieve the full object.</p>
+<p><strong>SQL to Verify:</strong></p>
+<pre><code class="language-sql">-- Confirm ownerId is stored but not returned
+SELECT id, name, &quot;ownerId&quot;, &quot;createdAt&quot; FROM projects ORDER BY &quot;createdAt&quot; DESC LIMIT 5;
+</code></pre>
+<hr>
+<h2>Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>Bug ID</th>
+<th>Category</th>
+<th>Severity</th>
+<th>Endpoint(s)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BUG-01</td>
+<td>Validation</td>
+<td>High</td>
+<td>All POST/PATCH</td>
+</tr>
+<tr>
+<td>BUG-02</td>
+<td>Validation</td>
+<td>Medium</td>
+<td>PATCH /tasks/:id</td>
+</tr>
+<tr>
+<td>BUG-03</td>
+<td>Authorization</td>
+<td>High</td>
+<td>GET/PATCH/DELETE /projects</td>
+</tr>
+<tr>
+<td>BUG-04</td>
+<td>Authorization</td>
+<td>High</td>
+<td>PATCH/DELETE /tasks/:id</td>
+</tr>
+<tr>
+<td>BUG-05</td>
+<td>Logic</td>
+<td>High</td>
+<td>PATCH /tasks/:id</td>
+</tr>
+<tr>
+<td>BUG-06</td>
+<td>Logic</td>
+<td>Medium</td>
+<td>DELETE /projects/:id</td>
+</tr>
+<tr>
+<td>BUG-07</td>
+<td>SQL</td>
+<td>Medium</td>
+<td>GET /tasks</td>
+</tr>
+<tr>
+<td>BUG-08</td>
+<td>SQL</td>
+<td>Medium</td>
+<td>GET /tasks</td>
+</tr>
+<tr>
+<td>BUG-09</td>
+<td>SQL</td>
+<td>Medium</td>
+<td>GET /tasks</td>
+</tr>
+<tr>
+<td>BUG-10</td>
+<td>API Spec</td>
+<td>High</td>
+<td>POST /auth/login</td>
+</tr>
+<tr>
+<td>BUG-11</td>
+<td>API Spec</td>
+<td>Low</td>
+<td>GET /tasks</td>
+</tr>
+<tr>
+<td>BUG-12</td>
+<td>API Spec</td>
+<td>Low</td>
+<td>POST /projects</td>
+</tr>
+</tbody></table>
+
+</body>
+</html>
