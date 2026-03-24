@@ -278,6 +278,11 @@ SQL dùng để trả lời:
 - sai record nào
 - bằng chứng là gì
 
+Tài liệu thực hành liên quan:
+
+- [SQL practice compact](./sql-practice-compact.md)
+- [SQL practice answers](./sql-practice-answers.md)
+
 ## 6. Trụ cột 4: Batch / Async / Microservices
 
 ## Batch là gì
@@ -396,6 +401,7 @@ Không cần quá sâu, nhưng nên hiểu:
 Tài liệu mở rộng:
 
 - [Bộ tổng ôn JMeter](./jmeter-review-guide.md)
+- [Hướng dẫn thực hành JMeter](./jmeter-practice-guide.md)
 
 Ví dụ:
 

@@ -948,9 +948,14 @@ Với project `task-management`, bạn hoàn toàn có thể dùng để tổng 
 - biết đọc `P95`, `Error %`, `Throughput`
 - biết trình bày kết quả như một tester
 
-Nếu muốn đi xa hơn sau tài liệu này, hướng mở rộng hợp lý là:
+Tài liệu và file thực hành đi kèm trong repo:
 
-- thêm file `.jmx` mẫu
-- thêm file `users.csv`
+- [Hướng dẫn thực hành JMeter](./jmeter-practice-guide.md)
+- `jmeter/task-management-login-tasks.jmx`
+- `jmeter/users.csv`
+
+Nếu muốn đi xa hơn sau bộ hiện tại, hướng mở rộng hợp lý là:
+
+- thêm file `.jmx` thứ hai cho endpoint khác
 - chạy thử thật với `docker-compose up`
 - so sánh kết quả giữa `GET /tasks` và `POST /auth/login`

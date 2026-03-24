@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jmeter practice guide</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Hướng dẫn thực hành JMeter với project task-management</h1>
+<p>Tài liệu này đi cùng bộ file mẫu đã được thêm sẵn trong repo để bạn có thể:</p>
+<ul>
+<li>mở <code>JMeter</code></li>
+<li>chạy một bài test thật trên project này</li>
+<li>hiểu mình đang chỉnh gì và chỉnh ở đâu</li>
+</ul>
+<p>Nếu bạn chưa đọc phần lý thuyết trước, xem thêm:</p>
+<ul>
+<li><a href="./jmeter-review-guide.html">Bộ tổng ôn JMeter</a></li>
+</ul>
+<hr>
+<h2>1. Bộ file đã có sẵn trong repo</h2>
+<p>Bạn đã có sẵn 2 file thực hành:</p>
+<ul>
+<li><code>jmeter/task-management-login-tasks.jmx</code></li>
+<li><code>jmeter/users.csv</code></li>
+</ul>
+<h3>Vai trò của từng file</h3>
+<p><code>task-management-login-tasks.jmx</code></p>
+<ul>
+<li>là <code>Test Plan</code> mẫu</li>
+<li>chứa flow <code>login -&gt; extract token -&gt; GET /tasks</code></li>
+</ul>
+<p><code>users.csv</code></p>
+<ul>
+<li>chứa nhiều account test</li>
+<li>để các thread không phải dùng chung một user</li>
+</ul>
+<hr>
+<h2>2. Trước khi chạy cần chuẩn bị gì</h2>
+<p>Bạn cần:</p>
+<ul>
+<li><code>Docker</code> hoặc môi trường chạy được project</li>
+<li><code>Apache JMeter</code></li>
+<li>project đang chạy ở <code>http://localhost:3000</code></li>
+</ul>
+<h3>Cách chạy project</h3>
+<p>Từ thư mục gốc repo:</p>
+<pre><code class="language-bash">docker-compose up --build
+</code></pre>
+<p>Khi hệ thống chạy xong, API sẽ có ở:</p>
+<pre><code class="language-text">http://localhost:3000
+</code></pre>
+<hr>
+<h2>3. Mở file JMeter mẫu</h2>
+<p>Trong <code>JMeter</code>:</p>
+<ol>
+<li>chọn <code>File -&gt; Open</code></li>
+<li>mở file <code>jmeter/task-management-login-tasks.jmx</code></li>
+</ol>
+<p>Sau khi mở, bạn sẽ thấy đại ý cấu trúc như sau:</p>
+<pre><code class="language-text">Test Plan
+  -&gt; Thread Group
+      -&gt; CSV Users
+      -&gt; HTTP Request Defaults
+      -&gt; Default JSON Headers
+      -&gt; POST /auth/login
+          -&gt; Extract JWT Token
+          -&gt; Login under 5000ms
+      -&gt; GET /tasks?page=1&amp;limit=5&amp;status=TODO
+          -&gt; Auth Header
+          -&gt; Tasks under 800ms
+      -&gt; View Results Tree
+      -&gt; Summary Report
+      -&gt; Aggregate Report
+</code></pre>
+<hr>
+<h2>4. File mẫu này đang làm gì</h2>
+<p>Flow hiện tại là:</p>
+<pre><code class="language-text">Mỗi user ảo:
+  -&gt; lấy email/password từ users.csv
+  -&gt; POST /auth/login
+  -&gt; extract field $.token
+  -&gt; gắn token vào header Authorization
+  -&gt; GET /tasks?page=1&amp;limit=5&amp;status=TODO
+</code></pre>
+<p>Nói ngắn gọn:</p>
+<ul>
+<li>request đầu để lấy token</li>
+<li>request sau dùng token đó để gọi API protected</li>
+</ul>
+<p>Đây là flow rất phù hợp để luyện <code>JMeter</code> vì nó sát hệ thống thật.</p>
+<hr>
+<h2>5. Cấu hình mặc định trong file mẫu</h2>
+<p>Hiện tại file <code>.jmx</code> được set ở mức nhẹ để bạn debug trước.</p>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Giá trị mặc định</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Threads</code></td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>Ramp-Up</code></td>
+<td><code>10 giây</code></td>
+</tr>
+<tr>
+<td><code>Loop Count</code></td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><code>Protocol</code></td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td><code>Host</code></td>
+<td><code>localhost</code></td>
+</tr>
+<tr>
+<td><code>Port</code></td>
+<td><code>3000</code></td>
+</tr>
+<tr>
+<td><code>Tasks path</code></td>
+<td><code>/tasks?page=1&amp;limit=5&amp;status=TODO</code></td>
+</tr>
+</tbody></table>
+<h3>Ý nghĩa</h3>
+<ul>
+<li><code>10</code> user ảo</li>
+<li>tăng dần trong <code>10</code> giây</li>
+<li>mỗi user lặp flow <code>3</code> lần</li>
+</ul>
+<p>Đây là mức đủ an toàn để kiểm tra script trước khi tăng tải.</p>
+<hr>
+<h2>6. Chạy lần đầu như thế nào</h2>
+<p>Hãy chạy theo thứ tự này:</p>
+<h3>Bước 1</h3>
+<p>Đảm bảo API đang chạy.</p>
+<h3>Bước 2</h3>
+<p>Mở <code>View Results Tree</code>.</p>
+<p>Mục tiêu:</p>
+<ul>
+<li>xem từng request có thành công không</li>
+<li>xem token có được lấy đúng không</li>
+</ul>
+<h3>Bước 3</h3>
+<p>Nhấn <code>Start</code>.</p>
+<h3>Bước 4</h3>
+<p>Kiểm tra:</p>
+<ul>
+<li><code>POST /auth/login</code> có ra <code>200</code> không</li>
+<li><code>GET /tasks</code> có ra <code>200</code> không</li>
+<li>response của login có token không</li>
+<li>request tasks có gửi header <code>Authorization</code> không</li>
+</ul>
+<h3>Bước 5</h3>
+<p>Sau khi flow chạy đúng, mới nhìn <code>Summary Report</code> và <code>Aggregate Report</code>.</p>
+<hr>
+<h2>7. Nếu muốn chạy đúng kiểu smoke test</h2>
+<p>Hãy giữ gần như mặc định:</p>
+<ul>
+<li><code>Threads = 10</code></li>
+<li><code>Ramp-Up = 10</code></li>
+<li><code>Loop = 3</code></li>
+</ul>
+<p>Mục tiêu của bài smoke test:</p>
+<ul>
+<li>script đúng</li>
+<li>login đúng</li>
+<li>token đúng</li>
+<li>không bị <code>401</code></li>
+<li>không bị lỗi cấu hình</li>
+</ul>
+<p>Ở bước này, đừng cố ép tải lớn.</p>
+<hr>
+<h2>8. Nếu muốn nâng thành load test cơ bản</h2>
+<p>Bạn có thể sửa <code>Thread Group</code> thành:</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Gợi ý</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Number of Threads</code></td>
+<td><code>50</code></td>
+</tr>
+<tr>
+<td><code>Ramp-Up Period</code></td>
+<td><code>60</code></td>
+</tr>
+<tr>
+<td><code>Loop Count</code></td>
+<td><code>10</code> hoặc dùng scheduler</td>
+</tr>
+</tbody></table>
+<h3>Mục tiêu</h3>
+<ul>
+<li>đo <code>P95</code></li>
+<li>xem <code>GET /tasks</code> có giữ được dưới ngưỡng mong muốn không</li>
+<li>xem <code>Error %</code> có còn bằng <code>0</code> không</li>
+</ul>
+<h3>Nếu muốn chạy ổn định lâu hơn</h3>
+<p>Bật <code>Scheduler</code> và set:</p>
+<ul>
+<li>duration <code>600</code> giây</li>
+</ul>
+<p>Hiểu là:</p>
+<ul>
+<li>chạy liên tục khoảng <code>10 phút</code></li>
+</ul>
+<hr>
+<h2>9. Nếu muốn đổi endpoint cần test</h2>
+<p>Trong file mẫu đang có biến:</p>
+<ul>
+<li><code>tasks_path</code></li>
+</ul>
+<p>Hiện mặc định là:</p>
+<pre><code class="language-text">/tasks?page=1&amp;limit=5&amp;status=TODO
+</code></pre>
+<p>Bạn có thể đổi thành:</p>
+<pre><code class="language-text">/tasks?page=1&amp;limit=10
+</code></pre>
+<p>hoặc:</p>
+<pre><code class="language-text">/projects
+</code></pre>
+<p>Nếu đổi sang endpoint protected khác, logic chung vẫn giữ nguyên:</p>
+<ul>
+<li>login</li>
+<li>lấy token</li>
+<li>gọi endpoint có auth</li>
+</ul>
+<hr>
+<h2>10. Nếu muốn thêm request mới</h2>
+<p>Ví dụ muốn test thêm <code>GET /projects</code>.</p>
+<p>Làm như sau:</p>
+<ol>
+<li>copy request <code>GET /tasks</code></li>
+<li>đổi tên thành <code>GET /projects</code></li>
+<li>đổi path thành <code>/projects</code></li>
+<li>giữ nguyên <code>Auth Header</code></li>
+</ol>
+<h3>Vì sao cách này tiện</h3>
+<p>Vì bạn không phải dựng lại phần login hay token extraction từ đầu.</p>
+<hr>
+<h2>11. users.csv hoạt động thế nào</h2>
+<p>File:</p>
+<pre><code class="language-text">jmeter/users.csv
+</code></pre>
+<p>Nội dung hiện tại:</p>
+<pre><code class="language-csv">email,password
+alice@test.com,Alice123!
+bob@test.com,Bob123!
+charlie@test.com,Charlie123!
+admin@test.com,Admin123!
+</code></pre>
+<p>Trong login request, body đang dùng:</p>
+<pre><code class="language-json">{
+  &quot;email&quot;: &quot;${email}&quot;,
+  &quot;password&quot;: &quot;${password}&quot;
+}
+</code></pre>
+<p>Tức là:</p>
+<ul>
+<li>mỗi lần chạy, JMeter sẽ lấy dữ liệu từ CSV</li>
+<li>rồi thay vào body request</li>
+</ul>
+<h3>Khi nào cần sửa file này</h3>
+<ul>
+<li>khi bạn đổi seed data</li>
+<li>khi thêm account mới</li>
+<li>khi muốn nhiều user test hơn</li>
+</ul>
+<hr>
+<h2>12. Cách đọc kết quả của file mẫu</h2>
+<p>Sau khi chạy, hãy đọc theo thứ tự này:</p>
+<h3>1. View Results Tree</h3>
+<p>Dùng để debug.</p>
+<p>Bạn cần check:</p>
+<ul>
+<li>login có thành công không</li>
+<li>token extract có đúng không</li>
+<li>tasks request có bị <code>401</code> không</li>
+</ul>
+<h3>2. Summary Report</h3>
+<p>Dùng để xem nhanh:</p>
+<ul>
+<li>số sample</li>
+<li>average</li>
+<li>min</li>
+<li>max</li>
+<li>error %</li>
+<li>throughput</li>
+</ul>
+<h3>3. Aggregate Report</h3>
+<p>Dùng để đọc kỹ hơn, đặc biệt là:</p>
+<ul>
+<li><code>90% Line</code></li>
+<li><code>95% Line</code></li>
+<li><code>99% Line</code></li>
+</ul>
+<p>Nếu mục tiêu là:</p>
+<pre><code class="language-text">P95 &lt;= 800ms
+</code></pre>
+<p>thì đây là nơi rất đáng xem.</p>
+<hr>
+<h2>13. Kết quả thế nào thì coi là ổn</h2>
+<p>Với bài sample này, tối thiểu bạn nên mong đợi:</p>
+<ul>
+<li><code>POST /auth/login</code> thành công</li>
+<li><code>GET /tasks</code> thành công</li>
+<li><code>Error % = 0</code></li>
+<li>không có <code>401</code></li>
+</ul>
+<p>Nếu chạy load test cơ bản, bạn có thể tự đặt KPI như:</p>
+<ul>
+<li><code>GET /tasks P95 &lt;= 800ms</code></li>
+</ul>
+<p>Khi đó, kết luận sẽ rõ hơn:</p>
+<ul>
+<li>đạt KPI</li>
+<li>hay không đạt KPI</li>
+</ul>
+<hr>
+<h2>14. Các lỗi bạn có thể gặp ngay lần đầu</h2>
+<h2>Lỗi 1: Connection refused</h2>
+<p>Nguyên nhân thường là:</p>
+<ul>
+<li>API chưa chạy</li>
+<li>sai port</li>
+</ul>
+<p>Cách xử lý:</p>
+<ul>
+<li>kiểm tra <code>docker-compose up --build</code></li>
+<li>kiểm tra <code>host</code>, <code>port</code> trong <code>Test Plan</code></li>
+</ul>
+<h2>Lỗi 2: Login ra 401</h2>
+<p>Nguyên nhân thường là:</p>
+<ul>
+<li>sai password trong <code>users.csv</code></li>
+<li>seed data chưa đúng</li>
+</ul>
+<p>Cách xử lý:</p>
+<ul>
+<li>đối chiếu lại account trong README</li>
+</ul>
+<h2>Lỗi 3: GET /tasks ra 401</h2>
+<p>Nguyên nhân thường là:</p>
+<ul>
+<li>token chưa extract đúng</li>
+<li>header <code>Authorization</code> chưa gắn đúng</li>
+</ul>
+<p>Cách xử lý:</p>
+<ul>
+<li>xem response login trong <code>View Results Tree</code></li>
+<li>kiểm tra biến <code>${token}</code></li>
+</ul>
+<h2>Lỗi 4: File CSV không đọc được</h2>
+<p>Nguyên nhân thường là:</p>
+<ul>
+<li>mở <code>.jmx</code> từ nơi khác</li>
+<li>đường dẫn file CSV bị sai</li>
+</ul>
+<p>Cách xử lý:</p>
+<ul>
+<li>giữ <code>users.csv</code> cùng thư mục với file <code>.jmx</code></li>
+<li>hoặc đổi <code>filename</code> trong <code>CSV Data Set Config</code> sang đường dẫn đúng</li>
+</ul>
+<hr>
+<h2>15. Bài tập thực hành nên làm tiếp</h2>
+<p>Sau khi chạy được file mẫu, bạn nên tự làm thêm 4 bài:</p>
+<h3>Bài 1</h3>
+<p>Đổi <code>tasks_path</code> thành:</p>
+<pre><code class="language-text">/tasks?page=1&amp;limit=10
+</code></pre>
+<p>Rồi so sánh kết quả với <code>limit=5</code>.</p>
+<h3>Bài 2</h3>
+<p>Copy request <code>GET /tasks</code> để tạo <code>GET /projects</code>.</p>
+<p>So sánh:</p>
+<ul>
+<li>average</li>
+<li>P95</li>
+<li>throughput</li>
+</ul>
+<h3>Bài 3</h3>
+<p>Tăng <code>Threads</code> từ <code>10</code> lên <code>50</code>.</p>
+<p>Quan sát:</p>
+<ul>
+<li>response time tăng bao nhiêu</li>
+<li>có lỗi phát sinh hay không</li>
+</ul>
+<h3>Bài 4</h3>
+<p>Bật <code>Scheduler</code> và chạy <code>10 phút</code>.</p>
+<p>Quan sát:</p>
+<ul>
+<li>error có tăng dần không</li>
+<li>response time có xấu dần không</li>
+</ul>
+<hr>
+<h2>16. Cách nói về bài test này trong phỏng vấn</h2>
+<p>Bạn có thể nói ngắn gọn:</p>
+<pre><code class="language-text">Em đã dựng một JMeter test plan cho flow login và gọi API protected.
+Script dùng CSV Data Set Config để đọc nhiều account, sau đó dùng JSON Extractor lấy JWT token từ login response.
+Tiếp theo em dùng token đó để gọi GET /tasks và đọc kết quả ở Summary Report, Aggregate Report.
+Khi đánh giá, em ưu tiên nhìn Error %, P95 và Throughput.
+</code></pre>
+<p>Đây là câu trả lời khá gọn nhưng đủ cho thấy bạn hiểu và đã từng làm thật.</p>
+<hr>
+<h2>17. Gợi ý nâng cấp bộ file này sau này</h2>
+<p>Nếu muốn nâng bộ thực hành lên thêm một mức, bạn có thể:</p>
+<ul>
+<li>thêm request <code>GET /projects</code></li>
+<li>thêm <code>POST /projects</code></li>
+<li>thêm <code>PATCH /tasks/:id</code></li>
+<li>thêm <code>Response Assertion</code> cho status code</li>
+<li>tách thành 2 thread group: <code>smoke</code> và <code>load</code></li>
+<li>xuất kết quả ra file <code>.jtl</code></li>
+</ul>
+<hr>
+<h2>18. Kết luận</h2>
+<p>Bộ file hiện tại đủ để bạn:</p>
+<ul>
+<li>mở JMeter lên và chạy ngay</li>
+<li>hiểu flow auth trong performance test</li>
+<li>luyện <code>CSV Data Set Config</code></li>
+<li>luyện <code>JSON Extractor</code></li>
+<li>đọc <code>Summary Report</code> và <code>Aggregate Report</code></li>
+</ul>
+<p>Nếu bạn muốn, bước tiếp theo mình có thể làm tiếp:</p>
+<ol>
+<li>thêm một file <code>.jmx</code> thứ hai cho <code>GET /projects</code>,</li>
+<li>thêm một file <code>.jmx</code> kiểu stress test,</li>
+<li>hoặc nâng file hiện tại thành bộ có <code>Response Assertion</code> chi tiết hơn.</li>
+</ol>
+
+</body>
+</html>

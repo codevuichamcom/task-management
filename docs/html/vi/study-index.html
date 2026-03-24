@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>study index</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Mục lục tài liệu học và tra cứu</h1>
+<p>Trang này là điểm vào nhanh cho toàn bộ tài liệu tiếng Việt trong project <code>task-management</code>.</p>
+<p>Bạn có thể dùng theo 2 cách:</p>
+<ul>
+<li>ôn theo lộ trình từ tổng quan đến thực hành</li>
+<li>mở nhanh đúng tài liệu đang cần để tra cứu</li>
+</ul>
+<hr>
+<h2>1. Bắt đầu nhanh</h2>
+<p>Nếu mới vào project, nên đi theo thứ tự này:</p>
+<ol>
+<li><a href="./overview.html">Tổng quan hệ thống</a></li>
+<li><a href="./api-spec.html">Đặc tả API</a></li>
+<li><a href="./jira-tickets.html">Jira tickets</a></li>
+<li><a href="./tester-interview-summary.html">Tổng ôn phỏng vấn tester</a></li>
+<li><a href="./sql-practice-compact.html">SQL practice compact</a></li>
+<li><a href="./sql-practice-answers.html">SQL practice answers</a></li>
+<li><a href="./jmeter-review-guide.html">JMeter review guide</a></li>
+<li><a href="./jmeter-practice-guide.html">JMeter practice guide</a></li>
+</ol>
+<hr>
+<h2>2. Nhóm tài liệu theo mục đích sử dụng</h2>
+<h2>Tổng quan dự án</h2>
+<h3><a href="./overview.html">Tổng quan hệ thống</a></h3>
+<p>Dùng khi cần nắm nhanh project này là gì, gồm module nào, và nên bắt đầu test từ đâu.</p>
+<h3><a href="./api-spec.html">Đặc tả API</a></h3>
+<p>Dùng khi cần xem endpoint, request body, response mẫu, mã lỗi, auth và contract mong đợi.</p>
+<h3><a href="./jira-tickets.html">Jira tickets</a></h3>
+<p>Dùng khi cần hiểu ngữ cảnh nghiệp vụ, yêu cầu tính năng và cách đối chiếu expected behavior.</p>
+<hr>
+<h2>Ôn phỏng vấn tester</h2>
+<h3><a href="./tester-interview-summary.html">Tổng ôn phỏng vấn tester</a></h3>
+<p>Dùng khi cần ôn nhanh các trụ cột chính như API testing, SQL, bug reporting, performance, tư duy senior và cách trả lời phỏng vấn.</p>
+<hr>
+<h2>Ôn SQL</h2>
+<h3><a href="./sql-practice-compact.html">SQL practice compact</a></h3>
+<p>Phiên bản đề bài ngắn gọn để tự luyện trước, phù hợp khi muốn ôn nhanh hoặc tự làm lại từ đầu.</p>
+<h3><a href="./sql-practice-answers.html">SQL practice answers</a></h3>
+<p>Phiên bản có giải thích chi tiết, phù hợp khi cần hiểu cách viết query, cách verify dữ liệu và cách suy nghĩ kiểu tester.</p>
+<hr>
+<h2>Ôn Postman</h2>
+<h3><a href="./postman-guide.html">Postman guide</a></h3>
+<p>Dùng khi cần biết cách test API bằng Postman trên chính project này, đặc biệt hữu ích nếu muốn luyện flow request thủ công trước khi sang automation hoặc performance.</p>
+<hr>
+<h2>Ôn JMeter</h2>
+<h3><a href="./jmeter-review-guide.html">JMeter review guide</a></h3>
+<p>Tài liệu lý thuyết dễ hiểu về <code>load test</code>, <code>stress test</code>, <code>P95</code>, <code>Thread Group</code>, <code>Sampler</code>, <code>JSON Extractor</code>, <code>Assertion</code> và cách đọc report.</p>
+<h3><a href="./jmeter-practice-guide.html">JMeter practice guide</a></h3>
+<p>Tài liệu thực hành đi cùng file mẫu trong repo, dùng khi cần mở <code>JMeter</code> lên và chạy flow <code>login -&gt; GET /tasks</code> ngay.</p>
+<h3>File thực hành JMeter trong repo</h3>
+<ul>
+<li><code>jmeter/task-management-login-tasks.jmx</code>: test plan mẫu</li>
+<li><code>jmeter/users.csv</code>: dữ liệu account để chạy nhiều user</li>
+</ul>
+<hr>
+<h2>3. Chọn tài liệu theo nhu cầu</h2>
+<p>Nếu bạn đang cần:</p>
+<ul>
+<li>hiểu hệ thống thật nhanh: xem <a href="./overview.html">Tổng quan hệ thống</a></li>
+<li>test API đúng spec: xem <a href="./api-spec.html">Đặc tả API</a></li>
+<li>hiểu yêu cầu nghiệp vụ: xem <a href="./jira-tickets.html">Jira tickets</a></li>
+<li>ôn phỏng vấn tổng quát: xem <a href="./tester-interview-summary.html">Tổng ôn phỏng vấn tester</a></li>
+<li>luyện SQL từ ngắn đến sâu: xem <a href="./sql-practice-compact.html">SQL practice compact</a> rồi sang <a href="./sql-practice-answers.html">SQL practice answers</a></li>
+<li>luyện Postman: xem <a href="./postman-guide.html">Postman guide</a></li>
+<li>ôn JMeter lý thuyết: xem <a href="./jmeter-review-guide.html">JMeter review guide</a></li>
+<li>chạy JMeter thực chiến: xem <a href="./jmeter-practice-guide.html">JMeter practice guide</a></li>
+</ul>
+<hr>
+<h2>4. Lộ trình ôn gợi ý</h2>
+<h2>Lộ trình 30 phút</h2>
+<p>Phù hợp khi cần ôn rất nhanh trước buổi phỏng vấn:</p>
+<ol>
+<li><a href="./tester-interview-summary.html">Tổng ôn phỏng vấn tester</a></li>
+<li><a href="./sql-practice-compact.html">SQL practice compact</a></li>
+<li><a href="./jmeter-review-guide.html">JMeter review guide</a></li>
+</ol>
+<h2>Lộ trình 1 buổi</h2>
+<p>Phù hợp khi cần vừa ôn vừa hiểu rõ project:</p>
+<ol>
+<li><a href="./overview.html">Tổng quan hệ thống</a></li>
+<li><a href="./api-spec.html">Đặc tả API</a></li>
+<li><a href="./jira-tickets.html">Jira tickets</a></li>
+<li><a href="./sql-practice-compact.html">SQL practice compact</a></li>
+<li><a href="./sql-practice-answers.html">SQL practice answers</a></li>
+<li><a href="./jmeter-review-guide.html">JMeter review guide</a></li>
+<li><a href="./jmeter-practice-guide.html">JMeter practice guide</a></li>
+</ol>
+<hr>
+<h2>5. Ghi chú sử dụng</h2>
+<ul>
+<li>Nếu muốn đọc nhanh trong trình duyệt, dùng bản HTML trong <code>docs/html/vi/</code></li>
+<li>Nếu muốn chỉnh sửa nội dung, sửa trực tiếp file <code>.md</code> trong <code>docs/vi/</code></li>
+<li>Nếu thêm tài liệu mới sau này, nên gắn luôn vào trang mục lục này để tránh bị phân tán</li>
+</ul>
+
+</body>
+</html>
