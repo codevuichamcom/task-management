@@ -208,6 +208,12 @@ Hãy tự hỏi 5 câu:
 4. Có đúng quyền không
 5. DB có lưu đúng không
 
+Tài liệu thực hành liên quan:
+
+- [Postman guide](./postman-guide.md)
+- `postman/task-management.postman_collection.json`
+- `postman/task-management.local.postman_environment.json`
+
 ## 5. Trụ cột 3: SQL / Data Verification
 
 ## Vì sao SQL quan trọng

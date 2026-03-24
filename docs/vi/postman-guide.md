@@ -4,13 +4,10 @@ Tài liệu này giúp anh/chị import nhanh collection, hiểu cách dùng bi�
 
 ## File cần dùng
 
-### Collection
+Hai file nằm trong thư mục `postman/` của repo:
 
-- [task-management.postman_collection.json](/d:/Develop/Testing/task-management/postman/task-management.postman_collection.json)
-
-### Environment
-
-- [task-management.local.postman_environment.json](/d:/Develop/Testing/task-management/postman/task-management.local.postman_environment.json)
+- `postman/task-management.postman_collection.json`
+- `postman/task-management.local.postman_environment.json`
 
 ## Collection này dùng để làm gì
 

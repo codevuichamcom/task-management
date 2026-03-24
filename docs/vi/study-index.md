@@ -17,10 +17,11 @@ Nếu mới vào project, nên đi theo thứ tự này:
 2. [Đặc tả API](./api-spec.md)
 3. [Jira tickets](./jira-tickets.md)
 4. [Tổng ôn phỏng vấn tester](./tester-interview-summary.md)
-5. [SQL practice compact](./sql-practice-compact.md)
-6. [SQL practice answers](./sql-practice-answers.md)
-7. [JMeter review guide](./jmeter-review-guide.md)
-8. [JMeter practice guide](./jmeter-practice-guide.md)
+5. [Postman guide](./postman-guide.md)
+6. [SQL practice compact](./sql-practice-compact.md)
+7. [SQL practice answers](./sql-practice-answers.md)
+8. [JMeter review guide](./jmeter-review-guide.md)
+9. [JMeter practice guide](./jmeter-practice-guide.md)
 
 ---
 
@@ -68,6 +69,11 @@ Phiên bản có giải thích chi tiết, phù hợp khi cần hiểu cách vi�
 
 Dùng khi cần biết cách test API bằng Postman trên chính project này, đặc biệt hữu ích nếu muốn luyện flow request thủ công trước khi sang automation hoặc performance.
 
+### File Postman trong repo
+
+- `postman/task-management.postman_collection.json`: collection chính
+- `postman/task-management.local.postman_environment.json`: environment local
+
 ---
 
 ## Ôn JMeter
@@ -96,7 +102,7 @@ Nếu bạn đang cần:
 - hiểu yêu cầu nghiệp vụ: xem [Jira tickets](./jira-tickets.md)
 - ôn phỏng vấn tổng quát: xem [Tổng ôn phỏng vấn tester](./tester-interview-summary.md)
 - luyện SQL từ ngắn đến sâu: xem [SQL practice compact](./sql-practice-compact.md) rồi sang [SQL practice answers](./sql-practice-answers.md)
-- luyện Postman: xem [Postman guide](./postman-guide.md)
+- luyện Postman: xem [Postman guide](./postman-guide.md), rồi import `postman/task-management.postman_collection.json`
 - ôn JMeter lý thuyết: xem [JMeter review guide](./jmeter-review-guide.md)
 - chạy JMeter thực chiến: xem [JMeter practice guide](./jmeter-practice-guide.md)
 
@@ -109,8 +115,9 @@ Nếu bạn đang cần:
 Phù hợp khi cần ôn rất nhanh trước buổi phỏng vấn:
 
 1. [Tổng ôn phỏng vấn tester](./tester-interview-summary.md)
-2. [SQL practice compact](./sql-practice-compact.md)
-3. [JMeter review guide](./jmeter-review-guide.md)
+2. [Postman guide](./postman-guide.md)
+3. [SQL practice compact](./sql-practice-compact.md)
+4. [JMeter review guide](./jmeter-review-guide.md)
 
 ## Lộ trình 1 buổi
 
@@ -119,10 +126,11 @@ Phù hợp khi cần vừa ôn vừa hiểu rõ project:
 1. [Tổng quan hệ thống](./overview.md)
 2. [Đặc tả API](./api-spec.md)
 3. [Jira tickets](./jira-tickets.md)
-4. [SQL practice compact](./sql-practice-compact.md)
-5. [SQL practice answers](./sql-practice-answers.md)
-6. [JMeter review guide](./jmeter-review-guide.md)
-7. [JMeter practice guide](./jmeter-practice-guide.md)
+4. [Postman guide](./postman-guide.md)
+5. [SQL practice compact](./sql-practice-compact.md)
+6. [SQL practice answers](./sql-practice-answers.md)
+7. [JMeter review guide](./jmeter-review-guide.md)
+8. [JMeter practice guide](./jmeter-practice-guide.md)
 
 ---
 
@@ -131,4 +139,3 @@ Phù hợp khi cần vừa ôn vừa hiểu rõ project:
 - Nếu muốn đọc nhanh trong trình duyệt, dùng bản HTML trong `docs/html/vi/`
 - Nếu muốn chỉnh sửa nội dung, sửa trực tiếp file `.md` trong `docs/vi/`
 - Nếu thêm tài liệu mới sau này, nên gắn luôn vào trang mục lục này để tránh bị phân tán
-
