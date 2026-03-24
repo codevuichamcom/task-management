@@ -28,7 +28,7 @@
 <p>Mục tiêu không phải học thuộc từng chữ.
 Mục tiêu là trả lời gọn, có cấu trúc, có ví dụ, và không bị lan man.</p>
 <hr>
-<h2>1. Cách luyện tài liệu này</h2>
+<h2>I. Cách luyện tài liệu này</h2>
 <p>Mỗi câu nên trả lời theo khung:</p>
 <pre><code class="language-text">1. Em hiểu câu hỏi đang hỏi gì
 2. Em trả lời ngắn ý chính
@@ -39,7 +39,7 @@ Mục tiêu là trả lời gọn, có cấu trúc, có ví dụ, và không b�
 <pre><code class="language-text">Khái niệm -&gt; cách em test -&gt; ví dụ trong project -&gt; cách em chứng minh
 </code></pre>
 <hr>
-<h2>2. Nhóm câu hỏi nền tảng</h2>
+<h2>II. Nhóm câu hỏi nền tảng</h2>
 <h3>Câu 1: Em mạnh nhất phần nào</h3>
 <p>Interviewer đang dò:</p>
 <ul>
@@ -61,18 +61,34 @@ Ví dụ trong project này em có thể login, tạo task, update task rồi qu
 Ví dụ với task management, em sẽ đọc API spec, Jira tickets, sau đó xác định happy path, validation, authorization và DB persistence.
 </code></pre>
 <h3>Câu 3: Khi ít thời gian, em ưu tiên test gì trước</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có tư duy ưu tiên theo risk hay không</li>
+<li>bạn có biết chọn phần quan trọng thay vì cố test dàn đều</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Em ưu tiên luồng chính, dữ liệu quan trọng, quyền truy cập và những case có impact rộng.
 Nếu deadline gấp em không cố phủ hết, em chọn phần rủi ro cao trước.
 </code></pre>
 <hr>
-<h2>3. Nhóm API Testing</h2>
+<h2>III. Nhóm API Testing</h2>
 <h3>Câu 4: Khi test API em kiểm những gì</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có checklist rõ ràng hay không</li>
+<li>bạn có dừng ở response hay biết verify xuống DB</li>
+</ul>
 <p>Khung trả lời:</p>
-<pre><code class="language-text">Em kiểm status code, response body, validation, authorization và dữ liệu lưu trong DB.
-Ví dụ với POST /tasks em sẽ kiểm request hợp lệ, request thiếu field, sai enum, user không có quyền và dữ liệu thực tế trong bảng tasks.
+<pre><code class="language-text">Khi test API em thường kiểm 5 nhóm chính: status code, response body, validation, authorization và DB persistence.
+Em sẽ xem request hợp lệ thì trả gì, request thiếu field hoặc sai format thì trả gì, user không có quyền thì có bị chặn đúng không, và sau cùng dữ liệu thực tế trong DB có đúng với response không.
+Ví dụ với POST /tasks em sẽ test case hợp lệ, case thiếu title, case sai status, case projectId không tồn tại, rồi query bảng tasks để đối chiếu dữ liệu đã lưu.
 </code></pre>
 <h3>Câu 5: Em dùng Postman như thế nào</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có thực sự dùng Postman theo flow hay chỉ gửi request lẻ</li>
+<li>bạn có biết dùng biến môi trường, collection, test script hay không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Em thường dùng collection và environment variables để tái sử dụng token, project_id, task_id.
 Sau login em lưu access_token, sau create project em lưu project_id, như vậy em có thể chạy flow liên tục mà không copy tay.
@@ -82,24 +98,44 @@ Sau login em lưu access_token, sau create project em lưu project_id, như vậ
 <li><a href="./postman-guide.html">Postman guide</a></li>
 </ul>
 <h3>Câu 6: Authorization khác Authentication thế nào</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có phân biệt rõ hai khái niệm rất cơ bản này không</li>
+<li>bạn có đưa được ví dụ thực tế thay vì định nghĩa khô không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Authentication là xác minh bạn là ai.
 Authorization là sau khi đã xác minh rồi thì bạn có quyền làm gì.
 Ví dụ login là authentication, còn Bob có sửa được project của Alice hay không là authorization.
 </code></pre>
 <hr>
-<h2>4. Nhóm SQL</h2>
+<h2>IV. Nhóm SQL</h2>
 <h3>Câu 7: Em dùng SQL để làm gì trong công việc test</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có thực sự dùng SQL trong test hay chỉ biết ở mức lý thuyết</li>
+<li>bạn có hiểu SQL là công cụ verify và làm evidence không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Em dùng SQL để verify dữ liệu sau khi gọi API, kiểm tra integrity, đối soát expected và actual, và làm evidence cho bug report.
 Ví dụ update task xong em query lại bảng tasks để xem status thực sự đã đổi chưa.
 </code></pre>
 <h3>Câu 8: Khi nào dùng LEFT JOIN</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có hiểu bản chất join hay chỉ nhớ cú pháp</li>
+<li>bạn có biết áp vào case tester thực tế không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Em dùng LEFT JOIN khi muốn giữ dữ liệu bảng chính kể cả khi bảng liên quan không có record khớp.
 Ví dụ muốn lấy danh sách task kể cả task chưa có assignee thì dùng LEFT JOIN từ tasks sang users.
 </code></pre>
 <h3>Câu 9: Em sẽ tìm duplicate data thế nào</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có biết cách phát hiện dữ liệu trùng bằng SQL không</li>
+<li>bạn có biến một yêu cầu nghiệp vụ thành query kiểm chứng được không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Em thường dùng GROUP BY kết hợp HAVING COUNT(*) &gt; 1.
 Ví dụ tìm task trùng title trong cùng project để xem có lỗi duplicate hay không.
@@ -110,19 +146,34 @@ Ví dụ tìm task trùng title trong cùng project để xem có lỗi duplicat
 <li><a href="./sql-practice-answers.html">SQL practice answers</a></li>
 </ul>
 <hr>
-<h2>5. Nhóm Batch / Async</h2>
+<h2>V. Nhóm Batch / Async</h2>
 <h3>Câu 10: Em test batch như thế nào</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có hiểu tư duy kiểm thử batch hay không</li>
+<li>bạn có nghĩ đến input, output, timing và reconciliation không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Em kiểm số lượng input và output, record thiếu, record trùng, mapping field, trạng thái xử lý và thời điểm verify.
 Với batch em luôn đối chiếu cả request đầu vào, response trả về và dữ liệu thực tế trong DB.
 </code></pre>
 <h3>Câu 11: Retry và idempotency em hiểu thế nào</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có hiểu lỗi dữ liệu trùng sinh ra từ retry không</li>
+<li>bạn có phân biệt được khái niệm kỹ thuật với impact nghiệp vụ không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Retry là gửi lại khi xử lý lỗi hoặc timeout.
 Idempotency là gửi lại cùng một yêu cầu nhưng hệ thống không tạo ra tác dụng phụ lặp lại ngoài mong đợi.
 Nếu gửi cùng payload hai lần mà dữ liệu bị tạo trùng thì có thể là bug duplicate hoặc bug idempotency tùy nghiệp vụ.
 </code></pre>
 <h3>Câu 12: Với project này em luyện batch thực hành gì</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có biết gắn lý thuyết vào project đang làm không</li>
+<li>bạn có đưa ra được bài luyện cụ thể thay vì nói chung chung không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Em dùng POST /tasks/batch để gửi nhiều dòng trong một request, sau đó đối chiếu total, createdCount, failedCount và query DB để xem dữ liệu thực tế có khớp không.
 Em có thể luyện cả case all valid, mixed result, duplicate title và retry cùng payload.
@@ -132,30 +183,55 @@ Em có thể luyện cả case all valid, mixed result, duplicate title và retr
 <li><a href="./batch-practice-guide.html">Batch practice guide</a></li>
 </ul>
 <hr>
-<h2>6. Nhóm Bug Report</h2>
+<h2>VI. Nhóm Bug Report</h2>
 <h3>Câu 13: Một bug report tốt cần gì</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có biết thế nào là một bug report dùng được thật không</li>
+<li>bạn có tư duy hỗ trợ dev tái hiện lỗi hay không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Một bug report tốt cần title rõ, môi trường test, bước tái hiện, expected, actual, evidence và severity.
 Mục tiêu là để dev hoặc lead nhìn vào là hiểu ngay lỗi ở đâu và tái hiện được.
 </code></pre>
 <h3>Câu 14: Evidence tốt là gì</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có biết chứng minh bug bằng dữ liệu hay không</li>
+<li>bạn có hiểu khi nào nên dùng API response, khi nào nên dùng SQL không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Evidence tốt nên có request, response, ảnh chụp nếu có UI và query SQL nếu liên quan dữ liệu.
 Với bug API hoặc batch thì SQL thường là bằng chứng rất mạnh.
 </code></pre>
 <hr>
-<h2>7. Nhóm JMeter / Performance</h2>
+<h2>VII. Nhóm JMeter / Performance</h2>
 <h3>Câu 15: P95 là gì</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có hiểu chỉ số performance cơ bản không</li>
+<li>bạn có biết vì sao không nên chỉ nhìn average không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">P95 nghĩa là 95 phần trăm request có thời gian phản hồi nhỏ hơn hoặc bằng một giá trị nào đó.
 Em ưu tiên nhìn P95 hơn average vì average có thể che mất một nhóm request rất chậm.
 </code></pre>
 <h3>Câu 16: Load test khác stress test thế nào</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có phân biệt được hai loại test dễ bị nhầm này không</li>
+<li>bạn có hiểu mục tiêu của từng loại test không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Load test là kiểm tra hệ thống ở mức tải dự kiến.
 Stress test là đẩy vượt ngưỡng để tìm giới hạn chịu tải của hệ thống.
 </code></pre>
 <h3>Câu 17: Với project này em sẽ dựng JMeter flow nào đầu tiên</h3>
+<p>Interviewer đang dò:</p>
+<ul>
+<li>bạn có biết bắt đầu từ flow nào là hợp lý không</li>
+<li>bạn có ưu tiên được bài test đơn giản nhưng có giá trị không</li>
+</ul>
 <p>Khung trả lời:</p>
 <pre><code class="language-text">Em sẽ bắt đầu từ flow login, extract token, rồi gọi GET /tasks.
 Flow này có auth, có dữ liệu thật và dễ đọc P95, error percent, throughput.
@@ -166,7 +242,7 @@ Flow này có auth, có dữ liệu thật và dễ đọc P95, error percent, t
 <li><a href="./jmeter-practice-guide.html">JMeter practice guide</a></li>
 </ul>
 <hr>
-<h2>8. 10 phút cuối trước phỏng vấn</h2>
+<h2>VIII. 10 phút cuối trước phỏng vấn</h2>
 <p>Nếu chỉ còn 10 phút, hãy tự nói thành tiếng các ý này:</p>
 <ol>
 <li>Em test API theo 5 điểm nào.</li>
@@ -178,7 +254,7 @@ Flow này có auth, có dữ liệu thật và dễ đọc P95, error percent, t
 </ol>
 <p>Nếu nói trơn được 6 ý này, bạn đã đủ nền để vào phỏng vấn với bộ repo hiện tại.</p>
 <hr>
-<h2>9. Kết luận</h2>
+<h2>IX. Kết luận</h2>
 <p>Tài liệu này là phần luyện trả lời miệng.</p>
 <p>Nên dùng sau khi đã xem:</p>
 <ul>

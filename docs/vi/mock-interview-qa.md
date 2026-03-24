@@ -13,7 +13,7 @@ Mục tiêu là trả lời gọn, có cấu trúc, có ví dụ, và không b�
 
 ---
 
-## 1. Cách luyện tài liệu này
+## I. Cách luyện tài liệu này
 
 Mỗi câu nên trả lời theo khung:
 
@@ -32,7 +32,7 @@ Khái niệm -> cách em test -> ví dụ trong project -> cách em chứng minh
 
 ---
 
-## 2. Nhóm câu hỏi nền tảng
+## II. Nhóm câu hỏi nền tảng
 
 ### Câu 1: Em mạnh nhất phần nào
 
@@ -64,6 +64,11 @@ Ví dụ với task management, em sẽ đọc API spec, Jira tickets, sau đó 
 
 ### Câu 3: Khi ít thời gian, em ưu tiên test gì trước
 
+Interviewer đang dò:
+
+- bạn có tư duy ưu tiên theo risk hay không
+- bạn có biết chọn phần quan trọng thay vì cố test dàn đều
+
 Khung trả lời:
 
 ```text
@@ -73,18 +78,29 @@ Nếu deadline gấp em không cố phủ hết, em chọn phần rủi ro cao t
 
 ---
 
-## 3. Nhóm API Testing
+## III. Nhóm API Testing
 
 ### Câu 4: Khi test API em kiểm những gì
+
+Interviewer đang dò:
+
+- bạn có checklist rõ ràng hay không
+- bạn có dừng ở response hay biết verify xuống DB
 
 Khung trả lời:
 
 ```text
-Em kiểm status code, response body, validation, authorization và dữ liệu lưu trong DB.
-Ví dụ với POST /tasks em sẽ kiểm request hợp lệ, request thiếu field, sai enum, user không có quyền và dữ liệu thực tế trong bảng tasks.
+Khi test API em thường kiểm 5 nhóm chính: status code, response body, validation, authorization và DB persistence.
+Em sẽ xem request hợp lệ thì trả gì, request thiếu field hoặc sai format thì trả gì, user không có quyền thì có bị chặn đúng không, và sau cùng dữ liệu thực tế trong DB có đúng với response không.
+Ví dụ với POST /tasks em sẽ test case hợp lệ, case thiếu title, case sai status, case projectId không tồn tại, rồi query bảng tasks để đối chiếu dữ liệu đã lưu.
 ```
 
 ### Câu 5: Em dùng Postman như thế nào
+
+Interviewer đang dò:
+
+- bạn có thực sự dùng Postman theo flow hay chỉ gửi request lẻ
+- bạn có biết dùng biến môi trường, collection, test script hay không
 
 Khung trả lời:
 
@@ -99,6 +115,11 @@ Liên quan thực hành:
 
 ### Câu 6: Authorization khác Authentication thế nào
 
+Interviewer đang dò:
+
+- bạn có phân biệt rõ hai khái niệm rất cơ bản này không
+- bạn có đưa được ví dụ thực tế thay vì định nghĩa khô không
+
 Khung trả lời:
 
 ```text
@@ -109,9 +130,14 @@ Ví dụ login là authentication, còn Bob có sửa được project của Ali
 
 ---
 
-## 4. Nhóm SQL
+## IV. Nhóm SQL
 
 ### Câu 7: Em dùng SQL để làm gì trong công việc test
+
+Interviewer đang dò:
+
+- bạn có thực sự dùng SQL trong test hay chỉ biết ở mức lý thuyết
+- bạn có hiểu SQL là công cụ verify và làm evidence không
 
 Khung trả lời:
 
@@ -122,6 +148,11 @@ Ví dụ update task xong em query lại bảng tasks để xem status thực s�
 
 ### Câu 8: Khi nào dùng LEFT JOIN
 
+Interviewer đang dò:
+
+- bạn có hiểu bản chất join hay chỉ nhớ cú pháp
+- bạn có biết áp vào case tester thực tế không
+
 Khung trả lời:
 
 ```text
@@ -130,6 +161,11 @@ Ví dụ muốn lấy danh sách task kể cả task chưa có assignee thì dù
 ```
 
 ### Câu 9: Em sẽ tìm duplicate data thế nào
+
+Interviewer đang dò:
+
+- bạn có biết cách phát hiện dữ liệu trùng bằng SQL không
+- bạn có biến một yêu cầu nghiệp vụ thành query kiểm chứng được không
 
 Khung trả lời:
 
@@ -145,9 +181,14 @@ Liên quan thực hành:
 
 ---
 
-## 5. Nhóm Batch / Async
+## V. Nhóm Batch / Async
 
 ### Câu 10: Em test batch như thế nào
+
+Interviewer đang dò:
+
+- bạn có hiểu tư duy kiểm thử batch hay không
+- bạn có nghĩ đến input, output, timing và reconciliation không
 
 Khung trả lời:
 
@@ -158,6 +199,11 @@ Với batch em luôn đối chiếu cả request đầu vào, response trả v�
 
 ### Câu 11: Retry và idempotency em hiểu thế nào
 
+Interviewer đang dò:
+
+- bạn có hiểu lỗi dữ liệu trùng sinh ra từ retry không
+- bạn có phân biệt được khái niệm kỹ thuật với impact nghiệp vụ không
+
 Khung trả lời:
 
 ```text
@@ -167,6 +213,11 @@ Nếu gửi cùng payload hai lần mà dữ liệu bị tạo trùng thì có t
 ```
 
 ### Câu 12: Với project này em luyện batch thực hành gì
+
+Interviewer đang dò:
+
+- bạn có biết gắn lý thuyết vào project đang làm không
+- bạn có đưa ra được bài luyện cụ thể thay vì nói chung chung không
 
 Khung trả lời:
 
@@ -181,9 +232,14 @@ Liên quan thực hành:
 
 ---
 
-## 6. Nhóm Bug Report
+## VI. Nhóm Bug Report
 
 ### Câu 13: Một bug report tốt cần gì
+
+Interviewer đang dò:
+
+- bạn có biết thế nào là một bug report dùng được thật không
+- bạn có tư duy hỗ trợ dev tái hiện lỗi hay không
 
 Khung trả lời:
 
@@ -194,6 +250,11 @@ Mục tiêu là để dev hoặc lead nhìn vào là hiểu ngay lỗi ở đâu
 
 ### Câu 14: Evidence tốt là gì
 
+Interviewer đang dò:
+
+- bạn có biết chứng minh bug bằng dữ liệu hay không
+- bạn có hiểu khi nào nên dùng API response, khi nào nên dùng SQL không
+
 Khung trả lời:
 
 ```text
@@ -203,9 +264,14 @@ Với bug API hoặc batch thì SQL thường là bằng chứng rất mạnh.
 
 ---
 
-## 7. Nhóm JMeter / Performance
+## VII. Nhóm JMeter / Performance
 
 ### Câu 15: P95 là gì
+
+Interviewer đang dò:
+
+- bạn có hiểu chỉ số performance cơ bản không
+- bạn có biết vì sao không nên chỉ nhìn average không
 
 Khung trả lời:
 
@@ -216,6 +282,11 @@ Em ưu tiên nhìn P95 hơn average vì average có thể che mất một nhóm 
 
 ### Câu 16: Load test khác stress test thế nào
 
+Interviewer đang dò:
+
+- bạn có phân biệt được hai loại test dễ bị nhầm này không
+- bạn có hiểu mục tiêu của từng loại test không
+
 Khung trả lời:
 
 ```text
@@ -224,6 +295,11 @@ Stress test là đẩy vượt ngưỡng để tìm giới hạn chịu tải c�
 ```
 
 ### Câu 17: Với project này em sẽ dựng JMeter flow nào đầu tiên
+
+Interviewer đang dò:
+
+- bạn có biết bắt đầu từ flow nào là hợp lý không
+- bạn có ưu tiên được bài test đơn giản nhưng có giá trị không
 
 Khung trả lời:
 
@@ -239,7 +315,7 @@ Liên quan thực hành:
 
 ---
 
-## 8. 10 phút cuối trước phỏng vấn
+## VIII. 10 phút cuối trước phỏng vấn
 
 Nếu chỉ còn 10 phút, hãy tự nói thành tiếng các ý này:
 
@@ -254,7 +330,7 @@ Nếu nói trơn được 6 ý này, bạn đã đủ nền để vào phỏng v
 
 ---
 
-## 9. Kết luận
+## IX. Kết luận
 
 Tài liệu này là phần luyện trả lời miệng.
 
