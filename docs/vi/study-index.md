@@ -35,6 +35,7 @@ Nếu mới vào project, nên đi theo thứ tự này:
 8. [SQL practice answers](./sql-practice-answers.md)
 9. [JMeter review guide](./jmeter-review-guide.md)
 10. [JMeter practice guide](./jmeter-practice-guide.md)
+11. [Mock Interview QA](./mock-interview-qa.md)
 
 ---
 
@@ -134,6 +135,7 @@ Nếu bạn đang cần:
 - luyện batch: xem [Batch practice guide](./batch-practice-guide.md)
 - ôn JMeter lý thuyết: xem [JMeter review guide](./jmeter-review-guide.md)
 - chạy JMeter thực chiến: xem [JMeter practice guide](./jmeter-practice-guide.md)
+- luyện trả lời miệng trước phỏng vấn: xem [Mock Interview QA](./mock-interview-qa.md)
 
 ---
 
@@ -148,6 +150,7 @@ Phù hợp khi cần ôn rất nhanh trước buổi phỏng vấn:
 3. [Batch practice guide](./batch-practice-guide.md)
 4. [SQL practice compact](./sql-practice-compact.md)
 5. [JMeter review guide](./jmeter-review-guide.md)
+6. [Mock Interview QA](./mock-interview-qa.md)
 
 ## Lộ trình 1 buổi
 
