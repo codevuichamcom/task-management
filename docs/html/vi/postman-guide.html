@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>postman guide</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Hướng dẫn dùng Postman collection cho Task Management</h1>
+<p>Tài liệu này giúp anh/chị import nhanh collection, hiểu cách dùng biến môi trường, và chạy được toàn bộ flow API theo một chuỗi liền mạch.</p>
+<h2>File cần dùng</h2>
+<h3>Collection</h3>
+<ul>
+<li><a href="/d:/Develop/Testing/task-management/postman/task-management.postman_collection.json">task-management.postman_collection.json</a></li>
+</ul>
+<h3>Environment</h3>
+<ul>
+<li><a href="/d:/Develop/Testing/task-management/postman/task-management.local.postman_environment.json">task-management.local.postman_environment.json</a></li>
+</ul>
+<h2>Collection này dùng để làm gì</h2>
+<p>Collection bao phủ các nhóm API chính của dự án:</p>
+<ul>
+<li><code>Auth</code></li>
+<li><code>Projects</code></li>
+<li><code>Tasks</code></li>
+<li>một nhóm <code>Negative Checks</code> để test nhanh validation và unauthorized</li>
+</ul>
+<p>Collection có sẵn script để:</p>
+<ul>
+<li>tự lưu <code>access_token</code> sau khi login</li>
+<li>tự lưu <code>project_id</code> sau khi tạo project</li>
+<li>tự lưu <code>task_id</code> sau khi tạo task</li>
+<li>kiểm tra schema cơ bản của response ở từng request</li>
+</ul>
+<p>Hiểu ngắn gọn:</p>
+<p><code>Import xong là có thể test flow liên tục mà không phải copy token hay id bằng tay.</code></p>
+<h2>Cách import</h2>
+<ol>
+<li>Mở Postman.</li>
+<li>Chọn <code>Import</code>.</li>
+<li>Import cả 2 file JSON ở trên.</li>
+<li>Chọn environment <code>Task Management Local</code>.</li>
+</ol>
+<h2>Biến môi trường quan trọng</h2>
+<table>
+<thead>
+<tr>
+<th>Biến</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>baseUrl</code></td>
+<td>địa chỉ API, mặc định <code>http://localhost:3000</code></td>
+</tr>
+<tr>
+<td><code>login_email</code></td>
+<td>tài khoản seed để login</td>
+</tr>
+<tr>
+<td><code>login_password</code></td>
+<td>mật khẩu của tài khoản seed</td>
+</tr>
+<tr>
+<td><code>access_token</code></td>
+<td>token được lưu tự động sau login</td>
+</tr>
+<tr>
+<td><code>current_user_id</code></td>
+<td>id user hiện tại</td>
+</tr>
+<tr>
+<td><code>project_id</code></td>
+<td>id project vừa tạo</td>
+</tr>
+<tr>
+<td><code>task_id</code></td>
+<td>id task vừa tạo</td>
+</tr>
+<tr>
+<td><code>assignee_id</code></td>
+<td>id assignee dùng cho task</td>
+</tr>
+<tr>
+<td><code>status_filter</code></td>
+<td>status dùng cho request lọc task</td>
+</tr>
+<tr>
+<td><code>page</code> / <code>limit</code></td>
+<td>biến phân trang</td>
+</tr>
+</tbody></table>
+<h2>Collection tự lưu biến như thế nào</h2>
+<h3>Sau <code>Login - Seed User</code></h3>
+<p>Collection tự lưu:</p>
+<ul>
+<li><code>access_token</code></li>
+<li><code>current_user_id</code></li>
+<li><code>current_user_email</code></li>
+</ul>
+<h3>Sau <code>Create Project</code></h3>
+<p>Collection tự lưu:</p>
+<ul>
+<li><code>project_id</code></li>
+<li><code>project_owner_id</code></li>
+</ul>
+<h3>Sau <code>Create Task</code></h3>
+<p>Collection tự lưu:</p>
+<ul>
+<li><code>task_id</code></li>
+</ul>
+<h2>Thứ tự chạy khuyến nghị</h2>
+<p>Để chạy mượt nhất, nên bấm theo thứ tự:</p>
+<ol>
+<li><code>01 Auth / Register - Random User</code></li>
+<li><code>01 Auth / Login - Seed User</code></li>
+<li><code>02 Projects / Create Project</code></li>
+<li><code>02 Projects / List My Projects</code></li>
+<li><code>02 Projects / Update Project</code></li>
+<li><code>03 Tasks / Create Task</code></li>
+<li><code>03 Tasks / List Tasks - All</code></li>
+<li><code>03 Tasks / Update Task - Valid Status</code></li>
+<li><code>03 Tasks / List Tasks - Filtered By Status</code></li>
+<li><code>04 Negative Checks / Register - Invalid Email</code></li>
+<li><code>04 Negative Checks / Projects - No Token</code></li>
+<li><code>04 Negative Checks / Update Task - Invalid Status</code></li>
+<li><code>03 Tasks / Delete Task</code></li>
+<li><code>03 Tasks / Delete Project</code></li>
+</ol>
+<p>Nếu chỉ muốn smoke test nhanh, chỉ cần chạy:</p>
+<ol>
+<li><code>Login - Seed User</code></li>
+<li><code>Create Project</code></li>
+<li><code>Create Task</code></li>
+<li><code>Update Task - Valid Status</code></li>
+<li><code>List Tasks - Filtered By Status</code></li>
+<li><code>Delete Task</code></li>
+<li><code>Delete Project</code></li>
+</ol>
+<h2>Ý nghĩa từng folder</h2>
+<h2><code>01 Auth</code></h2>
+<ul>
+<li><code>Register - Random User</code>: tự tạo email theo timestamp để tránh trùng.</li>
+<li><code>Login - Seed User</code>: login bằng user seed và tự lưu token.</li>
+</ul>
+<h2><code>02 Projects</code></h2>
+<ul>
+<li><code>Create Project</code>: tạo project mới, lưu <code>project_id</code>, check schema response.</li>
+<li><code>List My Projects</code>: check response là array và project vừa tạo có xuất hiện.</li>
+<li><code>Update Project</code>: đổi tên project vừa tạo và check schema response.</li>
+</ul>
+<h2><code>03 Tasks</code></h2>
+<ul>
+<li><code>Create Task</code>: dùng <code>project_id</code> đã lưu, tạo task mới và lưu <code>task_id</code>.</li>
+<li><code>List Tasks - All</code>: check schema list response và <code>meta</code>.</li>
+<li><code>Update Task - Valid Status</code>: update status sang <code>IN_PROGRESS</code>.</li>
+<li><code>List Tasks - Filtered By Status</code>: verify filter <code>statusFilter</code>.</li>
+<li><code>Delete Task</code>: xóa task vừa tạo.</li>
+<li><code>Delete Project</code>: xóa project vừa tạo.</li>
+</ul>
+<h2><code>04 Negative Checks</code></h2>
+<ul>
+<li><code>Register - Invalid Email</code>: kỳ vọng <code>400</code>.</li>
+<li><code>Projects - No Token</code>: kỳ vọng <code>401</code>.</li>
+<li><code>Update Task - Invalid Status</code>: kỳ vọng <code>400</code>.</li>
+</ul>
+<h2>Collection đang kiểm tra schema như thế nào</h2>
+<p>Collection không dùng schema validator phức tạp.
+Nó dùng Postman test scripts cơ bản để kiểm:</p>
+<ul>
+<li>field có tồn tại không</li>
+<li>type có đúng không</li>
+<li>một số giá trị quan trọng có đúng không</li>
+</ul>
+<p>Ví dụ:</p>
+<ul>
+<li>login phải có <code>access_token</code></li>
+<li>create project phải có <code>ownerId</code></li>
+<li>list tasks phải có <code>meta.page</code> là number</li>
+</ul>
+<p>Ưu điểm của cách này:</p>
+<ul>
+<li>dễ đọc</li>
+<li>dễ sửa</li>
+<li>phù hợp để vừa test vừa ôn phỏng vấn</li>
+</ul>
+<h2>Khi nào cần sửa environment</h2>
+<p>Anh/chị chỉ cần sửa vài biến nếu:</p>
+<ul>
+<li>đổi <code>baseUrl</code></li>
+<li>đổi <code>login_email</code> hoặc <code>login_password</code></li>
+<li>muốn filter task theo status khác bằng <code>status_filter</code></li>
+<li>muốn đổi <code>page</code> hoặc <code>limit</code></li>
+</ul>
+<h2>Nếu collection chạy lỗi, kiểm tra gì trước</h2>
+<ol>
+<li>API đã chạy chưa: mở <code>http://localhost:3000/api-docs</code></li>
+<li>Sau login đã có <code>access_token</code> trong environment chưa</li>
+<li>Đã có <code>project_id</code> trước khi chạy task requests chưa</li>
+<li>Đã có <code>task_id</code> trước khi chạy update/delete task chưa</li>
+</ol>
+<p>Nếu data cũ gây nhiễu, nên reset:</p>
+<pre><code class="language-bash">docker-compose down -v
+docker-compose up --build
+</code></pre>
+<h2>Cách dùng collection để ôn phỏng vấn</h2>
+<p>Collection này cũng rất hợp để kể kinh nghiệm trong phỏng vấn.</p>
+<p>Có thể mô tả ngắn như sau:</p>
+<p><code>Em thường dựng Postman collection có environment variables để tái sử dụng token, id và test data. Sau đó em thêm test scripts để check status code, response schema và lưu các giá trị cần cho request sau, giúp em test flow liên tục và ổn định hơn.</code></p>
+
+</body>
+</html>
