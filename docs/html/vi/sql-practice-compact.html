@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sql practice compact</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Bộ câu hỏi SQL tinh gọn cho phỏng vấn Tester</h1>
+<p>Tài liệu này chỉ giữ lại đề bài và phần giải thích mục tiêu của từng câu để luyện nhanh.</p>
+<h2>Nhóm A: Cơ bản</h2>
+<h3>Câu 1</h3>
+<p>Viết SQL lấy danh sách tất cả user gồm <code>id</code>, <code>email</code>, <code>role</code>, <code>createdAt</code>, sắp xếp mới nhất trước.</p>
+<p>Giải thích:
+Luyện <code>SELECT</code>, <code>ORDER BY</code>, và khả năng đọc dữ liệu nền của hệ thống.</p>
+<h3>Câu 2</h3>
+<p>Viết SQL lấy tất cả task có status <code>TODO</code>.</p>
+<p>Giải thích:
+Luyện <code>WHERE</code> cơ bản và xác định đúng dữ liệu theo điều kiện business.</p>
+<h3>Câu 3</h3>
+<p>Viết SQL lấy các task chưa được assign cho ai.</p>
+<p>Giải thích:
+Luyện kiểm tra dữ liệu null, rất hay gặp khi verify dữ liệu từ API xuống DB.</p>
+<h3>Câu 4</h3>
+<p>Viết SQL đếm số task theo từng status.</p>
+<p>Giải thích:
+Luyện <code>COUNT</code> và <code>GROUP BY</code>, đồng thời là dạng query rất thực tế khi đối soát số lượng.</p>
+<h2>Nhóm B: JOIN và Aggregate</h2>
+<h3>Câu 5</h3>
+<p>Viết SQL lấy danh sách task kèm:</p>
+<ul>
+<li><code>task.title</code></li>
+<li><code>task.status</code></li>
+<li>tên project</li>
+<li>email assignee</li>
+</ul>
+<p>Yêu cầu: task chưa assign vẫn phải hiện ra.</p>
+<p>Giải thích:
+Luyện <code>JOIN</code> và <code>LEFT JOIN</code>, cũng là dạng query hay dùng để đối chiếu response API với dữ liệu DB.</p>
+<h3>Câu 6</h3>
+<p>Viết SQL lấy danh sách project kèm email owner.</p>
+<p>Giải thích:
+Luyện join hai bảng theo khóa ngoại và hiểu mối quan hệ <code>projects -&gt; users</code>.</p>
+<h3>Câu 7</h3>
+<p>Viết SQL đếm số task trong từng project.</p>
+<p>Yêu cầu:</p>
+<ul>
+<li>project không có task vẫn phải hiện</li>
+<li>output gồm <code>project name</code>, <code>task_count</code></li>
+</ul>
+<p>Giải thích:
+Luyện aggregate theo nhóm và hiểu khi nào phải dùng <code>LEFT JOIN</code> để không làm mất dữ liệu.</p>
+<h3>Câu 8</h3>
+<p>Viết SQL đếm số task được assign cho từng user.</p>
+<p>Yêu cầu:</p>
+<ul>
+<li>user không có task vẫn phải hiện</li>
+</ul>
+<p>Giải thích:
+Luyện kiểm đếm theo assignee và tư duy báo cáo phân bổ công việc.</p>
+<h3>Câu 9</h3>
+<p>Viết SQL tìm project có nhiều task nhất.</p>
+<p>Giải thích:
+Luyện <code>GROUP BY</code>, <code>ORDER BY</code>, <code>LIMIT</code>, và khả năng rút insight từ dữ liệu thay vì chỉ đọc raw rows.</p>
+<h2>Nhóm C: Data Verification đúng kiểu Tester</h2>
+<h3>Câu 10</h3>
+<p>Viết SQL để kiểm tra task list trả về từ API có đủ:</p>
+<ul>
+<li>task id</li>
+<li>title</li>
+<li>status</li>
+<li>project name</li>
+<li>assignee email</li>
+</ul>
+<p>Sau đó giải thích query này dùng làm test evidence như thế nào.</p>
+<p>Giải thích:
+Đây là dạng verify rất sát công việc tester senior: không chỉ gọi API mà còn đối soát dữ liệu thật trong DB.</p>
+<h3>Câu 11</h3>
+<p>Viết SQL kiểm tra có user nào có email sai format, ví dụ không chứa <code>@</code>.</p>
+<p>Giải thích:
+Luyện kiểu query phục vụ test validation và phát hiện dữ liệu bất thường sau khi persist.</p>
+<h3>Câu 12</h3>
+<p>Viết SQL kiểm tra password đang có dấu hiệu lưu plaintext hay đã hash.</p>
+<p>Giải thích:
+Đây là ví dụ verify về security/data storage, thể hiện tư duy không chỉ test UI hay API response.</p>
+<h3>Câu 13</h3>
+<p>Viết SQL tìm các task có <code>projectId</code> không tồn tại ở bảng <code>projects</code>.</p>
+<p>Giải thích:
+Luyện tìm <code>orphan data</code>, là kiểu lỗi integrity rất quan trọng trong hệ thống thực tế.</p>
+<h3>Câu 14</h3>
+<p>Viết SQL tìm các task có <code>assigneeId</code> không tồn tại ở bảng <code>users</code>.</p>
+<p>Giải thích:
+Tiếp tục luyện data integrity, nhưng ở quan hệ khác để tránh tư duy một chiều.</p>
+<h3>Câu 15</h3>
+<p>Viết SQL kiểm tra trong cùng một project có bị trùng <code>title</code> task hay không.</p>
+<p>Giải thích:
+Luyện phát hiện duplicate data và abnormal case, rất hợp tinh thần JD.</p>
+<h2>Nhóm D: Verify bug thực tế của project</h2>
+<h3>Câu 16</h3>
+<p>Viết 2 câu SQL:</p>
+<ul>
+<li>lấy toàn bộ project trong hệ thống</li>
+<li>lấy đúng project mà <code>bob@test.com</code> đáng ra được nhìn thấy nếu filter đúng theo owner</li>
+</ul>
+<p>Giải thích:
+Dùng SQL để chứng minh bug authorization bằng dữ liệu DB, thay vì mô tả cảm tính.</p>
+<h3>Câu 17</h3>
+<p>Viết SQL để verify một task đã bị update trái phép:</p>
+<ul>
+<li><code>task id</code></li>
+<li><code>title</code></li>
+<li><code>projectId</code></li>
+<li><code>assigneeId</code></li>
+<li>email owner project</li>
+<li>email assignee</li>
+</ul>
+<p>Giải thích:
+Luyện cách dùng join nhiều bảng để dựng evidence đầy đủ cho bug quyền truy cập.</p>
+<h3>Câu 18</h3>
+<p>Viết SQL để kiểm tra sau khi gọi update status = <code>IN_PROGRESS</code>, DB thực sự lưu status gì.</p>
+<p>Giải thích:
+Đây là dạng phân biệt bug logic/persistence rất hay bị hỏi trong phỏng vấn.</p>
+<h3>Câu 19</h3>
+<p>Viết 2 câu SQL để so sánh:</p>
+<ul>
+<li>exact match với status <code>TODO</code></li>
+<li>partial match với input <code>DO</code></li>
+</ul>
+<p>Giải thích:
+Luyện cách chứng minh lỗi filter bằng dữ liệu thực tế và so sánh expected/actual rõ ràng.</p>
+<h3>Câu 20</h3>
+<p>Viết SQL mô phỏng pagination:</p>
+<ul>
+<li>page 1, limit 5 theo logic đúng</li>
+<li>page 1, limit 5 theo logic bug</li>
+</ul>
+<p>Giải thích:
+Đây là bài luyện rất tốt cho tư duy verify phân trang bằng DB chứ không nhìn cảm giác trên UI/API.</p>
+<h3>Câu 21</h3>
+<p>Viết SQL kiểm tra có task nào bị nhân đôi khi query join dư hay không.</p>
+<p>Giải thích:
+Luyện cách tìm duplicate rows sinh ra từ query sai, rất sát thực tế khi test API list.</p>
+<h2>Nhóm E: Nâng cao vừa đủ cho Senior</h2>
+<h3>Câu 22</h3>
+<p>Viết SQL tạo báo cáo số task theo <code>owner</code> và <code>status</code>.</p>
+<p>Output mong muốn:</p>
+<ul>
+<li>owner email</li>
+<li>số task TODO</li>
+<li>số task IN_PROGRESS</li>
+<li>số task DONE</li>
+</ul>
+<p>Giải thích:
+Đây là dạng query gần với report thực tế cho lead, PM hoặc quality report.</p>
+<h3>Câu 23</h3>
+<p>Viết SQL tìm user đang được assign nhiều task nhất.</p>
+<p>Nếu đồng hạng thì hiện tất cả.</p>
+<p>Giải thích:
+Luyện aggregate nâng cao hơn một chút và cách xử lý trường hợp đồng hạng.</p>
+<h3>Câu 24</h3>
+<p>Viết SQL tìm project không có task <code>DONE</code> nào.</p>
+<p>Giải thích:
+Đây là kiểu câu hỏi nghiệp vụ dễ gặp trong phỏng vấn senior tester.</p>
+<h3>Câu 25</h3>
+<p>Viết SQL dùng <code>CTE</code> để tạo danh sách <code>incoming_batch</code> giả, rồi kiểm tra:</p>
+<ul>
+<li>ID nào có trong DB</li>
+<li>ID nào không có trong DB</li>
+</ul>
+<p>Giải thích:
+Luyện tư duy verify input batch, rất sát JD vì JD nhấn mạnh kiểm tra dữ liệu đầu vào/đầu ra.</p>
+<h3>Câu 26</h3>
+<p>Viết SQL dùng <code>CTE</code> để đối soát giữa:</p>
+<ul>
+<li><code>expected_status</code></li>
+<li><code>actual_status</code></li>
+</ul>
+<p>Giải thích:
+Đây là bài mô phỏng reconciliation, rất phù hợp để nói theo phong cách tester senior/data-heavy.</p>
+
+</body>
+</html>

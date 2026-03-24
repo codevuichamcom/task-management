@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sql practice answers</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Đáp án chi tiết cho bộ câu hỏi SQL tinh gọn</h1>
+<p>Các đáp án dưới đây dùng cú pháp PostgreSQL, bám theo schema của project <code>task-management</code>.</p>
+<h2>Nhóm A: Cơ bản</h2>
+<h3>Câu 1</h3>
+<pre><code class="language-sql">SELECT id, email, role, &quot;createdAt&quot;
+FROM users
+ORDER BY &quot;createdAt&quot; DESC;
+</code></pre>
+<p>Giải thích:
+Query này lấy danh sách user và sắp xếp mới nhất trước bằng <code>ORDER BY ... DESC</code>.</p>
+<h3>Câu 2</h3>
+<pre><code class="language-sql">SELECT id, title, status, &quot;projectId&quot;, &quot;assigneeId&quot;, &quot;createdAt&quot;
+FROM tasks
+WHERE status = &#39;TODO&#39;;
+</code></pre>
+<p>Giải thích:
+Đây là filter exact match theo status. Kiểu query này dùng nhiều khi đối soát task list hoặc kiểm tra kết quả filter của API.</p>
+<h3>Câu 3</h3>
+<pre><code class="language-sql">SELECT id, title, status, &quot;projectId&quot;, &quot;createdAt&quot;
+FROM tasks
+WHERE &quot;assigneeId&quot; IS NULL;
+</code></pre>
+<p>Giải thích:
+<code>IS NULL</code> dùng để tìm record chưa được assign. Không dùng <code>= NULL</code>.</p>
+<h3>Câu 4</h3>
+<pre><code class="language-sql">SELECT status, COUNT(*) AS task_count
+FROM tasks
+GROUP BY status
+ORDER BY status;
+</code></pre>
+<p>Giải thích:
+Đây là aggregate cơ bản để đếm số lượng task theo từng trạng thái.</p>
+<h2>Nhóm B: JOIN và Aggregate</h2>
+<h3>Câu 5</h3>
+<pre><code class="language-sql">SELECT
+  t.id,
+  t.title,
+  t.status,
+  p.name AS project_name,
+  u.email AS assignee_email
+FROM tasks t
+JOIN projects p ON p.id = t.&quot;projectId&quot;
+LEFT JOIN users u ON u.id = t.&quot;assigneeId&quot;
+ORDER BY t.&quot;createdAt&quot; DESC;
+</code></pre>
+<p>Giải thích:
+<code>JOIN</code> với <code>projects</code> vì task luôn phải thuộc một project.
+<code>LEFT JOIN</code> với <code>users</code> vì có task chưa assign.</p>
+<h3>Câu 6</h3>
+<pre><code class="language-sql">SELECT
+  p.id,
+  p.name,
+  p.&quot;ownerId&quot;,
+  u.email AS owner_email,
+  p.&quot;createdAt&quot;
+FROM projects p
+JOIN users u ON u.id = p.&quot;ownerId&quot;
+ORDER BY p.&quot;createdAt&quot; DESC;
+</code></pre>
+<p>Giải thích:
+Query này rất hợp để verify project trả ra có đúng owner hay không.</p>
+<h3>Câu 7</h3>
+<pre><code class="language-sql">SELECT
+  p.id,
+  p.name,
+  COUNT(t.id) AS task_count
+FROM projects p
+LEFT JOIN tasks t ON t.&quot;projectId&quot; = p.id
+GROUP BY p.id, p.name
+ORDER BY p.name;
+</code></pre>
+<p>Giải thích:
+Phải dùng <code>LEFT JOIN</code> để project không có task vẫn hiện ra với <code>task_count = 0</code>.</p>
+<h3>Câu 8</h3>
+<pre><code class="language-sql">SELECT
+  u.id,
+  u.email,
+  COUNT(t.id) AS assigned_task_count
+FROM users u
+LEFT JOIN tasks t ON t.&quot;assigneeId&quot; = u.id
+GROUP BY u.id, u.email
+ORDER BY assigned_task_count DESC, u.email;
+</code></pre>
+<p>Giải thích:
+Query này dùng tốt cho phân bổ workload và verify assignment.</p>
+<h3>Câu 9</h3>
+<pre><code class="language-sql">SELECT
+  p.id,
+  p.name,
+  COUNT(t.id) AS task_count
+FROM projects p
+LEFT JOIN tasks t ON t.&quot;projectId&quot; = p.id
+GROUP BY p.id, p.name
+ORDER BY task_count DESC, p.name
+LIMIT 1;
+</code></pre>
+<p>Giải thích:
+Nếu chỉ cần một project top 1 thì dùng <code>ORDER BY ... DESC LIMIT 1</code>.
+Nếu muốn lấy tất cả project đồng hạng cao nhất thì cần query nâng cao hơn.</p>
+<h2>Nhóm C: Data Verification đúng kiểu Tester</h2>
+<h3>Câu 10</h3>
+<pre><code class="language-sql">SELECT
+  t.id AS task_id,
+  t.title,
+  t.status,
+  p.name AS project_name,
+  u.email AS assignee_email
+FROM tasks t
+JOIN projects p ON p.id = t.&quot;projectId&quot;
+LEFT JOIN users u ON u.id = t.&quot;assigneeId&quot;
+ORDER BY t.&quot;createdAt&quot; DESC;
+</code></pre>
+<p>Giải thích:
+Đây là query đối soát điển hình giữa API response và DB. Khi bug report, có thể chụp response API ở một bên và output SQL ở bên còn lại để chứng minh record thiếu field hoặc sai relation.</p>
+<h3>Câu 11</h3>
+<pre><code class="language-sql">SELECT id, email, role
+FROM users
+WHERE email NOT LIKE &#39;%@%&#39;;
+</code></pre>
+<p>Giải thích:
+Đây là cách tìm dữ liệu email bất thường ở mức đơn giản. Nếu muốn kiểm chặt hơn có thể dùng regex.</p>
+<h3>Câu 12</h3>
+<pre><code class="language-sql">SELECT id, email, password
+FROM users
+WHERE password NOT LIKE &#39;$2%&#39;;
+</code></pre>
+<p>Giải thích:
+Với project này dùng <code>bcryptjs</code>, password hash thường bắt đầu bằng <code>$2</code>. Query này giúp rà nhanh record có dấu hiệu lưu plaintext hoặc sai format hash.</p>
+<h3>Câu 13</h3>
+<pre><code class="language-sql">SELECT
+  t.id,
+  t.title,
+  t.&quot;projectId&quot;
+FROM tasks t
+LEFT JOIN projects p ON p.id = t.&quot;projectId&quot;
+WHERE p.id IS NULL;
+</code></pre>
+<p>Giải thích:
+Đây là query chuẩn để tìm <code>orphan task</code>. Cực hữu ích khi verify sau thao tác xóa project.</p>
+<h3>Câu 14</h3>
+<pre><code class="language-sql">SELECT
+  t.id,
+  t.title,
+  t.&quot;assigneeId&quot;
+FROM tasks t
+LEFT JOIN users u ON u.id = t.&quot;assigneeId&quot;
+WHERE t.&quot;assigneeId&quot; IS NOT NULL
+  AND u.id IS NULL;
+</code></pre>
+<p>Giải thích:
+Phải thêm điều kiện <code>t.&quot;assigneeId&quot; IS NOT NULL</code> để tránh nhầm task chưa assign với task có foreign key sai.</p>
+<h3>Câu 15</h3>
+<pre><code class="language-sql">SELECT
+  &quot;projectId&quot;,
+  title,
+  COUNT(*) AS duplicate_count
+FROM tasks
+GROUP BY &quot;projectId&quot;, title
+HAVING COUNT(*) &gt; 1
+ORDER BY duplicate_count DESC, title;
+</code></pre>
+<p>Giải thích:
+<code>HAVING</code> dùng để lọc sau khi aggregate. Đây là mẫu query rất hay cho duplicate check.</p>
+<h2>Nhóm D: Verify bug thực tế của project</h2>
+<h3>Câu 16</h3>
+<pre><code class="language-sql">SELECT id, name, &quot;ownerId&quot;
+FROM projects
+ORDER BY name;
+</code></pre>
+<pre><code class="language-sql">SELECT
+  p.id,
+  p.name,
+  p.&quot;ownerId&quot;
+FROM projects p
+JOIN users u ON u.id = p.&quot;ownerId&quot;
+WHERE u.email = &#39;bob@test.com&#39;
+ORDER BY p.name;
+</code></pre>
+<p>Giải thích:
+Query thứ nhất là actual data toàn hệ thống.
+Query thứ hai là expected data nếu API lọc đúng theo owner của <code>bob@test.com</code>.
+So sánh hai tập kết quả là cách rất tốt để chứng minh bug authorization.</p>
+<h3>Câu 17</h3>
+<pre><code class="language-sql">SELECT
+  t.id AS task_id,
+  t.title,
+  t.&quot;projectId&quot;,
+  t.&quot;assigneeId&quot;,
+  owner.email AS project_owner_email,
+  assignee.email AS assignee_email
+FROM tasks t
+JOIN projects p ON p.id = t.&quot;projectId&quot;
+JOIN users owner ON owner.id = p.&quot;ownerId&quot;
+LEFT JOIN users assignee ON assignee.id = t.&quot;assigneeId&quot;
+WHERE t.id = &#39;&lt;task-id&gt;&#39;;
+</code></pre>
+<p>Giải thích:
+Query này gom đủ context để chứng minh task thuộc project nào, owner là ai, assignee là ai. Khi một user không liên quan vẫn update được task thì output này là evidence rất mạnh.</p>
+<h3>Câu 18</h3>
+<pre><code class="language-sql">SELECT id, title, status
+FROM tasks
+WHERE id = &#39;&lt;task-id&gt;&#39;;
+</code></pre>
+<p>Giải thích:
+Sau khi gọi API update với <code>status = &#39;IN_PROGRESS&#39;</code>, chạy query này để xác nhận DB thực lưu gì. Nếu DB vẫn là <code>TODO</code> thì có bug logic/persistence, không phải chỉ là bug hiển thị.</p>
+<h3>Câu 19</h3>
+<pre><code class="language-sql">SELECT id, title, status
+FROM tasks
+WHERE status = &#39;TODO&#39;
+ORDER BY &quot;createdAt&quot;;
+</code></pre>
+<pre><code class="language-sql">SELECT id, title, status
+FROM tasks
+WHERE status ILIKE &#39;%DO%&#39;
+ORDER BY &quot;createdAt&quot;;
+</code></pre>
+<p>Giải thích:
+Query đầu là exact match đúng kỳ vọng business.
+Query thứ hai mô phỏng cách filter wildcard có thể match cả <code>TODO</code> và <code>DONE</code>.</p>
+<h3>Câu 20</h3>
+<pre><code class="language-sql">SELECT id, title, status, &quot;createdAt&quot;
+FROM tasks
+ORDER BY &quot;createdAt&quot;
+LIMIT 5 OFFSET 0;
+</code></pre>
+<pre><code class="language-sql">SELECT id, title, status, &quot;createdAt&quot;
+FROM tasks
+ORDER BY &quot;createdAt&quot;
+LIMIT 5 OFFSET 5;
+</code></pre>
+<p>Giải thích:
+Query đầu là logic đúng cho <code>page = 1, limit = 5</code>.
+Query sau là logic bug khi offset bị tính thành <code>page * limit</code>.</p>
+<h3>Câu 21</h3>
+<pre><code class="language-sql">SELECT
+  t.id,
+  COUNT(*) AS occurrences
+FROM tasks t
+LEFT JOIN projects p1 ON p1.id = t.&quot;projectId&quot;
+LEFT JOIN projects p2 ON p2.id = t.&quot;projectId&quot;
+GROUP BY t.id
+HAVING COUNT(*) &gt; 1
+ORDER BY occurrences DESC, t.id;
+</code></pre>
+<p>Giải thích:
+Query này mô phỏng trường hợp join dư cùng một relation và kiểm tra task nào bị xuất hiện nhiều lần trong result set.</p>
+<h2>Nhóm E: Nâng cao vừa đủ cho Senior</h2>
+<h3>Câu 22</h3>
+<pre><code class="language-sql">SELECT
+  owner.email AS owner_email,
+  COUNT(CASE WHEN t.status = &#39;TODO&#39; THEN 1 END) AS todo_count,
+  COUNT(CASE WHEN t.status = &#39;IN_PROGRESS&#39; THEN 1 END) AS in_progress_count,
+  COUNT(CASE WHEN t.status = &#39;DONE&#39; THEN 1 END) AS done_count
+FROM projects p
+JOIN users owner ON owner.id = p.&quot;ownerId&quot;
+LEFT JOIN tasks t ON t.&quot;projectId&quot; = p.id
+GROUP BY owner.email
+ORDER BY owner.email;
+</code></pre>
+<p>Giải thích:
+Đây là report tổng hợp theo owner. Rất phù hợp để nói về reporting hoặc quality summary trong phỏng vấn.</p>
+<h3>Câu 23</h3>
+<pre><code class="language-sql">WITH task_counts AS (
+  SELECT
+    u.id,
+    u.email,
+    COUNT(t.id) AS assigned_task_count
+  FROM users u
+  LEFT JOIN tasks t ON t.&quot;assigneeId&quot; = u.id
+  GROUP BY u.id, u.email
+)
+SELECT id, email, assigned_task_count
+FROM task_counts
+WHERE assigned_task_count = (
+  SELECT MAX(assigned_task_count) FROM task_counts
+)
+ORDER BY email;
+</code></pre>
+<p>Giải thích:
+Dùng <code>CTE</code> để tính trước, sau đó lấy tất cả user đồng hạng cao nhất.</p>
+<h3>Câu 24</h3>
+<pre><code class="language-sql">SELECT
+  p.id,
+  p.name
+FROM projects p
+LEFT JOIN tasks t
+  ON t.&quot;projectId&quot; = p.id
+ AND t.status = &#39;DONE&#39;
+WHERE t.id IS NULL
+ORDER BY p.name;
+</code></pre>
+<p>Giải thích:
+Kỹ thuật này rất tốt để tìm những project không có record thỏa điều kiện nào đó.</p>
+<h3>Câu 25</h3>
+<pre><code class="language-sql">WITH incoming_batch AS (
+  SELECT &#39;11111111-1111-1111-1111-111111111111&#39;::uuid AS task_id
+  UNION ALL
+  SELECT &#39;22222222-2222-2222-2222-222222222222&#39;::uuid
+  UNION ALL
+  SELECT &#39;33333333-3333-3333-3333-333333333333&#39;::uuid
+  UNION ALL
+  SELECT &#39;44444444-4444-4444-4444-444444444444&#39;::uuid
+  UNION ALL
+  SELECT &#39;55555555-5555-5555-5555-555555555555&#39;::uuid
+)
+SELECT
+  b.task_id,
+  t.id AS existing_task_id,
+  CASE
+    WHEN t.id IS NULL THEN &#39;MISSING&#39;
+    ELSE &#39;FOUND&#39;
+  END AS verify_result
+FROM incoming_batch b
+LEFT JOIN tasks t ON t.id = b.task_id
+ORDER BY b.task_id;
+</code></pre>
+<p>Giải thích:
+Đây là kiểu query mô phỏng đối soát input batch với dữ liệu thật trong DB.</p>
+<h3>Câu 26</h3>
+<pre><code class="language-sql">WITH expected_updates AS (
+  SELECT &#39;11111111-1111-1111-1111-111111111111&#39;::uuid AS task_id, &#39;DONE&#39;::text AS expected_status
+  UNION ALL
+  SELECT &#39;22222222-2222-2222-2222-222222222222&#39;::uuid, &#39;IN_PROGRESS&#39;::text
+  UNION ALL
+  SELECT &#39;33333333-3333-3333-3333-333333333333&#39;::uuid, &#39;TODO&#39;::text
+)
+SELECT
+  e.task_id,
+  e.expected_status,
+  t.status AS actual_status
+FROM expected_updates e
+LEFT JOIN tasks t ON t.id = e.task_id
+WHERE t.id IS NULL
+   OR t.status::text &lt;&gt; e.expected_status
+ORDER BY e.task_id;
+</code></pre>
+<p>Giải thích:
+Đây là query đối soát <code>expected vs actual</code> rất sát bài toán batch reconciliation. Nếu record không tồn tại hoặc status khác kỳ vọng thì sẽ bị lộ ra ngay.</p>
+
+</body>
+</html>
