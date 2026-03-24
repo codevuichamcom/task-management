@@ -170,3 +170,11 @@ Phù hợp khi cần vừa ôn vừa hiểu rõ project:
 - Nếu muốn đọc nhanh trong trình duyệt, dùng bản HTML trong `docs/html/vi/`
 - Nếu muốn chỉnh sửa nội dung, sửa trực tiếp file `.md` trong `docs/vi/`
 - Nếu thêm tài liệu mới sau này, nên gắn luôn vào trang mục lục này để tránh bị phân tán
+
+---
+
+## 6. Chốt trước phỏng vấn
+
+### [Mock Interview QA](./mock-interview-qa.md)
+
+Dùng khi cần luyện trả lời miệng theo kiểu phỏng vấn thật: câu hỏi ngắn, ý interviewer đang dò, khung trả lời gợi ý và ví dụ bám chính project này.
