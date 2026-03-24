@@ -17,16 +17,9 @@
   </style>
 </head>
 <body>
-<h1>Task Management API — Đặc Tả</h1>
-<p><strong>Base URL:</strong> <code>http://localhost:3000</code>
-<strong>Content-Type:</strong> <code>application/json</code>
-<strong>Xác thực:</strong> Bearer token (JWT) qua header <code>Authorization: Bearer &lt;token&gt;</code></p>
-<hr>
-<h2>Xác Thực</h2>
-<p>Tất cả endpoint ngoại trừ <code>POST /auth/register</code> và <code>POST /auth/login</code> đều yêu cầu JWT token hợp lệ.</p>
-<p>Token hết hạn sau <strong>24 giờ</strong>. Lấy token bằng cách đăng nhập.</p>
-<hr>
-<h2>Mã Lỗi</h2>
+<h1>Đặc tả API Task Management</h1>
+<p><strong>Base URL:</strong> <code>http://localhost:3000</code><br><strong>Content-Type:</strong> <code>application/json</code><br><strong>Xác thực:</strong> Bearer token (JWT) qua <code>Authorization: Bearer &lt;access_token&gt;</code></p>
+<h2>Mã lỗi</h2>
 <table>
 <thead>
 <tr>
@@ -36,34 +29,32 @@
 </thead>
 <tbody><tr>
 <td>400</td>
-<td>Bad Request — dữ liệu không hợp lệ hoặc thiếu trường bắt buộc</td>
+<td>Bad Request</td>
 </tr>
 <tr>
 <td>401</td>
-<td>Unauthorized — thiếu hoặc token không hợp lệ</td>
+<td>Unauthorized</td>
 </tr>
 <tr>
 <td>403</td>
-<td>Forbidden — đã xác thực nhưng không có quyền</td>
+<td>Forbidden</td>
 </tr>
 <tr>
 <td>404</td>
-<td>Not Found — tài nguyên không tồn tại</td>
+<td>Not Found</td>
 </tr>
 <tr>
 <td>409</td>
-<td>Conflict — tài nguyên trùng lặp (ví dụ: email đã được đăng ký)</td>
+<td>Conflict</td>
 </tr>
 <tr>
 <td>500</td>
 <td>Internal Server Error</td>
 </tr>
 </tbody></table>
-<hr>
-<h2>Endpoint Xác Thực</h2>
-<h3>POST /auth/register</h3>
-<p>Đăng ký tài khoản người dùng mới.</p>
-<p><strong>Request Body:</strong></p>
+<h2>POST /auth/register</h2>
+<p>Đăng ký người dùng mới.</p>
+<p><strong>Request</strong></p>
 <pre><code class="language-json">{
   &quot;email&quot;: &quot;user@example.com&quot;,
   &quot;password&quot;: &quot;SecurePass123!&quot;,
@@ -76,469 +67,137 @@
 <th>Trường</th>
 <th>Kiểu</th>
 <th>Bắt buộc</th>
-<th>Mô tả</th>
+<th>Ghi chú</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>email</td>
 <td>string</td>
 <td>có</td>
-<td>Địa chỉ email hợp lệ, phải là duy nhất</td>
+<td>Phải là email hợp lệ</td>
 </tr>
 <tr>
 <td>password</td>
 <td>string</td>
 <td>có</td>
-<td>Tối thiểu 6 ký tự</td>
+<td>Tối thiểu 8 ký tự</td>
 </tr>
 <tr>
 <td>role</td>
 <td>string</td>
-<td>có</td>
-<td><code>USER</code> hoặc <code>ADMIN</code></td>
+<td>không</td>
+<td><code>USER</code> hoặc <code>ADMIN</code>, mặc định là <code>USER</code></td>
 </tr>
 </tbody></table>
-<p><strong>Response 201:</strong></p>
+<h2>POST /auth/login</h2>
+<p>Đăng nhập và nhận JWT token.</p>
+<p><strong>Response 200</strong></p>
 <pre><code class="language-json">{
-  &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
-  &quot;email&quot;: &quot;user@example.com&quot;,
-  &quot;role&quot;: &quot;USER&quot;
+  &quot;access_token&quot;: &quot;eyJhbGci...&quot;,
+  &quot;user&quot;: {
+    &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+    &quot;email&quot;: &quot;user@example.com&quot;
+  }
 }
 </code></pre>
-<p><strong>Response 409:</strong></p>
-<pre><code class="language-json">{
-  &quot;statusCode&quot;: 409,
-  &quot;message&quot;: &quot;Email already in use&quot;
-}
-</code></pre>
-<hr>
-<h3>POST /auth/login</h3>
-<p>Xác thực và nhận JWT token.</p>
-<p><strong>Request Body:</strong></p>
-<pre><code class="language-json">{
-  &quot;email&quot;: &quot;user@example.com&quot;,
-  &quot;password&quot;: &quot;SecurePass123!&quot;
-}
-</code></pre>
-<table>
-<thead>
-<tr>
-<th>Trường</th>
-<th>Kiểu</th>
-<th>Bắt buộc</th>
-<th>Mô tả</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>email</td>
-<td>string</td>
-<td>có</td>
-<td>Email đã đăng ký</td>
-</tr>
-<tr>
-<td>password</td>
-<td>string</td>
-<td>có</td>
-<td>Mật khẩu tài khoản</td>
-</tr>
-</tbody></table>
-<p><strong>Response 200:</strong></p>
-<pre><code class="language-json">{
-  &quot;token&quot;: &quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;,
-  &quot;userId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;
-}
-</code></pre>
-<blockquote>
-<p><strong>Lưu ý:</strong> Sử dụng giá trị của trường <code>token</code> làm Bearer token trong các request tiếp theo.</p>
-</blockquote>
-<p><strong>Response 401:</strong></p>
-<pre><code class="language-json">{
-  &quot;statusCode&quot;: 401,
-  &quot;message&quot;: &quot;Invalid credentials&quot;
-}
-</code></pre>
-<hr>
-<h2>Endpoint Dự Án</h2>
-<p>Tất cả endpoint dự án đều yêu cầu xác thực.</p>
-<h3>POST /projects</h3>
-<p>Tạo dự án mới. Người dùng đang xác thực sẽ tự động trở thành chủ sở hữu.</p>
-<p><strong>Request Body:</strong></p>
-<pre><code class="language-json">{
-  &quot;name&quot;: &quot;Dự Án Mới&quot;
-}
-</code></pre>
-<table>
-<thead>
-<tr>
-<th>Trường</th>
-<th>Kiểu</th>
-<th>Bắt buộc</th>
-<th>Mô tả</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>name</td>
-<td>string</td>
-<td>có</td>
-<td>Tên dự án, không được để trống</td>
-</tr>
-</tbody></table>
-<p><strong>Response 201:</strong></p>
+<h2>POST /projects</h2>
+<p>Tạo dự án mới. Người dùng hiện tại sẽ là owner.</p>
+<p><strong>Response 201</strong></p>
 <pre><code class="language-json">{
   &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
-  &quot;name&quot;: &quot;Dự Án Mới&quot;,
+  &quot;name&quot;: &quot;Dự án mới&quot;,
   &quot;ownerId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
   &quot;createdAt&quot;: &quot;2024-01-15T10:30:00.000Z&quot;
 }
 </code></pre>
-<hr>
-<h3>GET /projects</h3>
-<p>Lấy danh sách tất cả dự án của người dùng đang xác thực.</p>
-<p><strong>Response 200:</strong></p>
-<pre><code class="language-json">[
-  {
-    &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
-    &quot;name&quot;: &quot;Alpha Project&quot;,
-    &quot;ownerId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
-    &quot;createdAt&quot;: &quot;2024-01-10T08:00:00.000Z&quot;
-  }
-]
-</code></pre>
-<hr>
-<h3>PATCH /projects/:id</h3>
-<p>Cập nhật dự án. Chỉ chủ sở hữu dự án mới được phép cập nhật.</p>
-<p><strong>Path Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Tham số</th>
-<th>Kiểu</th>
-<th>Mô tả</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>id</td>
-<td>UUID</td>
-<td>ID của dự án</td>
-</tr>
-</tbody></table>
-<p><strong>Request Body:</strong></p>
-<pre><code class="language-json">{
-  &quot;name&quot;: &quot;Tên Dự Án Đã Cập Nhật&quot;
-}
-</code></pre>
-<p><strong>Response 200:</strong></p>
-<pre><code class="language-json">{
-  &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
-  &quot;name&quot;: &quot;Tên Dự Án Đã Cập Nhật&quot;,
-  &quot;ownerId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
-  &quot;createdAt&quot;: &quot;2024-01-10T08:00:00.000Z&quot;
-}
-</code></pre>
-<p><strong>Response 404:</strong></p>
-<pre><code class="language-json">{
-  &quot;statusCode&quot;: 404,
-  &quot;message&quot;: &quot;Project not found&quot;
-}
-</code></pre>
-<hr>
-<h3>DELETE /projects/:id</h3>
-<p>Xóa dự án. Chỉ chủ sở hữu dự án mới được phép xóa.</p>
-<p><strong>Path Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Tham số</th>
-<th>Kiểu</th>
-<th>Mô tả</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>id</td>
-<td>UUID</td>
-<td>ID của dự án</td>
-</tr>
-</tbody></table>
-<p><strong>Response 200:</strong></p>
-<pre><code class="language-json">{
-  &quot;message&quot;: &quot;deleted&quot;
-}
-</code></pre>
-<hr>
-<h2>Endpoint Công Việc (Task)</h2>
-<p>Tất cả endpoint task đều yêu cầu xác thực.</p>
-<h3>POST /tasks</h3>
+<h2>GET /projects</h2>
+<p>Lấy danh sách dự án do người dùng hiện tại sở hữu.</p>
+<h2>PATCH /projects/:id</h2>
+<p>Cập nhật dự án. Chỉ owner mới được phép cập nhật.</p>
+<h2>DELETE /projects/:id</h2>
+<p>Xóa dự án và toàn bộ task liên quan. Chỉ owner mới được phép xóa.</p>
+<h2>POST /tasks</h2>
 <p>Tạo task mới.</p>
-<p><strong>Request Body:</strong></p>
-<pre><code class="language-json">{
-  &quot;title&quot;: &quot;Triển khai tính năng đăng nhập&quot;,
-  &quot;description&quot;: &quot;Xây dựng endpoint đăng nhập JWT&quot;,
-  &quot;status&quot;: &quot;TODO&quot;,
-  &quot;projectId&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
-  &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;
-}
-</code></pre>
 <table>
 <thead>
 <tr>
 <th>Trường</th>
 <th>Kiểu</th>
 <th>Bắt buộc</th>
-<th>Mô tả</th>
+<th>Ghi chú</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>title</td>
 <td>string</td>
 <td>có</td>
-<td>Tiêu đề task, không được để trống</td>
+<td>Không được để trống</td>
 </tr>
 <tr>
 <td>description</td>
 <td>string</td>
 <td>không</td>
-<td>Mô tả chi tiết</td>
+<td>Tùy chọn</td>
 </tr>
 <tr>
 <td>status</td>
 <td>string</td>
 <td>không</td>
-<td><code>TODO</code>, <code>IN_PROGRESS</code>, hoặc <code>DONE</code>. Mặc định là <code>TODO</code></td>
+<td><code>TODO</code>, <code>IN_PROGRESS</code>, <code>DONE</code></td>
 </tr>
 <tr>
 <td>projectId</td>
 <td>UUID</td>
 <td>có</td>
-<td>ID của dự án cha</td>
+<td>Phải tham chiếu tới project tồn tại</td>
 </tr>
 <tr>
 <td>assigneeId</td>
 <td>UUID</td>
 <td>không</td>
-<td>ID người dùng được giao task</td>
+<td>Nếu có thì phải tham chiếu tới user tồn tại</td>
 </tr>
 </tbody></table>
-<p><strong>Response 201:</strong></p>
-<pre><code class="language-json">{
-  &quot;id&quot;: &quot;770e8400-e29b-41d4-a716-446655440001&quot;,
-  &quot;title&quot;: &quot;Triển khai tính năng đăng nhập&quot;,
-  &quot;description&quot;: &quot;Xây dựng endpoint đăng nhập JWT&quot;,
-  &quot;status&quot;: &quot;TODO&quot;,
-  &quot;projectId&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
-  &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
-  &quot;createdAt&quot;: &quot;2024-01-15T11:00:00.000Z&quot;
-}
-</code></pre>
-<hr>
-<h3>GET /tasks</h3>
-<p>Lấy danh sách task với tùy chọn lọc và phân trang.</p>
-<p><strong>Query Parameters:</strong></p>
+<h2>GET /tasks</h2>
+<p>Lấy danh sách task với lọc và phân trang.</p>
 <table>
 <thead>
 <tr>
-<th>Tham số</th>
+<th>Query Param</th>
 <th>Kiểu</th>
-<th>Mô tả</th>
+<th>Ghi chú</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>page</td>
 <td>number</td>
-<td>Số trang, bắt đầu từ 1. <code>page=1</code> trả về trang đầu tiên. Mặc định: <code>1</code></td>
+<td>Bắt đầu từ <code>1</code>, mặc định <code>1</code></td>
 </tr>
 <tr>
 <td>limit</td>
 <td>number</td>
-<td>Số item mỗi trang. Mặc định: <code>10</code></td>
+<td>Mặc định <code>10</code></td>
+</tr>
+<tr>
+<td>statusFilter</td>
+<td>string</td>
+<td>Tham số chính để lọc status, so khớp chính xác không phân biệt hoa thường</td>
 </tr>
 <tr>
 <td>status</td>
 <td>string</td>
-<td>Lọc theo trạng thái chính xác: <code>TODO</code>, <code>IN_PROGRESS</code>, hoặc <code>DONE</code></td>
+<td>Alias cũ của <code>statusFilter</code>, còn hỗ trợ tạm thời</td>
 </tr>
 <tr>
 <td>projectId</td>
 <td>UUID</td>
-<td>Lọc task thuộc một dự án cụ thể</td>
+<td>Lọc theo project</td>
 </tr>
 </tbody></table>
-<p><strong>Ví dụ Request:</strong></p>
-<pre><code>GET /tasks?page=1&amp;limit=5&amp;status=TODO&amp;projectId=660e8400-e29b-41d4-a716-446655440001
-</code></pre>
-<p><strong>Response 200:</strong></p>
-<pre><code class="language-json">{
-  &quot;data&quot;: [
-    {
-      &quot;id&quot;: &quot;770e8400-e29b-41d4-a716-446655440001&quot;,
-      &quot;title&quot;: &quot;Triển khai tính năng đăng nhập&quot;,
-      &quot;description&quot;: &quot;Xây dựng endpoint đăng nhập JWT&quot;,
-      &quot;status&quot;: &quot;TODO&quot;,
-      &quot;projectId&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
-      &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
-      &quot;createdAt&quot;: &quot;2024-01-15T11:00:00.000Z&quot;,
-      &quot;project&quot;: { &quot;id&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;, &quot;name&quot;: &quot;Alpha Project&quot; },
-      &quot;assignee&quot;: { &quot;id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;, &quot;email&quot;: &quot;alice@test.com&quot; }
-    }
-  ],
-  &quot;meta&quot;: {
-    &quot;page&quot;: 1,
-    &quot;limit&quot;: 5,
-    &quot;total&quot;: 42
-  }
-}
-</code></pre>
-<blockquote>
-<p><strong>Lưu ý:</strong> Tham số lọc là <code>status</code> (không phải <code>statusFilter</code>). Kết quả khớp chính xác theo giá trị enum.</p>
-</blockquote>
-<hr>
-<h3>PATCH /tasks/:id</h3>
-<p>Cập nhật task. Chỉ những người dùng thuộc dự án của task mới được phép cập nhật.</p>
-<p><strong>Path Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Tham số</th>
-<th>Kiểu</th>
-<th>Mô tả</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>id</td>
-<td>UUID</td>
-<td>ID của task</td>
-</tr>
-</tbody></table>
-<p><strong>Request Body:</strong></p>
-<pre><code class="language-json">{
-  &quot;title&quot;: &quot;Tiêu đề task đã cập nhật&quot;,
-  &quot;description&quot;: &quot;Mô tả đã cập nhật&quot;,
-  &quot;status&quot;: &quot;IN_PROGRESS&quot;,
-  &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;
-}
-</code></pre>
-<table>
-<thead>
-<tr>
-<th>Trường</th>
-<th>Kiểu</th>
-<th>Bắt buộc</th>
-<th>Mô tả</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>title</td>
-<td>string</td>
-<td>không</td>
-<td>Tiêu đề task mới</td>
-</tr>
-<tr>
-<td>description</td>
-<td>string</td>
-<td>không</td>
-<td>Mô tả mới</td>
-</tr>
-<tr>
-<td>status</td>
-<td>string</td>
-<td>không</td>
-<td>Phải là <code>TODO</code>, <code>IN_PROGRESS</code>, hoặc <code>DONE</code></td>
-</tr>
-<tr>
-<td>assigneeId</td>
-<td>UUID</td>
-<td>có</td>
-<td>ID người dùng được giao lại task</td>
-</tr>
-</tbody></table>
-<p><strong>Response 200:</strong></p>
-<pre><code class="language-json">{
-  &quot;id&quot;: &quot;770e8400-e29b-41d4-a716-446655440001&quot;,
-  &quot;title&quot;: &quot;Tiêu đề task đã cập nhật&quot;,
-  &quot;description&quot;: &quot;Mô tả đã cập nhật&quot;,
-  &quot;status&quot;: &quot;IN_PROGRESS&quot;,
-  &quot;projectId&quot;: &quot;660e8400-e29b-41d4-a716-446655440001&quot;,
-  &quot;assigneeId&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
-  &quot;createdAt&quot;: &quot;2024-01-15T11:00:00.000Z&quot;
-}
-</code></pre>
-<hr>
-<h3>DELETE /tasks/:id</h3>
-<p>Xóa task. Chỉ những người dùng thuộc dự án của task mới được phép xóa.</p>
-<p><strong>Path Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Tham số</th>
-<th>Kiểu</th>
-<th>Mô tả</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>id</td>
-<td>UUID</td>
-<td>ID của task</td>
-</tr>
-</tbody></table>
-<p><strong>Response 200:</strong></p>
-<pre><code class="language-json">{
-  &quot;message&quot;: &quot;deleted&quot;
-}
-</code></pre>
-<hr>
-<h2>Người Dùng Mặc Định</h2>
-<p>Các người dùng sau được tạo sẵn khi khởi động lần đầu:</p>
-<table>
-<thead>
-<tr>
-<th>Email</th>
-<th>Mật khẩu</th>
-<th>Vai trò</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><a href="mailto:admin@test.com">admin@test.com</a></td>
-<td>Admin123!</td>
-<td>ADMIN</td>
-</tr>
-<tr>
-<td><a href="mailto:alice@test.com">alice@test.com</a></td>
-<td>Alice123!</td>
-<td>USER</td>
-</tr>
-<tr>
-<td><a href="mailto:bob@test.com">bob@test.com</a></td>
-<td>Bob123!</td>
-<td>USER</td>
-</tr>
-<tr>
-<td><a href="mailto:charlie@test.com">charlie@test.com</a></td>
-<td>Charlie123!</td>
-<td>USER</td>
-</tr>
-</tbody></table>
-<hr>
-<h2>Giá Trị Trạng Thái (Status)</h2>
-<table>
-<thead>
-<tr>
-<th>Giá trị</th>
-<th>Mô tả</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>TODO</code></td>
-<td>Task chưa bắt đầu</td>
-</tr>
-<tr>
-<td><code>IN_PROGRESS</code></td>
-<td>Task đang được thực hiện</td>
-</tr>
-<tr>
-<td><code>DONE</code></td>
-<td>Task đã hoàn thành</td>
-</tr>
-</tbody></table>
-<p>Quy tắc chuyển trạng thái: task ở trạng thái <code>DONE</code> không thể chuyển ngược về <code>TODO</code> hoặc <code>IN_PROGRESS</code>.</p>
+<h2>PATCH /tasks/:id</h2>
+<p>Cập nhật task. Chỉ owner của project hoặc assignee hiện tại mới được phép cập nhật.</p>
+<h2>DELETE /tasks/:id</h2>
+<p>Xóa task. Chỉ owner của project hoặc assignee hiện tại mới được phép xóa.</p>
 
 </body>
 </html>

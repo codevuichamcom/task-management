@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Project } from './entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { Project } from './entities/project.entity';
 
 @Injectable()
 export class ProjectsService {
@@ -12,20 +12,19 @@ export class ProjectsService {
     private projectsRepository: Repository<Project>,
   ) {}
 
-  async create(dto: CreateProjectDto, ownerId: string): Promise<any> {
+  async create(dto: CreateProjectDto, ownerId: string): Promise<Project> {
     const project = this.projectsRepository.create({
       name: dto.name,
       ownerId,
     });
-    const saved = await this.projectsRepository.save(project);
-    // BUG-12: Only returns id and name. Missing ownerId and createdAt per spec.
-    return { id: saved.id, name: saved.name };
+    return this.projectsRepository.save(project);
   }
 
   async findAll(userId: string): Promise<Project[]> {
-    // BUG-3: Fetches ALL projects, no WHERE owner_id = userId filter
-    // Any user can see all projects in the system
-    return this.projectsRepository.find();
+    return this.projectsRepository.find({
+      where: { ownerId: userId },
+      order: { createdAt: 'ASC' },
+    });
   }
 
   async findOne(id: string): Promise<Project> {
@@ -36,16 +35,21 @@ export class ProjectsService {
 
   async update(id: string, dto: UpdateProjectDto, userId: string): Promise<Project> {
     const project = await this.findOne(id);
-    // BUG-3: No ownership check. Any user can update any project.
+    this.assertOwner(project, userId);
     Object.assign(project, dto);
     return this.projectsRepository.save(project);
   }
 
   async remove(id: string, userId: string): Promise<{ message: string }> {
     const project = await this.findOne(id);
-    // BUG-3: No ownership check.
-    // BUG-6: Only deletes project row. Tasks with this projectId remain orphaned.
+    this.assertOwner(project, userId);
     await this.projectsRepository.remove(project);
     return { message: 'deleted' };
+  }
+
+  private assertOwner(project: Project, userId: string) {
+    if (project.ownerId !== userId) {
+      throw new ForbiddenException('You do not have access to this project');
+    }
   }
 }

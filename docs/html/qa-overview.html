@@ -17,78 +17,35 @@
   </style>
 </head>
 <body>
-<h1>QA Practice System – Overview</h1>
-<p>Welcome to the QA practice system.</p>
-<p>This project simulates a real-world backend system where requirements, documentation, and implementation may not always be perfectly aligned.</p>
-<p>Your goal is to:</p>
+<h1>Task Management System Overview</h1>
+<p>This project is a small backend for practicing common tester workflows:</p>
 <ul>
-<li>Understand the system behavior</li>
-<li>Validate API functionality</li>
-<li>Verify data consistency</li>
-<li>Identify and report issues</li>
+<li>reading API documentation</li>
+<li>sending requests through Swagger, Postman, or curl</li>
+<li>validating authorization behavior</li>
+<li>checking persisted data directly in PostgreSQL</li>
+<li>comparing API responses with database state</li>
 </ul>
-<hr>
-<h2>📌 Scope</h2>
-<p>This is a simple Task Management System with the following modules:</p>
+<h2>Scope</h2>
+<p>The system contains three main modules:</p>
 <ul>
-<li>Authentication (register, login)</li>
+<li>Authentication</li>
 <li>Project management</li>
 <li>Task management</li>
 </ul>
-<hr>
-<h2>📚 Available Documents</h2>
-<p>You are provided with the following materials:</p>
-<h3>1. API Specification</h3>
-<p>👉 See: <a href="./api-spec.html">api-spec.html</a></p>
-<p>Contains:</p>
-<ul>
-<li>List of endpoints</li>
-<li>Request/response examples</li>
-<li>Expected behaviors</li>
-</ul>
-<hr>
-<h3>2. Jira Tickets</h3>
-<p>👉 See: <a href="./jira-tickets.html">jira-tickets.html</a></p>
-<p>Contains:</p>
-<ul>
-<li>Feature descriptions</li>
-<li>Business requirements</li>
-<li>Expected use cases</li>
-</ul>
-<hr>
-<h2>🧪 Your Tasks</h2>
-<p>As a QA engineer, you should:</p>
+<h2>Suggested workflow</h2>
 <ol>
-<li>Review the Jira tickets to understand requirements</li>
-<li>Use the API specification to explore endpoints</li>
-<li>Test APIs using Postman or similar tools</li>
-<li>Validate data directly in the database (PostgreSQL)</li>
-<li>Identify inconsistencies, bugs, or unexpected behaviors</li>
-<li>Write clear bug reports</li>
+<li>Read <a href="./api-spec.html">./api-spec.html</a> to understand the public contract.</li>
+<li>Review <a href="./jira-tickets.html">./jira-tickets.html</a> for requirement context.</li>
+<li>Exercise endpoints through Swagger UI or Postman.</li>
+<li>Verify stored data with SQL.</li>
 </ol>
-<hr>
-<h2>⚠️ Important Notes</h2>
+<h2>Available references</h2>
 <ul>
-<li>Not all documents are guaranteed to be correct or complete</li>
-<li>Some behaviors may differ from documentation</li>
-<li>You may need to rely on multiple sources to determine expected results</li>
+<li>API specification: <a href="./api-spec.html">./api-spec.html</a></li>
+<li>Jira-style requirements: <a href="./jira-tickets.html">./jira-tickets.html</a></li>
+<li>Swagger UI: <code>http://localhost:3000/api-docs</code></li>
 </ul>
-<hr>
-<h2>🎯 Goal</h2>
-<p>The objective of this exercise is to simulate real-world QA work, where:</p>
-<ul>
-<li>Requirements can be unclear</li>
-<li>Documentation may be outdated or inconsistent</li>
-<li>Systems may contain hidden issues</li>
-</ul>
-<p>Focus on:</p>
-<ul>
-<li>Critical thinking</li>
-<li>Careful validation</li>
-<li>Clear communication</li>
-</ul>
-<hr>
-<p>Good luck! 🚀</p>
 
 </body>
 </html>

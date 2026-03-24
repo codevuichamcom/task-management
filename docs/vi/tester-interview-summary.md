@@ -393,6 +393,10 @@ Không cần quá sâu, nhưng nên hiểu:
 - `Stress test`: đẩy quá tải để xem hệ thống chịu tới đâu
 - `P95`: 95% request có thời gian phản hồi nhỏ hơn hoặc bằng một giá trị nào đó
 
+Tài liệu mở rộng:
+
+- [Bộ tổng ôn JMeter](./jmeter-review-guide.md)
+
 Ví dụ:
 
 `P95 <= 800ms` nghĩa là đa số request phải phản hồi trong 800ms hoặc nhanh hơn.

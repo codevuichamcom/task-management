@@ -1,14 +1,13 @@
-# Task Management System — QA Training Backend
+# Task Management System Backend
 
-A NestJS REST API built for QA manual testing practice. The system contains **12 intentional bugs** across validation, authorization, business logic, SQL queries, and API spec compliance. Your job as a QA tester is to find them.
-
----
+A NestJS REST API for practicing tester workflows such as API validation, SQL verification, authorization checks, and data consistency analysis.
 
 ## Quick Start
 
 ### Prerequisites
+
 - Docker and Docker Compose installed
-- Ports `3000` and `5432` available on your machine
+- Ports `3000` and `5432` available
 
 ### Start the system
 
@@ -17,11 +16,14 @@ docker-compose up --build
 ```
 
 The application will:
+
 1. Start a PostgreSQL 15 database
 2. Build and start the NestJS API
-3. Auto-seed the database with test users, projects, and tasks on first run
+3. Seed the database with sample users, projects, and tasks on first startup
 
-The API is available at: `http://localhost:3000`
+API base URL: `http://localhost:3000`
+
+Swagger UI: `http://localhost:3000/api-docs`
 
 ### Stop the system
 
@@ -29,13 +31,11 @@ The API is available at: `http://localhost:3000`
 docker-compose down
 ```
 
-To also remove the database volume (reset all data):
+To reset the database volume:
 
 ```bash
 docker-compose down -v
 ```
-
----
 
 ## Seed Users
 
@@ -47,24 +47,21 @@ The following accounts are created automatically on first startup:
 | alice@test.com | Alice123! | USER |
 | bob@test.com | Bob123! | USER |
 | charlie@test.com | Charlie123! | USER |
-
----
+| diana@test.com | Diana123! | USER |
+| eric@test.com | Eric123! | USER |
+| fiona@test.com | Fiona123! | USER |
+| george@test.com | George123! | USER |
+| helen@test.com | Helen123! | USER |
 
 ## Seed Data
 
-On first startup, the following data is created:
+On first startup, the database is seeded with:
 
-**Projects:**
-| Name | Owner |
-|------|-------|
-| Alpha Project | alice@test.com |
-| Beta Project | alice@test.com |
-| Gamma Project | bob@test.com |
-| Delta Project | charlie@test.com |
-
-**Tasks (10 total):** Distributed across all four projects with various statuses (TODO, IN_PROGRESS, DONE) and assignees.
-
----
+- `11` projects
+- `40` tasks
+- multiple status combinations across `TODO`, `IN_PROGRESS`, and `DONE`
+- assigned and unassigned tasks
+- empty projects and users with no assignments for reporting and SQL practice
 
 ## API Overview
 
@@ -73,33 +70,31 @@ On first startup, the following data is created:
 | POST | /auth/register | No | Register a new user |
 | POST | /auth/login | No | Login and get JWT token |
 | POST | /projects | Yes | Create a new project |
-| GET | /projects | Yes | List projects |
-| PATCH | /projects/:id | Yes | Update a project |
-| DELETE | /projects/:id | Yes | Delete a project |
+| GET | /projects | Yes | List current user's projects |
+| PATCH | /projects/:id | Yes | Update a project owned by the current user |
+| DELETE | /projects/:id | Yes | Delete a project owned by the current user |
 | POST | /tasks | Yes | Create a new task |
-| GET | /tasks | Yes | List tasks (with filters + pagination) |
-| PATCH | /tasks/:id | Yes | Update a task |
-| DELETE | /tasks/:id | Yes | Delete a task |
+| GET | /tasks | Yes | List tasks with filters and pagination |
+| PATCH | /tasks/:id | Yes | Update a task if current user is the project owner or assignee |
+| DELETE | /tasks/:id | Yes | Delete a task if current user is the project owner or assignee |
 
 ### Authentication
 
 After logging in, include the token in all protected requests:
 
-```
-Authorization: Bearer <your-token-here>
+```text
+Authorization: Bearer <access_token>
 ```
 
 ### Task List Query Parameters
 
-```
-GET /tasks?page=1&limit=10&status=TODO&projectId=<uuid>
+```text
+GET /tasks?page=1&limit=10&statusFilter=TODO&projectId=<uuid>
 ```
 
----
+`statusFilter` is the primary query parameter. The legacy alias `status` is still accepted temporarily for compatibility.
 
 ## PostgreSQL Direct Access
-
-You can connect directly to the database for verification and debugging:
 
 | Setting | Value |
 |---------|-------|
@@ -118,145 +113,35 @@ psql -h localhost -p 5432 -U postgres -d taskdb
 ### Useful queries
 
 ```sql
--- List all users
 SELECT id, email, role, "createdAt" FROM users;
 
--- List all projects with owner email
 SELECT p.id, p.name, u.email AS owner, p."createdAt"
 FROM projects p
 JOIN users u ON p."ownerId" = u.id;
 
--- List all tasks with project name and assignee email
 SELECT t.id, t.title, t.status, p.name AS project,
        u.email AS assignee, t."createdAt"
 FROM tasks t
 JOIN projects p ON t."projectId" = p.id
 LEFT JOIN users u ON t."assigneeId" = u.id
 ORDER BY t."createdAt";
-
--- Check for orphaned tasks (tasks with no matching project)
-SELECT t.id, t.title, t."projectId"
-FROM tasks t
-LEFT JOIN projects p ON t."projectId" = p.id
-WHERE p.id IS NULL;
 ```
 
----
+## Documentation
 
-## Notes for QA Testers
+- API specification: `docs/api-spec.md`
+- Jira-style requirements: `docs/jira-tickets.md`
+- Overview: `docs/qa-overview.md`
 
-This system is intentionally broken in several places. As you test, look for:
+## Development Without Docker
 
-### Areas to Investigate
-
-1. **Input Validation** — Try submitting requests with missing fields, wrong data types, empty strings, and invalid enum values. Do you get appropriate 400 errors?
-
-2. **Authentication** — What happens when you call protected endpoints without a token, with an expired token, or with a malformed token?
-
-3. **Authorization** — Can User A access, modify, or delete resources that belong to User B? Test this across both projects and tasks.
-
-4. **Business Logic** — When you update a task's status, does the response reflect the value you sent? Try all three status values.
-
-5. **API Response Shapes** — Compare every response body against the API spec in `docs/api-spec.md`. Are all documented fields present? Are field names exactly as documented? Are types correct (number vs string)?
-
-6. **Pagination** — Test `GET /tasks` with various `page` and `limit` values. Does page 1 return the first set of results? Is the `meta` object accurate?
-
-7. **Filtering** — Test the status filter with exact values (`TODO`, `IN_PROGRESS`, `DONE`) and with partial strings. Does the filter behave as expected?
-
-8. **Cascade Operations** — When you delete a project, what happens to its tasks? Can you still retrieve them?
-
-### Tips
-
-- Use a tool like **Postman**, **Insomnia**, or **curl** to send requests
-- Log in as different users and use their tokens to test cross-user access
-- Check the database directly via psql to verify what was actually stored vs what the API returned
-- Read `docs/api-spec.md` carefully — it is the source of truth for expected behavior
-- Read `docs/jira-tickets.md` for the original requirements behind each feature
-
-### Reporting Bugs
-
-When reporting a bug, include:
-- The endpoint and HTTP method
-- The request body / query params used
-- The expected response (from the spec)
-- The actual response received
-- Steps to reproduce
-- Severity assessment (High / Medium / Low)
-
----
-
-## Project Structure
-
-```
-task-management/
-├── src/
-│   ├── main.ts                        # Application entry point
-│   ├── app.module.ts                  # Root module
-│   ├── auth/
-│   │   ├── auth.controller.ts
-│   │   ├── auth.service.ts
-│   │   ├── auth.module.ts
-│   │   ├── jwt.strategy.ts
-│   │   └── dto/
-│   │       ├── login.dto.ts
-│   │       └── register.dto.ts
-│   ├── users/
-│   │   ├── users.service.ts
-│   │   ├── users.module.ts
-│   │   └── entities/
-│   │       └── user.entity.ts
-│   ├── projects/
-│   │   ├── projects.controller.ts
-│   │   ├── projects.service.ts
-│   │   ├── projects.module.ts
-│   │   ├── entities/
-│   │   │   └── project.entity.ts
-│   │   └── dto/
-│   │       ├── create-project.dto.ts
-│   │       └── update-project.dto.ts
-│   ├── tasks/
-│   │   ├── tasks.controller.ts
-│   │   ├── tasks.service.ts
-│   │   ├── tasks.module.ts
-│   │   ├── entities/
-│   │   │   └── task.entity.ts
-│   │   └── dto/
-│   │       ├── create-task.dto.ts
-│   │       ├── update-task.dto.ts
-│   │       └── query-task.dto.ts
-│   └── database/
-│       ├── seed.service.ts
-│       └── seed.module.ts
-├── docs/
-│   ├── api-spec.md                    # API specification (source of truth)
-│   ├── jira-tickets.md                # Original requirements
-│   └── known-bugs.md                  # INTERNAL — bug answer key
-├── docker-compose.yml
-├── Dockerfile
-├── package.json
-├── tsconfig.json
-└── .env.example
-```
-
----
-
-## Development (without Docker)
-
-If you prefer to run without Docker, you need a local PostgreSQL instance.
+If you prefer to run without Docker, configure a local PostgreSQL instance and then:
 
 ```bash
-# Copy environment file
 cp .env.example .env
-# Edit .env with your local DB credentials
-
-# Install dependencies
 npm install
-
-# Start in development mode (with watch)
 npm run start:dev
 ```
-
----
 
 ## Tech Stack
 
@@ -266,6 +151,6 @@ npm run start:dev
 | TypeORM | ^0.3 | ORM / database layer |
 | PostgreSQL | 15 | Relational database |
 | passport-jwt | ^4 | JWT authentication |
-| class-validator | ^0.14 | DTO validation decorators |
+| class-validator | ^0.14 | Validation decorators |
 | bcryptjs | ^2.4 | Password hashing |
-| Docker Compose | v3.8 | Container orchestration |
+| Docker Compose | v3.8 | Local orchestration |

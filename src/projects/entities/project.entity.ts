@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Task } from '../../tasks/entities/task.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('projects')
 export class Project {
@@ -17,7 +17,6 @@ export class Project {
   @JoinColumn({ name: 'ownerId' })
   owner: User;
 
-  // BUG-6: NO cascade delete — orphan tasks remain after project deletion
   @OneToMany(() => Task, (task) => task.project)
   tasks: Task[];
 

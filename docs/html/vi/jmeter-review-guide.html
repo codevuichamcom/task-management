@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>jmeter review guide</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Bộ tổng ôn JMeter dễ hiểu cho Tester</h1>
+<p>Tài liệu này được viết để bạn ôn nhanh <code>JMeter</code> theo kiểu:</p>
+<ul>
+<li>hiểu đúng bản chất</li>
+<li>nhớ được các thành phần chính</li>
+<li>biết cách dựng bài test cơ bản</li>
+<li>biết đọc kết quả</li>
+<li>áp dụng ngay vào project <code>task-management</code></li>
+</ul>
+<p>Nếu bạn từng thấy <code>JMeter</code> rối vì quá nhiều thành phần như <code>Thread Group</code>, <code>Sampler</code>, <code>Listener</code>, <code>Assertion</code>, tài liệu này sẽ gom lại thành một bức tranh đơn giản.</p>
+<hr>
+<h2>1. JMeter là gì</h2>
+<p>Hiểu ngắn gọn:</p>
+<ul>
+<li><code>JMeter</code> là công cụ gửi rất nhiều request theo kịch bản bạn định nghĩa sẵn</li>
+<li>mục tiêu là xem hệ thống có đáp ứng tốt khi nhiều người dùng cùng thao tác hay không</li>
+</ul>
+<p>Nó thường được dùng để:</p>
+<ul>
+<li>đo thời gian phản hồi của API</li>
+<li>kiểm tra hệ thống chịu được bao nhiêu tải</li>
+<li>phát hiện lỗi khi số lượng request tăng lên</li>
+<li>theo dõi các chỉ số như <code>Average</code>, <code>P95</code>, <code>Throughput</code>, <code>Error %</code></li>
+</ul>
+<h3>Hình dung cực nhanh</h3>
+<pre><code class="language-text">Người dùng thật
+   -&gt; đăng nhập
+   -&gt; lấy token
+   -&gt; gọi API lấy danh sách task
+   -&gt; cập nhật task
+
+JMeter
+   -&gt; giả lập hàng chục / hàng trăm user làm việc đó cùng lúc
+   -&gt; đo thời gian phản hồi
+   -&gt; đếm số request thành công / thất bại
+   -&gt; tổng hợp báo cáo
+</code></pre>
+<hr>
+<h2>2. Khi nào dùng JMeter</h2>
+<p>Bạn dùng <code>JMeter</code> khi muốn trả lời các câu hỏi như:</p>
+<ul>
+<li>Nếu có <code>50</code> user cùng gọi <code>GET /tasks</code> thì API còn nhanh không?</li>
+<li>Nếu tăng lên <code>200</code> user thì hệ thống bắt đầu chậm ở mức nào?</li>
+<li>API có còn giữ <code>P95 &lt;= 800ms</code> như JD mong muốn không?</li>
+<li>Khi tải cao thì có phát sinh <code>401</code>, <code>403</code>, <code>500</code>, timeout hay không?</li>
+</ul>
+<h3>Không nên hiểu nhầm</h3>
+<p><code>JMeter</code> không tự nói cho bạn biết bug nằm ở đâu.</p>
+<p>Nó chỉ cho bạn thấy:</p>
+<ul>
+<li>hệ thống nhanh hay chậm</li>
+<li>tỷ lệ lỗi có tăng hay không</li>
+<li>ngưỡng tải nào bắt đầu có vấn đề</li>
+</ul>
+<p>Sau đó bạn mới dùng log, DB, monitoring, hoặc trao đổi với dev để tìm nguyên nhân.</p>
+<hr>
+<h2>3. 4 loại test rất hay bị nhầm</h2>
+<h2>3.1 Load Test</h2>
+<p>Kiểm tra hệ thống dưới mức tải bình thường hoặc kỳ vọng.</p>
+<p>Ví dụ:</p>
+<ul>
+<li>giả lập <code>50</code> user cùng xem danh sách task trong <code>10 phút</code></li>
+</ul>
+<p>Mục tiêu:</p>
+<ul>
+<li>xem hệ thống có chạy ổn ở mức tải dự kiến hay không</li>
+</ul>
+<h2>3.2 Stress Test</h2>
+<p>Đẩy tải lên cao hơn mức bình thường để tìm giới hạn.</p>
+<p>Ví dụ:</p>
+<ul>
+<li>tăng dần từ <code>50 -&gt; 100 -&gt; 200 -&gt; 400</code> user</li>
+</ul>
+<p>Mục tiêu:</p>
+<ul>
+<li>xem khi nào response time tăng mạnh</li>
+<li>khi nào lỗi bắt đầu xuất hiện</li>
+<li>hệ thống gãy kiểu gì khi quá tải</li>
+</ul>
+<h2>3.3 Spike Test</h2>
+<p>Tải tăng đột ngột trong thời gian ngắn.</p>
+<p>Ví dụ:</p>
+<ul>
+<li>từ <code>20</code> user nhảy lên <code>200</code> user trong vài giây</li>
+</ul>
+<p>Mục tiêu:</p>
+<ul>
+<li>xem hệ thống có bị sốc tải hay không</li>
+</ul>
+<h2>3.4 Soak Test</h2>
+<p>Giữ tải ổn định trong thời gian dài.</p>
+<p>Ví dụ:</p>
+<ul>
+<li><code>80</code> user chạy liên tục trong <code>2 giờ</code></li>
+</ul>
+<p>Mục tiêu:</p>
+<ul>
+<li>tìm memory leak</li>
+<li>tìm việc tài nguyên bị tăng dần theo thời gian</li>
+</ul>
+<h3>Mẹo nhớ nhanh</h3>
+<ul>
+<li><code>Load</code>: tải bình thường</li>
+<li><code>Stress</code>: ép quá sức</li>
+<li><code>Spike</code>: tăng sốc</li>
+<li><code>Soak</code>: ngâm lâu</li>
+</ul>
+<hr>
+<h2>4. Các chỉ số quan trọng nhất</h2>
+<p>Bạn không cần nhớ mọi thứ trong report. Hãy nhớ chắc các chỉ số này.</p>
+<table>
+<thead>
+<tr>
+<th>Chỉ số</th>
+<th>Ý nghĩa dễ hiểu</th>
+<th>Khi đọc nên nghĩ gì</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Response Time</code></td>
+<td>1 request mất bao lâu để nhận phản hồi</td>
+<td>càng thấp càng tốt</td>
+</tr>
+<tr>
+<td><code>Average</code></td>
+<td>thời gian phản hồi trung bình</td>
+<td>dễ nhìn nhưng chưa đủ</td>
+</tr>
+<tr>
+<td><code>P95</code></td>
+<td>95% request có thời gian phản hồi nhỏ hơn hoặc bằng giá trị này</td>
+<td>quan trọng hơn average</td>
+</tr>
+<tr>
+<td><code>Error %</code></td>
+<td>phần trăm request lỗi</td>
+<td>phải rất thấp, lý tưởng là <code>0%</code> trong bài test ổn định</td>
+</tr>
+<tr>
+<td><code>Throughput</code></td>
+<td>số request xử lý được trong một đơn vị thời gian</td>
+<td>càng cao càng tốt nếu response time vẫn ổn</td>
+</tr>
+<tr>
+<td><code>Latency</code></td>
+<td>thời gian chờ trước khi có dữ liệu phản hồi đầu tiên</td>
+<td>giúp hiểu độ trễ mạng / server</td>
+</tr>
+</tbody></table>
+<h2>Vì sao <code>P95</code> quan trọng hơn <code>Average</code></h2>
+<p>Ví dụ có <code>100</code> request:</p>
+<ul>
+<li><code>95</code> request chạy trong <code>400ms</code></li>
+<li><code>5</code> request chạy trong <code>5000ms</code></li>
+</ul>
+<p>Lúc này:</p>
+<ul>
+<li><code>Average</code> có thể vẫn nhìn &quot;không quá tệ&quot;</li>
+<li>nhưng trải nghiệm người dùng thật vẫn xấu vì có một nhóm request rất chậm</li>
+</ul>
+<p>Nên trong performance testing, <code>P95</code> thường đáng tin hơn <code>Average</code>.</p>
+<h3>Mẹo nhớ nhanh</h3>
+<p><code>P95 = nhìn phần đông người dùng đang trải nghiệm gì</code></p>
+<hr>
+<h2>5. Cấu trúc JMeter theo cách dễ nhớ</h2>
+<p>Nếu nhìn giao diện <code>JMeter</code> lần đầu, bạn có thể nhớ nó như sau:</p>
+<pre><code class="language-text">Test Plan
+  -&gt; Thread Group
+      -&gt; HTTP Request Defaults
+      -&gt; HTTP Header Manager
+      -&gt; CSV Data Set Config
+      -&gt; Sampler (HTTP Request)
+      -&gt; Post-Processor
+      -&gt; Assertion
+      -&gt; Listener
+</code></pre>
+<h2>5.1 Test Plan</h2>
+<p>Là &quot;bản thiết kế tổng&quot; của bài test.</p>
+<p>Bạn có thể hiểu nó là:</p>
+<ul>
+<li>toàn bộ kịch bản performance test</li>
+<li>nơi chứa mọi cấu hình và bước chạy</li>
+</ul>
+<h2>5.2 Thread Group</h2>
+<p>Đây là phần cực kỳ quan trọng.</p>
+<p>Nó quyết định:</p>
+<ul>
+<li>có bao nhiêu user ảo</li>
+<li>tăng user lên trong bao lâu</li>
+<li>test chạy bao lâu hoặc lặp bao nhiêu lần</li>
+</ul>
+<p>Ba thông số hay gặp:</p>
+<ul>
+<li><code>Number of Threads</code>: số user ảo</li>
+<li><code>Ramp-Up Period</code>: thời gian để tăng đủ số user</li>
+<li><code>Loop Count</code>: mỗi user lặp lại kịch bản bao nhiêu lần</li>
+</ul>
+<h3>Ví dụ</h3>
+<ul>
+<li><code>50 threads</code></li>
+<li><code>ramp-up 100 seconds</code></li>
+</ul>
+<p>Hiểu là:</p>
+<ul>
+<li>trong <code>100 giây</code>, JMeter tăng dần đến đủ <code>50</code> user</li>
+<li>trung bình khoảng <code>2 giây</code> thêm <code>1</code> user</li>
+</ul>
+<h2>5.3 Sampler</h2>
+<p><code>Sampler</code> là hành động mà user thực hiện.</p>
+<p>Trong test API, thường dùng:</p>
+<ul>
+<li><code>HTTP Request</code></li>
+</ul>
+<p>Ví dụ:</p>
+<ul>
+<li><code>POST /auth/login</code></li>
+<li><code>GET /tasks</code></li>
+<li><code>PATCH /tasks/:id</code></li>
+</ul>
+<h2>5.4 Config Element</h2>
+<p>Là nơi chứa cấu hình dùng chung.</p>
+<p>Hay gặp nhất:</p>
+<ul>
+<li><code>HTTP Request Defaults</code>: set host, port, protocol</li>
+<li><code>HTTP Header Manager</code>: set <code>Content-Type</code>, <code>Authorization</code></li>
+<li><code>CSV Data Set Config</code>: đọc dữ liệu test từ file CSV</li>
+</ul>
+<h2>5.5 Post-Processor</h2>
+<p>Dùng để lấy dữ liệu từ response ra để dùng tiếp.</p>
+<p>Ví dụ:</p>
+<ul>
+<li>login xong lấy <code>token</code></li>
+<li>lưu token vào biến</li>
+<li>request sau dùng <code>Bearer ${token}</code></li>
+</ul>
+<p>Hay gặp:</p>
+<ul>
+<li><code>JSON Extractor</code></li>
+</ul>
+<h2>5.6 Assertion</h2>
+<p>Dùng để kiểm tra response có đúng hay không.</p>
+<p>Ví dụ:</p>
+<ul>
+<li>status code phải là <code>200</code></li>
+<li>response phải có field <code>access_token</code></li>
+<li>response time phải nhỏ hơn một ngưỡng nào đó</li>
+</ul>
+<p>Nếu không có assertion, bạn có thể bắn được rất nhiều request nhưng lại không chắc response có đúng hay không.</p>
+<h2>5.7 Listener</h2>
+<p>Là nơi xem kết quả.</p>
+<p>Hay gặp:</p>
+<ul>
+<li><code>View Results Tree</code></li>
+<li><code>Summary Report</code></li>
+<li><code>Aggregate Report</code></li>
+</ul>
+<h3>Mẹo nhớ bằng một câu</h3>
+<ul>
+<li><code>Thread Group</code>: bao nhiêu user chạy</li>
+<li><code>Sampler</code>: user làm gì</li>
+<li><code>Config</code>: cấu hình dùng chung</li>
+<li><code>Post-Processor</code>: lấy dữ liệu từ response</li>
+<li><code>Assertion</code>: kiểm tra đúng sai</li>
+<li><code>Listener</code>: xem kết quả</li>
+</ul>
+<hr>
+<h2>6. Flow chuẩn của một bài test API bằng JMeter</h2>
+<p>Đây là flow bạn nên nhớ nhất.</p>
+<pre><code class="language-text">1. Chọn kịch bản cần test
+2. Xác định số user, ramp-up, thời gian chạy
+3. Chuẩn bị test data
+4. Dựng request trong JMeter
+5. Nếu có login thì extract token
+6. Gắn assertion để kiểm tra response
+7. Chạy test
+8. Đọc P95, error %, throughput
+9. Kết luận pass/fail theo KPI
+</code></pre>
+<h3>Nếu chỉ nhớ 1 câu</h3>
+<p><code>Chuẩn bị đúng dữ liệu + dựng đúng flow + đọc đúng P95</code></p>
+<hr>
+<h2>7. Áp vào project task-management này như thế nào</h2>
+<p>Project hiện tại đủ tốt để bạn ôn <code>JMeter</code> ở mức cơ bản đến khá thực hành.</p>
+<p>Lý do:</p>
+<ul>
+<li>có API thật để gọi</li>
+<li>có login lấy JWT</li>
+<li>có endpoint protected</li>
+<li>có filter, pagination</li>
+<li>có seed data</li>
+<li>có nhiều user để mô phỏng vai trò khác nhau</li>
+</ul>
+<p>Tham khảo thêm:</p>
+<ul>
+<li><a href="./api-spec.html">API spec</a></li>
+<li><a href="./jira-tickets.html">Jira tickets</a></li>
+</ul>
+<h2>7.1 Endpoint phù hợp để luyện</h2>
+<table>
+<thead>
+<tr>
+<th>Mục tiêu luyện</th>
+<th>Endpoint</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Login lấy token</td>
+<td><code>POST /auth/login</code></td>
+</tr>
+<tr>
+<td>Gọi API protected</td>
+<td><code>GET /projects</code></td>
+</tr>
+<tr>
+<td>Test list có filter/pagination</td>
+<td><code>GET /tasks?page=1&amp;limit=5&amp;statusFilter=TODO</code></td>
+</tr>
+<tr>
+<td>Test ghi dữ liệu</td>
+<td><code>POST /projects</code>, <code>POST /tasks</code></td>
+</tr>
+<tr>
+<td>Test cập nhật</td>
+<td><code>PATCH /tasks/:id</code></td>
+</tr>
+</tbody></table>
+<h2>7.2 Seed users có thể dùng</h2>
+<table>
+<thead>
+<tr>
+<th>Email</th>
+<th>Password</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>admin@test.com</code></td>
+<td><code>Admin123!</code></td>
+</tr>
+<tr>
+<td><code>alice@test.com</code></td>
+<td><code>Alice123!</code></td>
+</tr>
+<tr>
+<td><code>bob@test.com</code></td>
+<td><code>Bob123!</code></td>
+</tr>
+<tr>
+<td><code>charlie@test.com</code></td>
+<td><code>Charlie123!</code></td>
+</tr>
+</tbody></table>
+<h2>7.3 Flow thực tế nên dựng</h2>
+<pre><code class="language-text">User ảo
+  -&gt; POST /auth/login
+  -&gt; extract token
+  -&gt; GET /tasks?page=1&amp;limit=5
+  -&gt; GET /projects
+  -&gt; PATCH /tasks/:id    (nếu muốn test update)
+</code></pre>
+<hr>
+<h2>8. Cách dựng Test Plan đầu tiên</h2>
+<p>Đây là bài tập nhập môn rất hợp với project này.</p>
+<h2>Mục tiêu</h2>
+<ul>
+<li>giả lập nhiều user đăng nhập</li>
+<li>sau đó gọi <code>GET /tasks</code></li>
+<li>đo <code>P95</code>, <code>Average</code>, <code>Error %</code></li>
+</ul>
+<h2>Các bước</h2>
+<h3>Bước 1: Tạo Test Plan</h3>
+<p>Tạo:</p>
+<ul>
+<li><code>Test Plan</code></li>
+<li><code>Thread Group</code></li>
+</ul>
+<h3>Bước 2: Cấu hình Thread Group</h3>
+<p>Ví dụ cấu hình ban đầu:</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Giá trị gợi ý</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Number of Threads</code></td>
+<td><code>20</code></td>
+</tr>
+<tr>
+<td><code>Ramp-Up Period</code></td>
+<td><code>20</code></td>
+</tr>
+<tr>
+<td><code>Loop Count</code></td>
+<td><code>5</code></td>
+</tr>
+</tbody></table>
+<p>Hiểu là:</p>
+<ul>
+<li><code>20</code> user ảo</li>
+<li>tăng dần trong <code>20</code> giây</li>
+<li>mỗi user lặp <code>5</code> lần</li>
+</ul>
+<h3>Bước 3: Thêm HTTP Request Defaults</h3>
+<p>Ví dụ:</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Giá trị</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Protocol</td>
+<td><code>http</code></td>
+</tr>
+<tr>
+<td>Server Name</td>
+<td><code>localhost</code></td>
+</tr>
+<tr>
+<td>Port Number</td>
+<td><code>3000</code></td>
+</tr>
+</tbody></table>
+<h3>Bước 4: Thêm HTTP Header Manager</h3>
+<p>Thêm:</p>
+<ul>
+<li><code>Content-Type: application/json</code></li>
+</ul>
+<h3>Bước 5: Tạo request login</h3>
+<p>Tên request:</p>
+<ul>
+<li><code>POST Login</code></li>
+</ul>
+<p>Method:</p>
+<ul>
+<li><code>POST</code></li>
+</ul>
+<p>Path:</p>
+<ul>
+<li><code>/auth/login</code></li>
+</ul>
+<p>Body:</p>
+<pre><code class="language-json">{
+  &quot;email&quot;: &quot;alice@test.com&quot;,
+  &quot;password&quot;: &quot;Alice123!&quot;
+}
+</code></pre>
+<h3>Bước 6: Extract token</h3>
+<p>Thêm <code>JSON Extractor</code> vào request login:</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Giá trị</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Names of created variables</td>
+<td><code>token</code></td>
+</tr>
+<tr>
+<td>JSON Path Expressions</td>
+<td><code>$.access_token</code></td>
+</tr>
+</tbody></table>
+<h3>Bước 7: Tạo request lấy task list</h3>
+<p>Tên request:</p>
+<ul>
+<li><code>GET Tasks</code></li>
+</ul>
+<p>Method:</p>
+<ul>
+<li><code>GET</code></li>
+</ul>
+<p>Path:</p>
+<ul>
+<li><code>/tasks?page=1&amp;limit=5</code></li>
+</ul>
+<p>Trong <code>HTTP Header Manager</code> của request này thêm:</p>
+<ul>
+<li><code>Authorization: Bearer ${token}</code></li>
+</ul>
+<h3>Bước 8: Thêm Assertion</h3>
+<p>Cho request login:</p>
+<ul>
+<li>response code phải là <code>200</code></li>
+<li>response phải chứa <code>access_token</code></li>
+</ul>
+<p>Cho request <code>GET /tasks</code>:</p>
+<ul>
+<li>response code phải là <code>200</code></li>
+</ul>
+<h3>Bước 9: Thêm Listener</h3>
+<p>Ban đầu nên dùng:</p>
+<ul>
+<li><code>View Results Tree</code></li>
+<li><code>Summary Report</code></li>
+<li><code>Aggregate Report</code></li>
+</ul>
+<h3>Bước 10: Chạy thử nhỏ trước</h3>
+<p>Đừng chạy lớn ngay.</p>
+<p>Hãy test trước với:</p>
+<ul>
+<li><code>2 threads</code></li>
+<li><code>ramp-up 2</code></li>
+<li><code>loop 1</code></li>
+</ul>
+<p>Mục tiêu:</p>
+<ul>
+<li>xác nhận flow đúng</li>
+<li>token lấy đúng</li>
+<li>header đúng</li>
+<li>response không lỗi</li>
+</ul>
+<p>Sau khi flow đúng rồi mới tăng tải.</p>
+<hr>
+<h2>9. 3 kịch bản ôn tập rất hợp với project này</h2>
+<h2>Kịch bản 1: Smoke Performance</h2>
+<p>Mục tiêu:</p>
+<ul>
+<li>kiểm tra nhanh hệ thống có chịu được tải nhẹ không</li>
+</ul>
+<p>Gợi ý:</p>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Giá trị</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>User ảo</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td>Ramp-up</td>
+<td><code>10 giây</code></td>
+</tr>
+<tr>
+<td>Duration hoặc Loop</td>
+<td><code>3-5 phút</code> hoặc loop nhỏ</td>
+</tr>
+<tr>
+<td>API chính</td>
+<td><code>POST /auth/login</code>, <code>GET /tasks</code></td>
+</tr>
+</tbody></table>
+<p>Pass nếu:</p>
+<ul>
+<li><code>Error % = 0</code></li>
+<li>response time ổn định</li>
+<li>không có <code>401</code> do token lỗi</li>
+</ul>
+<h2>Kịch bản 2: Load Test cơ bản</h2>
+<p>Mục tiêu:</p>
+<ul>
+<li>đo xem API list có còn ổn dưới tải vừa phải không</li>
+</ul>
+<p>Gợi ý:</p>
+<table>
+<thead>
+<tr>
+<th>Thành phần</th>
+<th>Giá trị</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>User ảo</td>
+<td><code>50</code></td>
+</tr>
+<tr>
+<td>Ramp-up</td>
+<td><code>50-100 giây</code></td>
+</tr>
+<tr>
+<td>Thời gian chạy</td>
+<td><code>10-15 phút</code></td>
+</tr>
+<tr>
+<td>API chính</td>
+<td><code>GET /tasks?page=1&amp;limit=5&amp;statusFilter=TODO</code></td>
+</tr>
+<tr>
+<td>KPI ví dụ</td>
+<td><code>P95 &lt;= 800ms</code>, <code>Error % = 0</code></td>
+</tr>
+</tbody></table>
+<p>Điểm cần quan sát:</p>
+<ul>
+<li><code>P95</code> có vượt ngưỡng không</li>
+<li><code>Average</code> và <code>P95</code> có chênh nhau quá nhiều không</li>
+<li>throughput có ổn định không</li>
+</ul>
+<h2>Kịch bản 3: Stress Test</h2>
+<p>Mục tiêu:</p>
+<ul>
+<li>tìm ngưỡng bắt đầu chậm hoặc lỗi</li>
+</ul>
+<p>Gợi ý:</p>
+<pre><code class="language-text">Round 1:  50 users
+Round 2: 100 users
+Round 3: 200 users
+Round 4: 300 users
+</code></pre>
+<p>Ở mỗi round, ghi lại:</p>
+<ul>
+<li><code>P95</code></li>
+<li><code>Error %</code></li>
+<li>loại lỗi xuất hiện</li>
+<li>CPU / RAM nếu có theo dõi</li>
+</ul>
+<p>Kết luận nên trả lời được:</p>
+<ul>
+<li>hệ thống bắt đầu bất ổn từ mức nào</li>
+<li>lỗi xuất hiện trước hay response time tăng mạnh trước</li>
+</ul>
+<hr>
+<h2>10. CSV Data Set Config dùng khi nào</h2>
+<p>Nếu bạn chỉ test bằng 1 user cố định, bài test sẽ kém thực tế.</p>
+<p>Khi muốn nhiều user đăng nhập song song bằng nhiều tài khoản khác nhau, hãy dùng <code>CSV Data Set Config</code>.</p>
+<p>Ví dụ file <code>users.csv</code>:</p>
+<pre><code class="language-csv">email,password
+alice@test.com,Alice123!
+bob@test.com,Bob123!
+charlie@test.com,Charlie123!
+admin@test.com,Admin123!
+</code></pre>
+<p>Sau đó trong login body:</p>
+<pre><code class="language-json">{
+  &quot;email&quot;: &quot;${email}&quot;,
+  &quot;password&quot;: &quot;${password}&quot;
+}
+</code></pre>
+<h3>Lợi ích</h3>
+<ul>
+<li>tránh việc tất cả thread dùng chung 1 account</li>
+<li>bài test giống người dùng thật hơn</li>
+<li>dễ thay test data</li>
+</ul>
+<hr>
+<h2>11. JSON Extractor là gì và vì sao rất quan trọng</h2>
+<p>Rất nhiều bài test API fail không phải vì server yếu, mà vì script sai flow.</p>
+<p>Ví dụ:</p>
+<ul>
+<li>login trả token</li>
+<li>nhưng bạn không extract được token</li>
+<li>request sau gửi <code>Authorization: Bearer </code></li>
+<li>kết quả toàn <code>401</code></li>
+</ul>
+<p>Lúc này:</p>
+<ul>
+<li>bài test không còn ý nghĩa performance</li>
+<li>vì bạn đang test lỗi script, không phải test server</li>
+</ul>
+<h3>Flow đúng</h3>
+<pre><code class="language-text">POST /auth/login
+  -&gt; response có access_token
+  -&gt; JSON Extractor lấy $.access_token
+  -&gt; lưu vào biến ${token}
+  -&gt; request sau dùng Authorization: Bearer ${token}
+</code></pre>
+<h3>Đây là lỗi rất hay gặp</h3>
+<ul>
+<li>JSON path sai</li>
+<li>tên biến sai</li>
+<li>header <code>Authorization</code> viết sai</li>
+<li>request protected chạy trước khi login thành công</li>
+</ul>
+<hr>
+<h2>12. Assertion: vì sao phải có</h2>
+<p>Nếu chỉ nhìn request &quot;có response trả về&quot;, bạn rất dễ bị đánh lừa.</p>
+<p>Ví dụ:</p>
+<ul>
+<li>API trả <code>500</code></li>
+<li>JMeter vẫn ghi nhận đã có response time</li>
+</ul>
+<p>Nếu không có assertion, bạn có thể nhìn thấy report có số đẹp nhưng thực ra response toàn lỗi.</p>
+<h3>Tối thiểu nên có</h3>
+<p>Cho <code>POST /auth/login</code>:</p>
+<ul>
+<li>kiểm tra status code <code>200</code></li>
+<li>kiểm tra response có key <code>token</code></li>
+</ul>
+<p>Cho <code>GET /tasks</code>:</p>
+<ul>
+<li>kiểm tra status code <code>200</code></li>
+</ul>
+<p>Cho bài test có KPI chặt hơn:</p>
+<ul>
+<li>thêm assertion response time</li>
+</ul>
+<hr>
+<h2>13. Cách đọc kết quả mà không bị ngợp</h2>
+<p>Khi mở <code>Aggregate Report</code>, đừng nhìn tất cả cột cùng lúc.</p>
+<p>Hãy đọc theo thứ tự này:</p>
+<h3>1. Error %</h3>
+<p>Nếu <code>Error %</code> cao:</p>
+<ul>
+<li>dừng lại</li>
+<li>xem loại lỗi là gì</li>
+<li>chưa nên bàn chuyện hệ thống nhanh hay chậm</li>
+</ul>
+<p>Vì bài test đang có lỗi chức năng hoặc lỗi script.</p>
+<h3>2. P95</h3>
+<p>Đây là chỉ số nên nhìn tiếp theo.</p>
+<p>So với KPI:</p>
+<ul>
+<li>nếu KPI là <code>P95 &lt;= 800ms</code></li>
+<li>mà report ra <code>P95 = 1200ms</code></li>
+<li>thì bài test fail theo KPI</li>
+</ul>
+<h3>3. Average</h3>
+<p>Dùng để tham khảo.</p>
+<p>Nếu:</p>
+<ul>
+<li><code>Average</code> thấp</li>
+<li>nhưng <code>P95</code> cao</li>
+</ul>
+<p>thì nghĩa là:</p>
+<ul>
+<li>đa số request ổn</li>
+<li>nhưng vẫn có nhóm request chậm đáng kể</li>
+</ul>
+<h3>4. Throughput</h3>
+<p>Giúp biết hệ thống xử lý được bao nhiêu request trong khoảng thời gian đó.</p>
+<p>Nên đọc cùng với <code>Response Time</code>.</p>
+<p>Vì:</p>
+<ul>
+<li>throughput cao chưa chắc tốt nếu error tăng</li>
+<li>throughput cao chưa chắc tốt nếu P95 tăng mạnh</li>
+</ul>
+<hr>
+<h2>14. Ví dụ đọc report rất nhanh</h2>
+<p>Giả sử bạn có kết quả như sau:</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Average</th>
+<th>P95</th>
+<th>Error %</th>
+<th>Throughput</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>POST /auth/login</code></td>
+<td><code>220ms</code></td>
+<td><code>480ms</code></td>
+<td><code>0%</code></td>
+<td><code>15 req/s</code></td>
+</tr>
+<tr>
+<td><code>GET /tasks</code></td>
+<td><code>420ms</code></td>
+<td><code>760ms</code></td>
+<td><code>0%</code></td>
+<td><code>28 req/s</code></td>
+</tr>
+</tbody></table>
+<p>Kết luận ngắn gọn:</p>
+<ul>
+<li>bài test ổn</li>
+<li>chưa thấy lỗi</li>
+<li><code>GET /tasks</code> chậm hơn login nhưng vẫn đạt KPI <code>P95 &lt;= 800ms</code></li>
+</ul>
+<p>Ví dụ xấu hơn:</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Average</th>
+<th>P95</th>
+<th>Error %</th>
+<th>Throughput</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET /tasks</code></td>
+<td><code>550ms</code></td>
+<td><code>1700ms</code></td>
+<td><code>6%</code></td>
+<td><code>31 req/s</code></td>
+</tr>
+</tbody></table>
+<p>Kết luận:</p>
+<ul>
+<li>bài test không đạt</li>
+<li>có cả vấn đề về tốc độ lẫn độ ổn định</li>
+<li>cần xem log, DB, query, auth flow, và tài nguyên hệ thống</li>
+</ul>
+<hr>
+<h2>15. Các lỗi rất hay gặp khi mới học JMeter</h2>
+<table>
+<thead>
+<tr>
+<th>Lỗi</th>
+<th>Biểu hiện</th>
+<th>Cách nghĩ đúng</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Chạy tải lớn ngay từ đầu</td>
+<td>lỗi loạn, không biết sai ở đâu</td>
+<td>luôn chạy nhỏ trước</td>
+</tr>
+<tr>
+<td>Không có assertion</td>
+<td>report có số nhưng không biết response đúng hay sai</td>
+<td>phải check status code / body</td>
+</tr>
+<tr>
+<td>Không extract token đúng</td>
+<td>request protected toàn <code>401</code></td>
+<td>kiểm tra <code>JSON Extractor</code> và header</td>
+</tr>
+<tr>
+<td>Dùng 1 account cho mọi thread</td>
+<td>bài test không thực tế</td>
+<td>dùng CSV với nhiều account</td>
+</tr>
+<tr>
+<td>Chỉ nhìn average</td>
+<td>bỏ sót request chậm</td>
+<td>nhìn <code>P95</code> trước</td>
+</tr>
+<tr>
+<td>Không ghi rõ KPI</td>
+<td>chạy xong không biết pass hay fail</td>
+<td>đặt ngưỡng trước khi chạy</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>16. Cách trình bày kết quả như một tester</h2>
+<p>Sau khi chạy test, đừng chỉ nói:</p>
+<ul>
+<li>&quot;API hơi chậm&quot;</li>
+</ul>
+<p>Hãy nói kiểu có số liệu:</p>
+<pre><code class="language-text">Load test GET /tasks với 50 users, ramp-up 60 giây, chạy 10 phút.
+Kết quả:
+- Error % = 0
+- Average = 430ms
+- P95 = 780ms
+- Throughput = 26 req/s
+
+Kết luận:
+API đạt KPI P95 &lt;= 800ms trong mức tải kiểm thử hiện tại.
+</code></pre>
+<p>Hoặc:</p>
+<pre><code class="language-text">Stress test GET /tasks tại mức 200 users cho thấy hệ thống bắt đầu bất ổn.
+Kết quả:
+- Error % = 4.8%
+- P95 = 2100ms
+
+Kết luận:
+Mức 200 users vượt ngưỡng chịu tải hiện tại của hệ thống.
+</code></pre>
+<p>Đây chính là kiểu nói chuyện mà interviewer và lead dễ tin hơn.</p>
+<hr>
+<h2>17. Mẫu checklist trước khi chạy test</h2>
+<p>Trước mỗi bài test, tự check:</p>
+<ul>
+<li>API có đang chạy ổn không</li>
+<li>DB đã seed data chưa</li>
+<li>account login còn dùng được không</li>
+<li>KPI đã xác định chưa</li>
+<li>test data đã rõ chưa</li>
+<li>script đã chạy nhỏ thành công chưa</li>
+<li>token extract đúng chưa</li>
+<li>assertion đã có chưa</li>
+<li>listener dùng để debug hay để report</li>
+</ul>
+<h3>Mẹo thực tế</h3>
+<p><code>View Results Tree</code> rất tiện khi debug, nhưng không nên lạm dụng khi chạy tải lớn vì nó tốn tài nguyên.</p>
+<hr>
+<h2>18. 10 câu phỏng vấn JMeter rất dễ gặp</h2>
+<h2>Câu 1: JMeter dùng để làm gì</h2>
+<p>Trả lời ngắn:</p>
+<p><code>JMeter</code> dùng để giả lập nhiều request theo kịch bản nhằm đo hiệu năng, độ ổn định và khả năng chịu tải của hệ thống.</p>
+<h2>Câu 2: Load test khác stress test thế nào</h2>
+<p>Trả lời ngắn:</p>
+<ul>
+<li><code>Load test</code> kiểm tra ở mức tải dự kiến</li>
+<li><code>Stress test</code> ép vượt ngưỡng để tìm giới hạn</li>
+</ul>
+<h2>Câu 3: Vì sao phải nhìn P95 thay vì chỉ nhìn average</h2>
+<p>Trả lời ngắn:</p>
+<p>Vì <code>Average</code> có thể che mất một nhóm request rất chậm, còn <code>P95</code> phản ánh trải nghiệm của phần lớn người dùng thực tế tốt hơn.</p>
+<h2>Câu 4: Thread Group là gì</h2>
+<p>Trả lời ngắn:</p>
+<p>Là nơi cấu hình số user ảo, ramp-up và số lần lặp hoặc thời gian chạy.</p>
+<h2>Câu 5: Sampler là gì</h2>
+<p>Trả lời ngắn:</p>
+<p>Là hành động user thực hiện, ví dụ một <code>HTTP Request</code>.</p>
+<h2>Câu 6: JSON Extractor dùng để làm gì</h2>
+<p>Trả lời ngắn:</p>
+<p>Dùng để lấy dữ liệu từ response JSON, ví dụ lấy token sau khi login để dùng ở request tiếp theo.</p>
+<h2>Câu 7: Tại sao phải có assertion</h2>
+<p>Trả lời ngắn:</p>
+<p>Để đảm bảo request không chỉ &quot;có response&quot; mà còn đúng về status code, body hoặc response time.</p>
+<h2>Câu 8: Throughput là gì</h2>
+<p>Trả lời ngắn:</p>
+<p>Là số request hệ thống xử lý được trong một đơn vị thời gian.</p>
+<h2>Câu 9: Khi error tăng, nên làm gì trước</h2>
+<p>Trả lời ngắn:</p>
+<p>Phải xem loại lỗi là gì, tách lỗi do script với lỗi do hệ thống, rồi mới kết luận về performance.</p>
+<h2>Câu 10: Với project này bạn sẽ test API nào trước</h2>
+<p>Trả lời ngắn:</p>
+<p>Tôi sẽ bắt đầu từ <code>POST /auth/login</code> và <code>GET /tasks</code>, vì đây là flow dễ dựng, có auth, có dữ liệu seed, và phản ánh rõ trải nghiệm người dùng cơ bản.</p>
+<hr>
+<h2>19. Khung trả lời phỏng vấn 30 giây về JMeter</h2>
+<p>Nếu bị hỏi nhanh, bạn có thể trả lời:</p>
+<pre><code class="language-text">Em dùng JMeter để thực hiện load test và stress test cho API.
+Thông thường em dựng flow đăng nhập, extract token bằng JSON Extractor,
+sau đó gọi các API protected, gắn assertion để kiểm tra response code và body.
+Khi đọc kết quả, em ưu tiên nhìn Error %, P95 và Throughput,
+không chỉ nhìn Average.
+Nếu có KPI như P95 &lt;= 800ms thì em kết luận pass/fail theo KPI đó.
+</code></pre>
+<hr>
+<h2>20. Cheat sheet nhớ nhanh trước phỏng vấn</h2>
+<pre><code class="language-text">JMeter = giả lập tải
+
+Load test  = tải bình thường
+Stress test = ép quá ngưỡng
+P95 = trải nghiệm của 95% request
+
+Thread Group = số user + ramp-up + loop
+Sampler = request
+Config = cấu hình dùng chung
+JSON Extractor = lấy token
+Assertion = check đúng sai
+Listener = xem kết quả
+
+Đọc report:
+1. Error %
+2. P95
+3. Average
+4. Throughput
+</code></pre>
+<hr>
+<h2>21. Nếu muốn ôn đúng trọng tâm cho project này</h2>
+<p>Bạn nên luyện theo thứ tự:</p>
+<ol>
+<li>Hiểu <code>load</code>, <code>stress</code>, <code>P95</code></li>
+<li>Dựng flow <code>login -&gt; extract token -&gt; GET /tasks</code></li>
+<li>Thêm <code>CSV Data Set Config</code> với nhiều account</li>
+<li>Chạy smoke test nhỏ</li>
+<li>Chạy load test <code>50 users</code></li>
+<li>Đọc report và tập kết luận bằng số liệu</li>
+</ol>
+<p>Nếu làm chắc 6 bước này, bạn đã đủ tự tin để nói về <code>JMeter</code> trong phỏng vấn tester ở mức tốt.</p>
+<hr>
+<h2>22. Kết luận</h2>
+<p>Với project <code>task-management</code>, bạn hoàn toàn có thể dùng để tổng ôn <code>JMeter</code> ở mức:</p>
+<ul>
+<li>hiểu khái niệm</li>
+<li>biết dựng test plan cơ bản</li>
+<li>biết test flow có auth</li>
+<li>biết đọc <code>P95</code>, <code>Error %</code>, <code>Throughput</code></li>
+<li>biết trình bày kết quả như một tester</li>
+</ul>
+<p>Nếu muốn đi xa hơn sau tài liệu này, hướng mở rộng hợp lý là:</p>
+<ul>
+<li>thêm file <code>.jmx</code> mẫu</li>
+<li>thêm file <code>users.csv</code></li>
+<li>chạy thử thật với <code>docker-compose up</code></li>
+<li>so sánh kết quả giữa <code>GET /tasks</code> và <code>POST /auth/login</code></li>
+</ul>
+
+</body>
+</html>

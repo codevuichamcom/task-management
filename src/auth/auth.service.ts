@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
-import { RegisterDto } from './dto/register.dto';
+import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,13 +34,14 @@ export class AuthService {
     if (!valid) throw new UnauthorizedException('Invalid credentials');
 
     const payload = { sub: user.id, email: user.email };
-    const token = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload);
 
-    // BUG-10: Spec says response is { access_token, user: { id, email } }
-    // but we return { token, userId } — field names mismatch
     return {
-      token,
-      userId: user.id,
+      access_token: accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+      },
     };
   }
 }

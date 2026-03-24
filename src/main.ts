@@ -1,16 +1,19 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // BUG-1: ValidationPipe is NOT globally registered
-  // This means class-validator decorators in DTOs have no effect
-  // A QA must discover that invalid payloads are accepted
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+  }));
 
   const config = new DocumentBuilder()
-    .setTitle('QA Practice API')
-    .setDescription('Task Management System — API reference for QA testing')
+    .setTitle('Task Management API')
+    .setDescription('Task Management System API reference')
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -25,4 +28,5 @@ async function bootstrap() {
   console.log(`Application running on port ${process.env.PORT || 3000}`);
   console.log(`Swagger docs: http://localhost:${process.env.PORT || 3000}/api-docs`);
 }
+
 void bootstrap();

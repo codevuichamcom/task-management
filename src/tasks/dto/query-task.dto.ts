@@ -1,22 +1,41 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsUUID, Min } from 'class-validator';
+import { ApiHideProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { TaskStatus } from '../entities/task.entity';
 
 export class QueryTaskDto {
   @ApiPropertyOptional({ example: 1, type: Number, description: 'Page number (1-indexed)' })
-  page?: string; // BUG-11: kept as string, not parsed to number
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
 
-  @ApiPropertyOptional({ example: 10, type: Number })
-  limit?: string;
+  @ApiPropertyOptional({ example: 10, type: Number, description: 'Items per page' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  limit?: number;
 
-  // SWAGGER-MISMATCH-5: Documented as "statusFilter" but actual query param is "status".
-  // QA using ?statusFilter=TODO will get unfiltered results (param silently ignored).
   @ApiPropertyOptional({
-    name: 'statusFilter',
-    enum: ['TODO', 'IN_PROGRESS', 'DONE'],
-    example: 'TODO',
-    description: 'Filter tasks by status. Use "statusFilter" param.',
+    enum: TaskStatus,
+    example: TaskStatus.TODO,
+    description: 'Primary status filter parameter.',
   })
-  status?: string;
+  @IsOptional()
+  @Transform(({ value }) => typeof value === 'string' ? value.toUpperCase() : value)
+  @IsEnum(TaskStatus)
+  statusFilter?: TaskStatus;
+
+  @ApiHideProperty()
+  @IsOptional()
+  @Transform(({ value }) => typeof value === 'string' ? value.toUpperCase() : value)
+  @IsEnum(TaskStatus)
+  status?: TaskStatus;
 
   @ApiPropertyOptional({ example: 'a3f1c2d4-89ab-4cde-b012-3456789abcde' })
+  @IsOptional()
+  @IsUUID()
   projectId?: string;
 }

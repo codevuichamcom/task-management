@@ -60,14 +60,11 @@ ${body}
   const mdFiles = findMdFiles(docsDir);
   fs.mkdirSync(htmlDir, { recursive: true });
 
-  // Replace .md doc references with .html links (same folder: api-spec, jira-tickets)
+  // Replace relative .md doc references with .html links in generated HTML.
   function fixDocLinks(htmlBody) {
-    const link = (file) => `<a href="./${file}.html">${file}.html</a>`;
     return htmlBody
-      .replace(/<code>\.\/api-spec\.md<\/code>/g, link('api-spec'))
-      .replace(/<code>\.\/jira-tickets\.md<\/code>/g, link('jira-tickets'))
-      .replace(/\.\/api-spec\.md/g, link('api-spec'))
-      .replace(/\.\/jira-tickets\.md/g, link('jira-tickets'));
+      .replace(/href="([^"]+)\.md"/g, 'href="$1.html"')
+      .replace(/<code>(\.\/[^<]+)\.md<\/code>/g, '<a href="$1.html">$1.html</a>');
   }
 
   for (const rel of mdFiles) {

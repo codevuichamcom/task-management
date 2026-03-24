@@ -1,19 +1,28 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Task, TaskStatus } from './entities/task.entity';
+import { Project } from '../projects/entities/project.entity';
+import { User } from '../users/entities/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
 import { QueryTaskDto } from './dto/query-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { Task, TaskStatus } from './entities/task.entity';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(Task)
     private tasksRepository: Repository<Task>,
+    @InjectRepository(Project)
+    private projectsRepository: Repository<Project>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {}
 
   async create(dto: CreateTaskDto, userId: string): Promise<Task> {
+    await this.ensureProjectExists(dto.projectId);
+    await this.ensureAssigneeExists(dto.assigneeId);
+
     const task = this.tasksRepository.create({
       title: dto.title,
       description: dto.description,
@@ -25,24 +34,19 @@ export class TasksService {
   }
 
   async findAll(query: QueryTaskDto) {
-    const page = query.page;   // BUG-11: string not parsed
-    const limit = parseInt(query.limit) || 10;
-    const pageNum = parseInt(page) || 1;
-
-    // BUG-8: offset = page * limit instead of (page - 1) * limit
-    // page=1 skips first 'limit' rows, page=0 returns first page
-    const offset = pageNum * limit;
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const offset = (page - 1) * limit;
+    const statusFilter = query.statusFilter ?? query.status;
 
     const qb = this.tasksRepository
       .createQueryBuilder('task')
-      .leftJoinAndSelect('task.project', 'project')
+      .innerJoinAndSelect('task.project', 'project')
       .leftJoinAndSelect('task.assignee', 'assignee')
-      // BUG-7: Extra join on same relation with different alias causes duplicate rows
-      .leftJoin('task.project', 'p2');
+      .orderBy('task.createdAt', 'ASC');
 
-    if (query.status) {
-      // BUG-9: Uses ILIKE with wildcard — 'DO' matches both 'TODO' and 'DONE'
-      qb.andWhere('task.status ILIKE :status', { status: `%${query.status}%` });
+    if (statusFilter) {
+      qb.andWhere('task.status = :status', { status: statusFilter });
     }
 
     if (query.projectId) {
@@ -56,8 +60,7 @@ export class TasksService {
     return {
       data: items,
       meta: {
-        // BUG-11: page returned as string type (from query param, never parsed)
-        page: query.page,
+        page,
         limit,
         total,
       },
@@ -71,15 +74,11 @@ export class TasksService {
   }
 
   async update(id: string, dto: UpdateTaskDto, userId: string): Promise<Task> {
-    const task = await this.findOne(id);
-    // BUG-4: No check that userId owns the task's project
-    // BUG-5: Flipped status transition — when IN_PROGRESS is set, it becomes TODO
-    if (dto.status === 'IN_PROGRESS') {
-      task.status = TaskStatus.TODO;
-    } else if (dto.status) {
-      task.status = dto.status as TaskStatus;
-    }
+    const task = await this.findOneForAuthorization(id);
+    this.assertCanMutate(task, userId);
+    await this.ensureAssigneeExists(dto.assigneeId);
 
+    if (dto.status) task.status = dto.status;
     if (dto.title !== undefined) task.title = dto.title;
     if (dto.description !== undefined) task.description = dto.description;
     if (dto.assigneeId !== undefined) task.assigneeId = dto.assigneeId;
@@ -88,9 +87,43 @@ export class TasksService {
   }
 
   async remove(id: string, userId: string): Promise<{ message: string }> {
-    const task = await this.findOne(id);
-    // BUG-4: No ownership check — any authenticated user can delete any task
+    const task = await this.findOneForAuthorization(id);
+    this.assertCanMutate(task, userId);
     await this.tasksRepository.remove(task);
     return { message: 'deleted' };
+  }
+
+  private async ensureProjectExists(projectId: string) {
+    const project = await this.projectsRepository.findOne({ where: { id: projectId } });
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+  }
+
+  private async ensureAssigneeExists(assigneeId?: string) {
+    if (!assigneeId) return;
+
+    const user = await this.usersRepository.findOne({ where: { id: assigneeId } });
+    if (!user) {
+      throw new NotFoundException('Assignee not found');
+    }
+  }
+
+  private async findOneForAuthorization(id: string): Promise<Task & { project: Project }> {
+    const task = await this.tasksRepository.findOne({
+      where: { id },
+      relations: { project: true },
+    });
+    if (!task) throw new NotFoundException('Task not found');
+    return task as Task & { project: Project };
+  }
+
+  private assertCanMutate(task: Task & { project: Project }, userId: string) {
+    const isProjectOwner = task.project?.ownerId === userId;
+    const isAssignee = task.assigneeId === userId;
+
+    if (!isProjectOwner && !isAssignee) {
+      throw new ForbiddenException('You do not have access to this task');
+    }
   }
 }

@@ -1,8 +1,8 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -21,8 +21,6 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Login and receive JWT token' })
-  // SWAGGER-MISMATCH-2: Documents access_token + nested user object.
-  // Actual returns { token, userId } — field names differ (BUG-10).
   @ApiResponse({ status: 200, description: 'Login successful', schema: {
     example: {
       access_token: 'eyJhbGci...',

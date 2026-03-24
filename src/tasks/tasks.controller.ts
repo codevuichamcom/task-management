@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { TasksService } from './tasks.service';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
 import { QueryTaskDto } from './dto/query-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { TasksService } from './tasks.service';
 
 @ApiTags('tasks')
 @ApiBearerAuth('access-token')
@@ -15,14 +15,13 @@ export class TasksController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new task' })
-  // Response example uses "taskName" and numeric projectId — matches SWAGGER-MISMATCH-2/3 in DTO
   @ApiResponse({ status: 201, description: 'Task created', schema: {
     example: {
       id: 'uuid',
-      taskName: 'Implement login screen',
+      title: 'Implement login screen',
       description: 'Create the login UI',
       status: 'TODO',
-      projectId: 42,
+      projectId: 'uuid',
       assigneeId: 'uuid',
       createdAt: '2026-01-01T00:00:00.000Z',
     },
@@ -33,7 +32,6 @@ export class TasksController {
 
   @Get()
   @ApiOperation({ summary: 'Get tasks with pagination and optional status filter' })
-  // meta.page shown as number here; actual response returns it as string (BUG-11)
   @ApiResponse({ status: 200, description: 'Paginated task list', schema: {
     example: {
       data: [{ id: 'uuid', title: 'Implement login screen', status: 'TODO', projectId: 'uuid' }],
@@ -47,6 +45,7 @@ export class TasksController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a task' })
   @ApiResponse({ status: 200, description: 'Task updated' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Task not found' })
   update(@Param('id') id: string, @Body() dto: UpdateTaskDto, @Request() req) {
     return this.tasksService.update(id, dto, req.user.id);
@@ -57,6 +56,7 @@ export class TasksController {
   @ApiResponse({ status: 200, description: 'Task deleted', schema: {
     example: { message: 'deleted' },
   }})
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Task not found' })
   remove(@Param('id') id: string, @Request() req) {
     return this.tasksService.remove(id, req.user.id);
