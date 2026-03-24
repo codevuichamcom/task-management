@@ -19,6 +19,218 @@
 <body>
 <h1>Đáp án chi tiết cho bộ câu hỏi SQL tinh gọn</h1>
 <p>Các đáp án dưới đây dùng cú pháp PostgreSQL, bám theo schema của project <code>task-management</code>.</p>
+<h2>1. Tóm tắt lý thuyết cần nắm trước khi làm</h2>
+<h2>SQL là gì trong góc nhìn của tester</h2>
+<p>Hiểu đơn giản:</p>
+<ul>
+<li>API là thứ ứng viên nhìn thấy từ bên ngoài</li>
+<li>Database là nơi dữ liệu thực sự được lưu</li>
+<li>SQL là công cụ để kiểm tra xem dữ liệu thật trong DB có đúng với kỳ vọng hay không</li>
+</ul>
+<p>Ví dụ:</p>
+<ul>
+<li>API trả task có status là <code>IN_PROGRESS</code></li>
+<li>nhưng query DB ra lại thấy status đang là <code>TODO</code></li>
+</ul>
+<p>Khi đó:</p>
+<ul>
+<li>UI/API response có thể đúng giả</li>
+<li>DB mới là bằng chứng mạnh để kết luận bug persistence hoặc bug logic</li>
+</ul>
+<h2>2. Bản đồ dữ liệu của project này</h2>
+<p>Project này có 3 bảng chính:</p>
+<ul>
+<li><code>users</code>: người dùng</li>
+<li><code>projects</code>: dự án</li>
+<li><code>tasks</code>: công việc</li>
+</ul>
+<p>Quan hệ:</p>
+<ul>
+<li>một <code>user</code> có thể sở hữu nhiều <code>project</code></li>
+<li>một <code>project</code> có nhiều <code>task</code></li>
+<li>một <code>task</code> có thể được assign cho một <code>user</code>, hoặc chưa assign</li>
+</ul>
+<p>Hình dung nhanh:</p>
+<pre><code class="language-text">users
+  └─&lt; projects
+  └─&lt; tasks
+
+projects
+  └─&lt; tasks
+</code></pre>
+<p>Ví dụ trực quan:</p>
+<ul>
+<li><code>alice@test.com</code> sở hữu <code>Alpha Project</code></li>
+<li><code>Alpha Project</code> có nhiều task như <code>Design login screen</code></li>
+<li>task đó có thể được assign cho <code>alice@test.com</code> hoặc <code>bob@test.com</code></li>
+</ul>
+<h2>3. Các mảnh lý thuyết cốt lõi</h2>
+<h2><code>SELECT</code>, <code>FROM</code>, <code>WHERE</code></h2>
+<p>Đây là phần cơ bản nhất.</p>
+<ul>
+<li><code>SELECT</code>: lấy cột nào</li>
+<li><code>FROM</code>: lấy từ bảng nào</li>
+<li><code>WHERE</code>: lọc record nào</li>
+</ul>
+<p>Ví dụ:</p>
+<pre><code class="language-sql">SELECT id, title, status
+FROM tasks
+WHERE status = &#39;TODO&#39;;
+</code></pre>
+<p>Đọc như người bình thường:</p>
+<ul>
+<li>lấy <code>id</code>, <code>title</code>, <code>status</code></li>
+<li>từ bảng <code>tasks</code></li>
+<li>chỉ lấy những task có trạng thái <code>TODO</code></li>
+</ul>
+<h2><code>ORDER BY</code></h2>
+<p>Dùng để sắp xếp kết quả.</p>
+<p>Ví dụ:</p>
+<pre><code class="language-sql">SELECT id, email, &quot;createdAt&quot;
+FROM users
+ORDER BY &quot;createdAt&quot; DESC;
+</code></pre>
+<p>Ý nghĩa:</p>
+<ul>
+<li><code>DESC</code>: mới nhất trước</li>
+<li><code>ASC</code>: cũ nhất trước</li>
+</ul>
+<h2><code>COUNT</code>, <code>GROUP BY</code></h2>
+<p>Khi cần đếm theo nhóm, gần như luôn nghĩ đến 2 thứ này.</p>
+<p>Ví dụ:</p>
+<pre><code class="language-sql">SELECT status, COUNT(*) AS task_count
+FROM tasks
+GROUP BY status;
+</code></pre>
+<p>Đọc đơn giản:</p>
+<ul>
+<li>gom task theo từng <code>status</code></li>
+<li>mỗi nhóm đếm bao nhiêu bản ghi</li>
+</ul>
+<p>Kết quả có thể ra kiểu:</p>
+<pre><code class="language-text">TODO         18
+IN_PROGRESS  10
+DONE         12
+</code></pre>
+<h2><code>HAVING</code></h2>
+<p><code>WHERE</code> lọc trước khi nhóm.
+<code>HAVING</code> lọc sau khi đã nhóm xong.</p>
+<p>Ví dụ tìm title bị trùng trong cùng project:</p>
+<pre><code class="language-sql">SELECT &quot;projectId&quot;, title, COUNT(*) AS duplicate_count
+FROM tasks
+GROUP BY &quot;projectId&quot;, title
+HAVING COUNT(*) &gt; 1;
+</code></pre>
+<p>Hiểu đơn giản:</p>
+<ul>
+<li>nhóm theo <code>projectId + title</code></li>
+<li>nhóm nào đếm lớn hơn 1 thì là bị trùng</li>
+</ul>
+<h2><code>JOIN</code> và <code>LEFT JOIN</code></h2>
+<p>Đây là phần interviewer rất hay hỏi.</p>
+<h3><code>JOIN</code> hay <code>INNER JOIN</code></h3>
+<p>Chỉ lấy record có khớp ở cả hai bảng.</p>
+<p>Ví dụ:</p>
+<pre><code class="language-sql">SELECT p.name, u.email
+FROM projects p
+JOIN users u ON u.id = p.&quot;ownerId&quot;;
+</code></pre>
+<p>Chỉ project nào có owner hợp lệ mới hiện ra.</p>
+<h3><code>LEFT JOIN</code></h3>
+<p>Luôn giữ dữ liệu bảng bên trái, dù bảng bên phải có khớp hay không.</p>
+<p>Ví dụ:</p>
+<pre><code class="language-sql">SELECT t.title, u.email
+FROM tasks t
+LEFT JOIN users u ON u.id = t.&quot;assigneeId&quot;;
+</code></pre>
+<p>Ý nghĩa:</p>
+<ul>
+<li>task chưa assign vẫn hiện</li>
+<li>nếu không có assignee thì cột email ra <code>NULL</code></li>
+</ul>
+<p>Quy tắc nhớ nhanh:</p>
+<ul>
+<li>muốn bỏ record không khớp: dùng <code>JOIN</code></li>
+<li>muốn giữ record bên trái kể cả khi không khớp: dùng <code>LEFT JOIN</code></li>
+</ul>
+<h2><code>NULL</code></h2>
+<p><code>NULL</code> không phải chuỗi rỗng, không phải số 0, cũng không phải <code>false</code>.</p>
+<p>Vì vậy:</p>
+<ul>
+<li>đúng: <code>IS NULL</code></li>
+<li>sai: <code>= NULL</code></li>
+</ul>
+<p>Ví dụ:</p>
+<pre><code class="language-sql">SELECT *
+FROM tasks
+WHERE &quot;assigneeId&quot; IS NULL;
+</code></pre>
+<h2>Exact match và Partial match</h2>
+<p>Đây là phần rất quan trọng khi test filter.</p>
+<h3>Exact match</h3>
+<pre><code class="language-sql">WHERE status = &#39;TODO&#39;
+</code></pre>
+<p>Chỉ lấy đúng <code>TODO</code>.</p>
+<h3>Partial match</h3>
+<pre><code class="language-sql">WHERE status ILIKE &#39;%DO%&#39;
+</code></pre>
+<p>Có thể match:</p>
+<ul>
+<li><code>TODO</code></li>
+<li><code>DONE</code></li>
+</ul>
+<p>Nên nếu business yêu cầu lọc chính xác mà code lại dùng wildcard thì rất dễ sinh bug.</p>
+<h2><code>CTE</code> là gì</h2>
+<p><code>CTE</code> là một bảng tạm trong lúc chạy query.</p>
+<p>Nó thường bắt đầu bằng <code>WITH</code>.</p>
+<p>Ví dụ:</p>
+<pre><code class="language-sql">WITH sample_ids AS (
+  SELECT &#39;11111111-1111-1111-1111-111111111111&#39;::uuid AS task_id
+)
+SELECT *
+FROM sample_ids;
+</code></pre>
+<p>Hiểu đơn giản:</p>
+<ul>
+<li>tạo một bảng tạm tên <code>sample_ids</code></li>
+<li>dùng nó như một bảng bình thường ở câu query phía dưới</li>
+</ul>
+<p>CTE rất hữu ích để:</p>
+<ul>
+<li>mô phỏng input batch</li>
+<li>đối soát expected và actual</li>
+<li>viết query dễ đọc hơn</li>
+</ul>
+<h2>4. Cách tư duy verify dữ liệu như tester senior</h2>
+<p>Khi viết SQL, đừng chỉ nghĩ <code>lấy dữ liệu ra</code>.
+Nên nghĩ theo 4 câu hỏi:</p>
+<h3>1. Expected là gì</h3>
+<p>Ví dụ:</p>
+<ul>
+<li>user Bob chỉ nên thấy project của Bob</li>
+<li>task update thành <code>IN_PROGRESS</code> thì DB cũng phải là <code>IN_PROGRESS</code></li>
+</ul>
+<h3>2. Actual là gì</h3>
+<p>Đây là dữ liệu API trả ra hoặc dữ liệu thật trong DB sau khi thao tác.</p>
+<h3>3. Mình cần query gì để chứng minh</h3>
+<p>Ví dụ:</p>
+<ul>
+<li>query tất cả project</li>
+<li>query project của Bob theo owner</li>
+<li>query task theo <code>id</code> để xem status thật</li>
+</ul>
+<h3>4. Kết quả này dùng làm evidence thế nào</h3>
+<p>Output SQL tốt là output trả lời được ngay:</p>
+<ul>
+<li>record nào sai</li>
+<li>field nào sai</li>
+<li>quan hệ nào sai</li>
+</ul>
+<h2>5. Mẫu nói ngắn gọn trong phỏng vấn</h2>
+<p>Nếu bị hỏi <code>Em dùng SQL để làm gì trong test?</code>, có thể trả lời ngắn kiểu này:</p>
+<p><code>Em dùng SQL để verify dữ liệu sau khi gọi API, đối soát expected và actual, kiểm tra integrity như orphan/missing/duplicate data, và tạo evidence rõ ràng cho bug report.</code></p>
+<p>Nếu bị hỏi <code>Khi nào dùng LEFT JOIN?</code>, có thể trả lời:</p>
+<p><code>Em dùng LEFT JOIN khi muốn giữ toàn bộ dữ liệu bảng chính, kể cả khi bảng liên quan không có record khớp, ví dụ task chưa có assignee hoặc project chưa có task.</code></p>
 <h2>Nhóm A: Cơ bản</h2>
 <h3>Câu 1</h3>
 <pre><code class="language-sql">SELECT id, email, role, &quot;createdAt&quot;

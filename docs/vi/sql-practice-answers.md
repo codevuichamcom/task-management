@@ -2,6 +2,293 @@
 
 Các đáp án dưới đây dùng cú pháp PostgreSQL, bám theo schema của project `task-management`.
 
+## 1. Tóm tắt lý thuyết cần nắm trước khi làm
+
+## SQL là gì trong góc nhìn của tester
+
+Hiểu đơn giản:
+
+- API là thứ ứng viên nhìn thấy từ bên ngoài
+- Database là nơi dữ liệu thực sự được lưu
+- SQL là công cụ để kiểm tra xem dữ liệu thật trong DB có đúng với kỳ vọng hay không
+
+Ví dụ:
+
+- API trả task có status là `IN_PROGRESS`
+- nhưng query DB ra lại thấy status đang là `TODO`
+
+Khi đó:
+
+- UI/API response có thể đúng giả
+- DB mới là bằng chứng mạnh để kết luận bug persistence hoặc bug logic
+
+## 2. Bản đồ dữ liệu của project này
+
+Project này có 3 bảng chính:
+
+- `users`: người dùng
+- `projects`: dự án
+- `tasks`: công việc
+
+Quan hệ:
+
+- một `user` có thể sở hữu nhiều `project`
+- một `project` có nhiều `task`
+- một `task` có thể được assign cho một `user`, hoặc chưa assign
+
+Hình dung nhanh:
+
+```text
+users
+  └─< projects
+  └─< tasks
+
+projects
+  └─< tasks
+```
+
+Ví dụ trực quan:
+
+- `alice@test.com` sở hữu `Alpha Project`
+- `Alpha Project` có nhiều task như `Design login screen`
+- task đó có thể được assign cho `alice@test.com` hoặc `bob@test.com`
+
+## 3. Các mảnh lý thuyết cốt lõi
+
+## `SELECT`, `FROM`, `WHERE`
+
+Đây là phần cơ bản nhất.
+
+- `SELECT`: lấy cột nào
+- `FROM`: lấy từ bảng nào
+- `WHERE`: lọc record nào
+
+Ví dụ:
+
+```sql
+SELECT id, title, status
+FROM tasks
+WHERE status = 'TODO';
+```
+
+Đọc như người bình thường:
+
+- lấy `id`, `title`, `status`
+- từ bảng `tasks`
+- chỉ lấy những task có trạng thái `TODO`
+
+## `ORDER BY`
+
+Dùng để sắp xếp kết quả.
+
+Ví dụ:
+
+```sql
+SELECT id, email, "createdAt"
+FROM users
+ORDER BY "createdAt" DESC;
+```
+
+Ý nghĩa:
+
+- `DESC`: mới nhất trước
+- `ASC`: cũ nhất trước
+
+## `COUNT`, `GROUP BY`
+
+Khi cần đếm theo nhóm, gần như luôn nghĩ đến 2 thứ này.
+
+Ví dụ:
+
+```sql
+SELECT status, COUNT(*) AS task_count
+FROM tasks
+GROUP BY status;
+```
+
+Đọc đơn giản:
+
+- gom task theo từng `status`
+- mỗi nhóm đếm bao nhiêu bản ghi
+
+Kết quả có thể ra kiểu:
+
+```text
+TODO         18
+IN_PROGRESS  10
+DONE         12
+```
+
+## `HAVING`
+
+`WHERE` lọc trước khi nhóm.
+`HAVING` lọc sau khi đã nhóm xong.
+
+Ví dụ tìm title bị trùng trong cùng project:
+
+```sql
+SELECT "projectId", title, COUNT(*) AS duplicate_count
+FROM tasks
+GROUP BY "projectId", title
+HAVING COUNT(*) > 1;
+```
+
+Hiểu đơn giản:
+
+- nhóm theo `projectId + title`
+- nhóm nào đếm lớn hơn 1 thì là bị trùng
+
+## `JOIN` và `LEFT JOIN`
+
+Đây là phần interviewer rất hay hỏi.
+
+### `JOIN` hay `INNER JOIN`
+
+Chỉ lấy record có khớp ở cả hai bảng.
+
+Ví dụ:
+
+```sql
+SELECT p.name, u.email
+FROM projects p
+JOIN users u ON u.id = p."ownerId";
+```
+
+Chỉ project nào có owner hợp lệ mới hiện ra.
+
+### `LEFT JOIN`
+
+Luôn giữ dữ liệu bảng bên trái, dù bảng bên phải có khớp hay không.
+
+Ví dụ:
+
+```sql
+SELECT t.title, u.email
+FROM tasks t
+LEFT JOIN users u ON u.id = t."assigneeId";
+```
+
+Ý nghĩa:
+
+- task chưa assign vẫn hiện
+- nếu không có assignee thì cột email ra `NULL`
+
+Quy tắc nhớ nhanh:
+
+- muốn bỏ record không khớp: dùng `JOIN`
+- muốn giữ record bên trái kể cả khi không khớp: dùng `LEFT JOIN`
+
+## `NULL`
+
+`NULL` không phải chuỗi rỗng, không phải số 0, cũng không phải `false`.
+
+Vì vậy:
+
+- đúng: `IS NULL`
+- sai: `= NULL`
+
+Ví dụ:
+
+```sql
+SELECT *
+FROM tasks
+WHERE "assigneeId" IS NULL;
+```
+
+## Exact match và Partial match
+
+Đây là phần rất quan trọng khi test filter.
+
+### Exact match
+
+```sql
+WHERE status = 'TODO'
+```
+
+Chỉ lấy đúng `TODO`.
+
+### Partial match
+
+```sql
+WHERE status ILIKE '%DO%'
+```
+
+Có thể match:
+
+- `TODO`
+- `DONE`
+
+Nên nếu business yêu cầu lọc chính xác mà code lại dùng wildcard thì rất dễ sinh bug.
+
+## `CTE` là gì
+
+`CTE` là một bảng tạm trong lúc chạy query.
+
+Nó thường bắt đầu bằng `WITH`.
+
+Ví dụ:
+
+```sql
+WITH sample_ids AS (
+  SELECT '11111111-1111-1111-1111-111111111111'::uuid AS task_id
+)
+SELECT *
+FROM sample_ids;
+```
+
+Hiểu đơn giản:
+
+- tạo một bảng tạm tên `sample_ids`
+- dùng nó như một bảng bình thường ở câu query phía dưới
+
+CTE rất hữu ích để:
+
+- mô phỏng input batch
+- đối soát expected và actual
+- viết query dễ đọc hơn
+
+## 4. Cách tư duy verify dữ liệu như tester senior
+
+Khi viết SQL, đừng chỉ nghĩ `lấy dữ liệu ra`.
+Nên nghĩ theo 4 câu hỏi:
+
+### 1. Expected là gì
+
+Ví dụ:
+
+- user Bob chỉ nên thấy project của Bob
+- task update thành `IN_PROGRESS` thì DB cũng phải là `IN_PROGRESS`
+
+### 2. Actual là gì
+
+Đây là dữ liệu API trả ra hoặc dữ liệu thật trong DB sau khi thao tác.
+
+### 3. Mình cần query gì để chứng minh
+
+Ví dụ:
+
+- query tất cả project
+- query project của Bob theo owner
+- query task theo `id` để xem status thật
+
+### 4. Kết quả này dùng làm evidence thế nào
+
+Output SQL tốt là output trả lời được ngay:
+
+- record nào sai
+- field nào sai
+- quan hệ nào sai
+
+## 5. Mẫu nói ngắn gọn trong phỏng vấn
+
+Nếu bị hỏi `Em dùng SQL để làm gì trong test?`, có thể trả lời ngắn kiểu này:
+
+`Em dùng SQL để verify dữ liệu sau khi gọi API, đối soát expected và actual, kiểm tra integrity như orphan/missing/duplicate data, và tạo evidence rõ ràng cho bug report.`
+
+Nếu bị hỏi `Khi nào dùng LEFT JOIN?`, có thể trả lời:
+
+`Em dùng LEFT JOIN khi muốn giữ toàn bộ dữ liệu bảng chính, kể cả khi bảng liên quan không có record khớp, ví dụ task chưa có assignee hoặc project chưa có task.`
+
 ## Nhóm A: Cơ bản
 
 ### Câu 1
