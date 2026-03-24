@@ -18,11 +18,17 @@ Collection bao phủ các nhóm API chính của dự án:
 - `Tasks`
 - một nhóm `Negative Checks` để test nhanh validation và unauthorized
 
+Lưu ý:
+
+- phần `batch practice` hiện được hướng dẫn riêng ở [Batch practice guide](./batch-practice-guide.md)
+- bạn có thể tạo thêm một request thủ công trong Postman cho `POST /tasks/batch`
+
 Collection có sẵn script để:
 
 - tự lưu `access_token` sau khi login
 - tự lưu `project_id` sau khi tạo project
 - tự lưu `task_id` sau khi tạo task
+- tự lưu `batch_created_task_id` sau khi chạy batch request
 - kiểm tra schema cơ bản của response ở từng request
 
 Hiểu ngắn gọn:
@@ -84,24 +90,27 @@ Collection tự lưu:
 4. `02 Projects / List My Projects`
 5. `02 Projects / Update Project`
 6. `03 Tasks / Create Task`
-7. `03 Tasks / List Tasks - All`
-8. `03 Tasks / Update Task - Valid Status`
-9. `03 Tasks / List Tasks - Filtered By Status`
-10. `04 Negative Checks / Register - Invalid Email`
-11. `04 Negative Checks / Projects - No Token`
-12. `04 Negative Checks / Update Task - Invalid Status`
-13. `03 Tasks / Delete Task`
-14. `03 Tasks / Delete Project`
+7. `03 Tasks / Create Tasks - Batch All Valid`
+8. `03 Tasks / List Tasks - All`
+9. `03 Tasks / Create Tasks - Batch Mixed Result`
+10. `03 Tasks / Update Task - Valid Status`
+11. `03 Tasks / List Tasks - Filtered By Status`
+12. `04 Negative Checks / Register - Invalid Email`
+13. `04 Negative Checks / Projects - No Token`
+14. `04 Negative Checks / Update Task - Invalid Status`
+15. `03 Tasks / Delete Task`
+16. `03 Tasks / Delete Project`
 
 Nếu chỉ muốn smoke test nhanh, chỉ cần chạy:
 
 1. `Login - Seed User`
 2. `Create Project`
-3. `Create Task`
-4. `Update Task - Valid Status`
-5. `List Tasks - Filtered By Status`
-6. `Delete Task`
-7. `Delete Project`
+3. `Create Tasks - Batch All Valid`
+4. `Create Tasks - Batch Mixed Result`
+5. `Update Task - Valid Status`
+6. `List Tasks - Filtered By Status`
+7. `Delete Task`
+8. `Delete Project`
 
 ## Ý nghĩa từng folder
 
@@ -119,6 +128,8 @@ Nếu chỉ muốn smoke test nhanh, chỉ cần chạy:
 ## `03 Tasks`
 
 - `Create Task`: dùng `project_id` đã lưu, tạo task mới và lưu `task_id`.
+- `Create Tasks - Batch All Valid`: gửi 2 dòng hợp lệ trong một request để luyện case `all success`.
+- `Create Tasks - Batch Mixed Result`: gửi 2 dòng trong một request, cố ý để 1 dòng hợp lệ và 1 dòng lỗi để luyện `partial success` và `batch reconciliation`.
 - `List Tasks - All`: check schema list response và `meta`.
 - `Update Task - Valid Status`: update status sang `IN_PROGRESS`.
 - `List Tasks - Filtered By Status`: verify filter `statusFilter`.

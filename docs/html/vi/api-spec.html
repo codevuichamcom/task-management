@@ -158,6 +158,113 @@
 <td>Nếu có thì phải tham chiếu tới user tồn tại</td>
 </tr>
 </tbody></table>
+<h2>POST /tasks/batch</h2>
+<p>Tạo nhiều task trong một request để luyện bài toán <code>batch input/output reconciliation</code>.</p>
+<p><strong>Request</strong></p>
+<pre><code class="language-json">{
+  &quot;items&quot;: [
+    {
+      &quot;clientRef&quot;: &quot;row-001&quot;,
+      &quot;title&quot;: &quot;Batch import row 1&quot;,
+      &quot;description&quot;: &quot;Create from batch request&quot;,
+      &quot;status&quot;: &quot;TODO&quot;,
+      &quot;projectId&quot;: &quot;a3f1c2d4-89ab-4cde-b012-3456789abcde&quot;,
+      &quot;assigneeId&quot;: &quot;b4f1c2d4-89ab-4cde-b012-3456789abcde&quot;
+    },
+    {
+      &quot;clientRef&quot;: &quot;row-002&quot;,
+      &quot;title&quot;: &quot;Batch import row 2&quot;,
+      &quot;projectId&quot;: &quot;a3f1c2d4-89ab-4cde-b012-3456789abcde&quot;
+    }
+  ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Kiểu</th>
+<th>Bắt buộc</th>
+<th>Ghi chú</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>items</td>
+<td>array</td>
+<td>có</td>
+<td>Tối thiểu <code>1</code>, tối đa <code>50</code> phần tử</td>
+</tr>
+<tr>
+<td>items[].clientRef</td>
+<td>string</td>
+<td>không</td>
+<td>Mã tham chiếu phía client, được echo lại trong kết quả</td>
+</tr>
+<tr>
+<td>items[].title</td>
+<td>string</td>
+<td>có</td>
+<td>Không được để trống</td>
+</tr>
+<tr>
+<td>items[].description</td>
+<td>string</td>
+<td>không</td>
+<td>Tùy chọn</td>
+</tr>
+<tr>
+<td>items[].status</td>
+<td>string</td>
+<td>không</td>
+<td><code>TODO</code>, <code>IN_PROGRESS</code>, <code>DONE</code></td>
+</tr>
+<tr>
+<td>items[].projectId</td>
+<td>UUID</td>
+<td>có</td>
+<td>Project phải tồn tại</td>
+</tr>
+<tr>
+<td>items[].assigneeId</td>
+<td>UUID</td>
+<td>không</td>
+<td>Nếu có thì user phải tồn tại</td>
+</tr>
+</tbody></table>
+<p><strong>Response 200</strong></p>
+<pre><code class="language-json">{
+  &quot;total&quot;: 2,
+  &quot;createdCount&quot;: 1,
+  &quot;failedCount&quot;: 1,
+  &quot;results&quot;: [
+    {
+      &quot;index&quot;: 0,
+      &quot;clientRef&quot;: &quot;row-001&quot;,
+      &quot;ok&quot;: true,
+      &quot;taskId&quot;: &quot;770e8400-e29b-41d4-a716-446655440001&quot;,
+      &quot;title&quot;: &quot;Batch import row 1&quot;,
+      &quot;projectId&quot;: &quot;a3f1c2d4-89ab-4cde-b012-3456789abcde&quot;,
+      &quot;status&quot;: &quot;TODO&quot;
+    },
+    {
+      &quot;index&quot;: 1,
+      &quot;clientRef&quot;: &quot;row-002&quot;,
+      &quot;ok&quot;: false,
+      &quot;error&quot;: &quot;Project not found&quot;
+    }
+  ]
+}
+</code></pre>
+<p>Hiểu ngắn gọn:</p>
+<ul>
+<li>endpoint này không chạy async thật</li>
+<li>nhưng rất hữu ích để luyện:<ul>
+<li><code>missing / duplicate</code></li>
+<li>đối chiếu <code>input vs output</code></li>
+<li>bài toán retry và idempotency ở mức tester</li>
+</ul>
+</li>
+</ul>
 <h2>GET /tasks</h2>
 <p>Lấy danh sách task với lọc và phân trang.</p>
 <table>

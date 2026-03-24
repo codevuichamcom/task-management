@@ -25,6 +25,16 @@
 <li>mở nhanh đúng tài liệu đang cần để tra cứu</li>
 </ul>
 <hr>
+<h2>0. Tài nguyên thực hành nhanh</h2>
+<p>Nếu cần vào thẳng công cụ hoặc file để luyện thực hành, dùng các mục này:</p>
+<ul>
+<li><code>postman/task-management.postman_collection.json</code>: collection Postman chính</li>
+<li><code>postman/task-management.local.postman_environment.json</code>: environment local cho Postman</li>
+<li><code>jmeter/task-management-login-tasks.jmx</code>: test plan JMeter mẫu</li>
+<li><code>jmeter/users.csv</code>: dữ liệu account cho JMeter</li>
+<li><code>POST /tasks/batch</code>: endpoint luyện batch reconciliation</li>
+</ul>
+<hr>
 <h2>1. Bắt đầu nhanh</h2>
 <p>Nếu mới vào project, nên đi theo thứ tự này:</p>
 <ol>
@@ -33,6 +43,7 @@
 <li><a href="./jira-tickets.html">Jira tickets</a></li>
 <li><a href="./tester-interview-summary.html">Tổng ôn phỏng vấn tester</a></li>
 <li><a href="./postman-guide.html">Postman guide</a></li>
+<li><a href="./batch-practice-guide.html">Batch practice guide</a></li>
 <li><a href="./sql-practice-compact.html">SQL practice compact</a></li>
 <li><a href="./sql-practice-answers.html">SQL practice answers</a></li>
 <li><a href="./jmeter-review-guide.html">JMeter review guide</a></li>
@@ -78,6 +89,19 @@
 <li><code>jmeter/users.csv</code>: dữ liệu account để chạy nhiều user</li>
 </ul>
 <hr>
+<h2>Ôn Batch / Async</h2>
+<h3><a href="./batch-practice-guide.html">Batch practice guide</a></h3>
+<p>Dùng khi cần luyện tư duy kiểm thử <code>batch</code> bằng dữ liệu thật trong repo: gửi nhiều record trong một request, đối chiếu <code>input</code>, <code>response</code> và <code>DB</code>.</p>
+<h3>Tài nguyên batch trong repo</h3>
+<ul>
+<li>endpoint thực hành: <code>POST /tasks/batch</code></li>
+<li>có sẵn request trong Postman collection:<ul>
+<li><code>03 Tasks / Create Tasks - Batch All Valid</code></li>
+<li><code>03 Tasks / Create Tasks - Batch Mixed Result</code></li>
+</ul>
+</li>
+</ul>
+<hr>
 <h2>3. Chọn tài liệu theo nhu cầu</h2>
 <p>Nếu bạn đang cần:</p>
 <ul>
@@ -87,6 +111,7 @@
 <li>ôn phỏng vấn tổng quát: xem <a href="./tester-interview-summary.html">Tổng ôn phỏng vấn tester</a></li>
 <li>luyện SQL từ ngắn đến sâu: xem <a href="./sql-practice-compact.html">SQL practice compact</a> rồi sang <a href="./sql-practice-answers.html">SQL practice answers</a></li>
 <li>luyện Postman: xem <a href="./postman-guide.html">Postman guide</a>, rồi import <code>postman/task-management.postman_collection.json</code></li>
+<li>luyện batch: xem <a href="./batch-practice-guide.html">Batch practice guide</a></li>
 <li>ôn JMeter lý thuyết: xem <a href="./jmeter-review-guide.html">JMeter review guide</a></li>
 <li>chạy JMeter thực chiến: xem <a href="./jmeter-practice-guide.html">JMeter practice guide</a></li>
 </ul>
@@ -97,6 +122,7 @@
 <ol>
 <li><a href="./tester-interview-summary.html">Tổng ôn phỏng vấn tester</a></li>
 <li><a href="./postman-guide.html">Postman guide</a></li>
+<li><a href="./batch-practice-guide.html">Batch practice guide</a></li>
 <li><a href="./sql-practice-compact.html">SQL practice compact</a></li>
 <li><a href="./jmeter-review-guide.html">JMeter review guide</a></li>
 </ol>
@@ -107,6 +133,7 @@
 <li><a href="./api-spec.html">Đặc tả API</a></li>
 <li><a href="./jira-tickets.html">Jira tickets</a></li>
 <li><a href="./postman-guide.html">Postman guide</a></li>
+<li><a href="./batch-practice-guide.html">Batch practice guide</a></li>
 <li><a href="./sql-practice-compact.html">SQL practice compact</a></li>
 <li><a href="./sql-practice-answers.html">SQL practice answers</a></li>
 <li><a href="./jmeter-review-guide.html">JMeter review guide</a></li>

@@ -26,27 +26,27 @@
 <li>nắm được các khái niệm cốt lõi theo cách đơn giản</li>
 <li>có khung tư duy để trả lời phỏng vấn rõ ràng, không lan man</li>
 </ul>
-<h2>1. JD này đang tìm người như thế nào</h2>
+<h2>I. JD này đang tìm người như thế nào</h2>
 <p>Đây không phải JD cho tester chỉ test UI.</p>
 <p>Nhà tuyển dụng đang tìm người có thể:</p>
 <ul>
 <li>viết test case tốt</li>
 <li>test <code>API</code></li>
 <li>verify dữ liệu bằng <code>SQL</code></li>
-<li>hiểu <code>batch</code>, <code>async</code>, <code>microservices</code></li>
+<li>hiểu <code>batch</code>, <code>async</code></li>
 <li>biết nhìn <code>risk</code></li>
 <li>báo cáo bug và evidence rõ ràng</li>
 <li>nếu senior hơn thì có tư duy review, report, quản lý chất lượng</li>
 </ul>
 <p>Hiểu ngắn gọn:</p>
 <p><code>Họ cần một tester thiên về hệ thống, dữ liệu và logic nghiệp vụ, không phải click tester.</code></p>
-<h2>2. Bản đồ kiến thức cần ôn</h2>
+<h2>II. Bản đồ kiến thức cần ôn</h2>
 <p>Hãy nhớ theo 6 trụ cột:</p>
 <ol>
 <li><code>Test Design</code></li>
 <li><code>API Testing</code></li>
 <li><code>SQL / Data Verification</code></li>
-<li><code>Batch / Async / Microservices</code></li>
+<li><code>Batch / Async</code></li>
 <li><code>Bug Report / Test Evidence</code></li>
 <li><code>Performance + tư duy senior</code></li>
 </ol>
@@ -59,8 +59,8 @@
 <li><code>Bug report / Evidence</code></li>
 <li><code>Performance</code></li>
 </ol>
-<h2>3. Trụ cột 1: Test Design</h2>
-<h2>Test Design là gì</h2>
+<h2>III. Trụ cột 1: Test Design</h2>
+<h3>A. Test Design là gì</h3>
 <p>Là cách suy nghĩ để tạo test case có hệ thống, không test theo cảm giác.</p>
 <p>Mục tiêu:</p>
 <ul>
@@ -68,8 +68,8 @@
 <li>không chỉ test happy path</li>
 <li>tập trung vào chỗ dễ lỗi và có risk cao</li>
 </ul>
-<h2>4 kỹ thuật nên nhớ</h2>
-<h3>1. Equivalence Partitioning</h3>
+<h3>B. 4 kỹ thuật nên nhớ</h3>
+<h4>1. Equivalence Partitioning</h4>
 <p>Chia dữ liệu thành các nhóm tương đương.</p>
 <p>Ví dụ:</p>
 <ul>
@@ -81,7 +81,7 @@
 <li>mỗi nhóm chỉ cần chọn vài đại diện</li>
 <li>không cần test mọi giá trị</li>
 </ul>
-<h3>2. Boundary Value Analysis</h3>
+<h4>2. Boundary Value Analysis</h4>
 <p>Lỗi hay xuất hiện ở biên.</p>
 <p>Ví dụ:</p>
 <ul>
@@ -90,7 +90,7 @@
 </ul>
 <p>Nhớ nhanh:</p>
 <p><code>đừng chỉ test ở giữa, hãy test ở mép</code></p>
-<h3>3. Decision Table Test</h3>
+<h4>3. Decision Table Test</h4>
 <p>Dùng khi hệ thống có nhiều điều kiện kết hợp.</p>
 <p>Ví dụ:</p>
 <ul>
@@ -106,7 +106,7 @@
 <li>permission rule</li>
 <li>business rule nhiều nhánh</li>
 </ul>
-<h3>4. State Transition</h3>
+<h4>4. State Transition</h4>
 <p>Dùng khi đối tượng có trạng thái.</p>
 <p>Ví dụ task:</p>
 <ul>
@@ -120,7 +120,7 @@
 <li>chuyển trạng thái có đúng không</li>
 <li>có case nào bị chuyển sai không</li>
 </ul>
-<h2>Tư duy quan trọng</h2>
+<h3>C. Tư duy quan trọng</h3>
 <p>Đừng chỉ hỏi:</p>
 <ul>
 <li><code>case đúng là gì</code></li>
@@ -133,8 +133,8 @@
 <li><code>case quyền không đúng thì sao</code></li>
 <li><code>case dữ liệu lưu xuống DB có đúng không</code></li>
 </ul>
-<h2>4. Trụ cột 2: API Testing</h2>
-<h2>API là gì</h2>
+<h2>IV. Trụ cột 2: API Testing</h2>
+<h3>A. API là gì</h3>
 <p>API là nơi frontend hoặc hệ thống khác gọi vào để lấy hoặc cập nhật dữ liệu.</p>
 <p>Tester cần hiểu:</p>
 <ul>
@@ -145,8 +145,8 @@
 <li>status code</li>
 <li>auth token</li>
 </ul>
-<h2>5 thứ phải kiểm khi test API</h2>
-<h3>1. Status code</h3>
+<h3>B. 5 thứ phải kiểm khi test API</h3>
+<h4>1. Status code</h4>
 <p>Ví dụ:</p>
 <ul>
 <li><code>200</code>: thành công</li>
@@ -157,7 +157,7 @@
 <li><code>404</code>: không tìm thấy</li>
 <li><code>500</code>: lỗi server</li>
 </ul>
-<h3>2. Response body</h3>
+<h4>2. Response body</h4>
 <p>Phải kiểm:</p>
 <ul>
 <li>có đủ field không</li>
@@ -165,7 +165,7 @@
 <li>type có đúng không</li>
 <li>value có đúng business không</li>
 </ul>
-<h3>3. Validation</h3>
+<h4>3. Validation</h4>
 <p>Ví dụ cần test:</p>
 <ul>
 <li>thiếu field</li>
@@ -174,16 +174,16 @@
 <li>sai enum</li>
 <li>format email sai</li>
 </ul>
-<h3>4. Authorization</h3>
+<h4>4. Authorization</h4>
 <p>Ví dụ:</p>
 <ul>
 <li>Bob có sửa được project của Alice không</li>
 <li>user A có xem được task của user B không</li>
 </ul>
-<h3>5. DB persistence</h3>
+<h4>5. DB persistence</h4>
 <p>Sau khi gọi API, dữ liệu trong DB có đúng như response không.</p>
 <p>Đây là chỗ <code>API + SQL</code> đi cùng nhau.</p>
-<h2>Cách nhớ nhanh khi test API</h2>
+<h3>C. Cách nhớ nhanh khi test API</h3>
 <p>Hãy tự hỏi 5 câu:</p>
 <ol>
 <li>Gọi vào bằng gì</li>
@@ -198,8 +198,8 @@
 <li><code>postman/task-management.postman_collection.json</code></li>
 <li><code>postman/task-management.local.postman_environment.json</code></li>
 </ul>
-<h2>5. Trụ cột 3: SQL / Data Verification</h2>
-<h2>Vì sao SQL quan trọng</h2>
+<h2>V. Trụ cột 3: SQL / Data Verification</h2>
+<h3>A. Vì sao SQL quan trọng</h3>
 <p>Vì tester senior không chỉ nhìn UI hay response.</p>
 <p>Tester cần biết:</p>
 <ul>
@@ -208,7 +208,7 @@
 <li>record nào sai</li>
 <li>có thiếu, trùng, mồ côi hay không</li>
 </ul>
-<h2>Những keyword phải quen</h2>
+<h3>B. Những keyword phải quen</h3>
 <ul>
 <li><code>SELECT</code></li>
 <li><code>WHERE</code></li>
@@ -221,34 +221,34 @@
 <li><code>IS NULL</code></li>
 <li><code>CTE</code></li>
 </ul>
-<h2>4 bài toán SQL hay gặp nhất</h2>
-<h3>1. Verify dữ liệu sau API</h3>
+<h3>C. 4 bài toán SQL hay gặp nhất</h3>
+<h4>1. Verify dữ liệu sau API</h4>
 <p>Ví dụ:</p>
 <ul>
 <li>gọi API update task</li>
 <li>query DB xem status thật là gì</li>
 </ul>
-<h3>2. Kiểm tra integrity</h3>
+<h4>2. Kiểm tra integrity</h4>
 <p>Ví dụ:</p>
 <ul>
 <li>task có <code>projectId</code> không tồn tại</li>
 <li>task có <code>assigneeId</code> không tồn tại</li>
 </ul>
 <p>Đây là <code>orphan data</code></p>
-<h3>3. Kiểm tra duplicate hoặc missing</h3>
+<h4>3. Kiểm tra duplicate hoặc missing</h4>
 <p>Ví dụ:</p>
 <ul>
 <li>trùng title trong cùng project</li>
 <li>thiếu record sau khi import batch</li>
 </ul>
-<h3>4. Làm report hoặc đối soát</h3>
+<h4>4. Làm report hoặc đối soát</h4>
 <p>Ví dụ:</p>
 <ul>
 <li>đếm task theo status</li>
 <li>đếm task theo owner</li>
 <li>so sánh expected và actual</li>
 </ul>
-<h2>Cách nhớ tư duy SQL</h2>
+<h3>D. Cách nhớ tư duy SQL</h3>
 <p>SQL không chỉ để “lấy dữ liệu”.</p>
 <p>SQL dùng để trả lời:</p>
 <ul>
@@ -262,8 +262,8 @@
 <li><a href="./sql-practice-compact.html">SQL practice compact</a></li>
 <li><a href="./sql-practice-answers.html">SQL practice answers</a></li>
 </ul>
-<h2>6. Trụ cột 4: Batch / Async / Microservices</h2>
-<h2>Batch là gì</h2>
+<h2>VI. Trụ cột 4: Batch / Async</h2>
+<h3>A. Batch là gì</h3>
 <p>Batch là xử lý dữ liệu theo lô, theo đợt.</p>
 <p>Ví dụ:</p>
 <ul>
@@ -271,7 +271,7 @@
 <li>chạy cuối ngày</li>
 <li>đồng bộ dữ liệu giữa 2 hệ thống</li>
 </ul>
-<h2>Async là gì</h2>
+<h3>B. Async là gì</h3>
 <p>Async là xử lý không trả kết quả hoàn tất ngay.</p>
 <p>Ví dụ:</p>
 <ul>
@@ -280,19 +280,19 @@
 <li>hệ thống xử lý phía sau</li>
 <li>một lúc sau DB mới cập nhật</li>
 </ul>
-<h2>Tester cần quan tâm gì</h2>
-<h3>1. Missing record</h3>
+<h3>C. Tester cần quan tâm gì</h3>
+<h4>1. Missing record</h4>
 <p>Đáng ra có 100 record, thực tế chỉ lưu 98.</p>
-<h3>2. Duplicate record</h3>
+<h4>2. Duplicate record</h4>
 <p>Một record bị xử lý 2 lần.</p>
-<h3>3. Wrong mapping</h3>
+<h4>3. Wrong mapping</h4>
 <p>Dữ liệu vào đúng nhưng dữ liệu ra map sai field.</p>
-<h3>4. Timing issue</h3>
+<h4>4. Timing issue</h4>
 <p>Kiểm tra quá sớm thì chưa có dữ liệu.
 Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
-<h3>5. Retry / idempotency</h3>
+<h4>5. Retry / idempotency</h4>
 <p>Gọi lại nhiều lần có bị nhân đôi dữ liệu không.</p>
-<h2>Cách nhớ nhanh</h2>
+<h3>D. Cách nhớ nhanh</h3>
 <p>Khi test batch hoặc async, luôn nghĩ:</p>
 <ul>
 <li>vào bao nhiêu</li>
@@ -302,8 +302,14 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li>đúng trạng thái không</li>
 <li>đúng thời điểm kiểm tra chưa</li>
 </ul>
-<h2>7. Trụ cột 5: Bug Report và Test Evidence</h2>
-<h2>Bug report tốt cần gì</h2>
+<p>Tài liệu thực hành liên quan:</p>
+<ul>
+<li><a href="./batch-practice-guide.html">Batch practice guide</a></li>
+<li><a href="./postman-guide.html">Postman guide</a></li>
+<li><a href="./sql-practice-answers.html">SQL practice answers</a></li>
+</ul>
+<h2>VII. Trụ cột 5: Bug Report và Test Evidence</h2>
+<h3>A. Bug report tốt cần gì</h3>
 <p>Một bug report tốt phải giúp dev hoặc lead hiểu ngay:</p>
 <ul>
 <li>lỗi ở đâu</li>
@@ -312,7 +318,7 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li>actual là gì</li>
 <li>mức độ nghiêm trọng ra sao</li>
 </ul>
-<h2>Khung bug report đơn giản</h2>
+<h3>B. Khung bug report đơn giản</h3>
 <ul>
 <li><code>Title</code></li>
 <li><code>Environment</code></li>
@@ -322,7 +328,7 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li><code>Evidence</code></li>
 <li><code>Severity</code></li>
 </ul>
-<h2>Evidence tốt là gì</h2>
+<h3>C. Evidence tốt là gì</h3>
 <p>Nên có kết hợp:</p>
 <ul>
 <li>request API</li>
@@ -330,7 +336,7 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li>ảnh chụp giao diện nếu có</li>
 <li>output SQL nếu liên quan dữ liệu</li>
 </ul>
-<h2>Ví dụ ngắn</h2>
+<h3>D. Ví dụ ngắn</h3>
 <p>Expected:</p>
 <ul>
 <li>update task sang <code>IN_PROGRESS</code> thì DB phải lưu <code>IN_PROGRESS</code></li>
@@ -346,8 +352,8 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li>response body</li>
 <li>query SQL theo <code>task id</code></li>
 </ul>
-<h2>8. Trụ cột 6: Performance và tư duy senior</h2>
-<h2>Performance testing mức cơ bản</h2>
+<h2>VIII. Trụ cột 6: Performance và tư duy senior</h2>
+<h3>A. Performance testing mức cơ bản</h3>
 <p>Không cần quá sâu, nhưng nên hiểu:</p>
 <ul>
 <li><code>Load test</code>: kiểm tra tải bình thường</li>
@@ -361,7 +367,7 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 </ul>
 <p>Ví dụ:</p>
 <p><code>P95 &lt;= 800ms</code> nghĩa là đa số request phải phản hồi trong 800ms hoặc nhanh hơn.</p>
-<h2>Tư duy senior tester</h2>
+<h3>B. Tư duy senior tester</h3>
 <p>Senior tester khác ở chỗ:</p>
 <ul>
 <li>không test máy móc</li>
@@ -370,7 +376,7 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li>biết dùng evidence để nói chuyện với dev/PM</li>
 <li>biết phân biệt bug spec, bug logic, bug data, bug auth</li>
 </ul>
-<h2>Khi deadline gấp, test theo gì</h2>
+<h3>C. Khi deadline gấp, test theo gì</h3>
 <p>Ưu tiên:</p>
 <ol>
 <li>luồng chính</li>
@@ -379,7 +385,7 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li>rule nghiệp vụ</li>
 <li>case dễ gây ảnh hưởng rộng</li>
 </ol>
-<h2>9. Phần nghiệp vụ tài chính cần nắm mức cơ bản</h2>
+<h2>IX. Phần nghiệp vụ tài chính cần nắm mức cơ bản</h2>
 <p>JD nhắc đến tài chính, nhưng trong phỏng vấn tester thường chỉ cần hiểu ở mức nền.</p>
 <p>Nên nhớ:</p>
 <ul>
@@ -394,29 +400,29 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li>sai quyền truy cập có thể lộ dữ liệu nhạy cảm</li>
 <li>sai timing hoặc duplicate có thể gây lệch giao dịch</li>
 </ul>
-<h2>10. Khung tư duy 5 bước khi gặp một tính năng mới</h2>
+<h2>X. Khung tư duy 5 bước khi gặp một tính năng mới</h2>
 <p>Khi được đưa một chức năng để test, hãy đi theo 5 bước:</p>
-<h3>1. Hiểu chức năng làm gì</h3>
+<h3>A. Hiểu chức năng làm gì</h3>
 <p>Ví dụ:</p>
 <ul>
 <li>tạo task</li>
 <li>update status</li>
 <li>list task có filter</li>
 </ul>
-<h3>2. Xác định rule chính</h3>
+<h3>B. Xác định rule chính</h3>
 <p>Ví dụ:</p>
 <ul>
 <li>status chỉ nhận <code>TODO</code>, <code>IN_PROGRESS</code>, <code>DONE</code></li>
 <li>user chỉ được sửa dữ liệu của mình</li>
 </ul>
-<h3>3. Xác định dữ liệu vào và dữ liệu ra</h3>
+<h3>C. Xác định dữ liệu vào và dữ liệu ra</h3>
 <p>Ví dụ:</p>
 <ul>
 <li>request body</li>
 <li>response body</li>
 <li>record trong DB</li>
 </ul>
-<h3>4. Liệt kê risk</h3>
+<h3>D. Liệt kê risk</h3>
 <p>Ví dụ:</p>
 <ul>
 <li>sai quyền</li>
@@ -425,25 +431,25 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li>sai dữ liệu DB</li>
 <li>duplicate hoặc missing</li>
 </ul>
-<h3>5. Chuẩn bị evidence</h3>
+<h3>E. Chuẩn bị evidence</h3>
 <p>Ví dụ:</p>
 <ul>
 <li>request</li>
 <li>response</li>
 <li>SQL query</li>
 </ul>
-<h2>11. Mẫu trả lời ngắn trong phỏng vấn</h2>
-<h2>Nếu bị hỏi: Em mạnh nhất phần nào</h2>
+<h2>XI. Mẫu trả lời ngắn trong phỏng vấn</h2>
+<h3>A. Nếu bị hỏi: Em mạnh nhất phần nào</h3>
 <p><code>Em mạnh ở API testing và SQL verification. Em thường không chỉ dừng ở response mà còn kiểm tra dữ liệu trong DB để chắc rằng hệ thống lưu đúng và không có lỗi integrity như missing, duplicate hoặc orphan data.</code></p>
-<h2>Nếu bị hỏi: Em thiết kế test case như thế nào</h2>
+<h3>B. Nếu bị hỏi: Em thiết kế test case như thế nào</h3>
 <p><code>Em bắt đầu từ business rule, sau đó xác định happy path, abnormal case, boundary và các trường hợp quyền truy cập. Nếu rule có nhiều điều kiện kết hợp thì em ưu tiên dùng Decision Table để tránh sót case.</code></p>
-<h2>Nếu bị hỏi: Em dùng SQL để làm gì</h2>
+<h3>C. Nếu bị hỏi: Em dùng SQL để làm gì</h3>
 <p><code>Em dùng SQL để verify dữ liệu sau khi gọi API, đối soát expected và actual, kiểm tra integrity và tạo evidence rõ ràng cho bug report.</code></p>
-<h2>Nếu bị hỏi: Khi nào dùng LEFT JOIN</h2>
+<h3>D. Nếu bị hỏi: Khi nào dùng LEFT JOIN</h3>
 <p><code>Em dùng LEFT JOIN khi muốn giữ toàn bộ dữ liệu bảng chính kể cả khi bảng liên quan không có record khớp, ví dụ task chưa có assignee hoặc project chưa có task.</code></p>
-<h2>Nếu bị hỏi: Em test batch thế nào</h2>
+<h3>E. Nếu bị hỏi: Em test batch thế nào</h3>
 <p><code>Em sẽ kiểm tra số lượng input và output, record thiếu, record trùng, mapping field, trạng thái xử lý và thời điểm verify vì batch hoặc async có thể chưa cập nhật DB ngay.</code></p>
-<h2>12. Checklist ôn nhanh trước phỏng vấn</h2>
+<h2>XII. Checklist ôn nhanh trước phỏng vấn</h2>
 <p>Trước buổi phỏng vấn, chỉ cần chắc những ý này:</p>
 <ul>
 <li>hiểu 4 kỹ thuật test design cơ bản</li>
@@ -453,7 +459,7 @@ Kiểm tra quá muộn có thể bị process khác ghi đè.</p>
 <li>biết viết bug report và chuẩn bị evidence</li>
 <li>nói được tư duy risk-based testing</li>
 </ul>
-<h2>13. Cách học tài liệu này cho dễ nhớ</h2>
+<h2>XIII. Cách học tài liệu này cho dễ nhớ</h2>
 <p>Đừng cố học thuộc từng dòng.</p>
 <p>Hãy nhớ theo công thức:</p>
 <p><code>Rule -&gt; Test case -&gt; API -&gt; DB -&gt; Evidence</code></p>

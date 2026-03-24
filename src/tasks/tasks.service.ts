@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from '../projects/entities/project.entity';
 import { User } from '../users/entities/user.entity';
+import { CreateTaskBatchDto } from './dto/create-task-batch.dto';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { QueryTaskDto } from './dto/query-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -31,6 +32,41 @@ export class TasksService {
       assigneeId: dto.assigneeId,
     });
     return this.tasksRepository.save(task);
+  }
+
+  async createBatch(dto: CreateTaskBatchDto, userId: string) {
+    const results = [];
+
+    for (const [index, item] of dto.items.entries()) {
+      try {
+        const task = await this.create(item, userId);
+        results.push({
+          index,
+          clientRef: item.clientRef ?? null,
+          ok: true,
+          taskId: task.id,
+          title: task.title,
+          projectId: task.projectId,
+          status: task.status,
+        });
+      } catch (error) {
+        results.push({
+          index,
+          clientRef: item.clientRef ?? null,
+          ok: false,
+          error: this.getErrorMessage(error),
+        });
+      }
+    }
+
+    const createdCount = results.filter((item) => item.ok).length;
+
+    return {
+      total: dto.items.length,
+      createdCount,
+      failedCount: dto.items.length - createdCount,
+      results,
+    };
   }
 
   async findAll(query: QueryTaskDto) {
@@ -125,5 +161,13 @@ export class TasksService {
     if (!isProjectOwner && !isAssignee) {
       throw new ForbiddenException('You do not have access to this task');
     }
+  }
+
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+
+    return 'Unknown batch error';
   }
 }

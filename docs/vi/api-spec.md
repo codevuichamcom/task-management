@@ -90,6 +90,77 @@ Tạo task mới.
 | projectId | UUID | có | Phải tham chiếu tới project tồn tại |
 | assigneeId | UUID | không | Nếu có thì phải tham chiếu tới user tồn tại |
 
+## POST /tasks/batch
+
+Tạo nhiều task trong một request để luyện bài toán `batch input/output reconciliation`.
+
+**Request**
+
+```json
+{
+  "items": [
+    {
+      "clientRef": "row-001",
+      "title": "Batch import row 1",
+      "description": "Create from batch request",
+      "status": "TODO",
+      "projectId": "a3f1c2d4-89ab-4cde-b012-3456789abcde",
+      "assigneeId": "b4f1c2d4-89ab-4cde-b012-3456789abcde"
+    },
+    {
+      "clientRef": "row-002",
+      "title": "Batch import row 2",
+      "projectId": "a3f1c2d4-89ab-4cde-b012-3456789abcde"
+    }
+  ]
+}
+```
+
+| Trường | Kiểu | Bắt buộc | Ghi chú |
+|--------|------|----------|--------|
+| items | array | có | Tối thiểu `1`, tối đa `50` phần tử |
+| items[].clientRef | string | không | Mã tham chiếu phía client, được echo lại trong kết quả |
+| items[].title | string | có | Không được để trống |
+| items[].description | string | không | Tùy chọn |
+| items[].status | string | không | `TODO`, `IN_PROGRESS`, `DONE` |
+| items[].projectId | UUID | có | Project phải tồn tại |
+| items[].assigneeId | UUID | không | Nếu có thì user phải tồn tại |
+
+**Response 200**
+
+```json
+{
+  "total": 2,
+  "createdCount": 1,
+  "failedCount": 1,
+  "results": [
+    {
+      "index": 0,
+      "clientRef": "row-001",
+      "ok": true,
+      "taskId": "770e8400-e29b-41d4-a716-446655440001",
+      "title": "Batch import row 1",
+      "projectId": "a3f1c2d4-89ab-4cde-b012-3456789abcde",
+      "status": "TODO"
+    },
+    {
+      "index": 1,
+      "clientRef": "row-002",
+      "ok": false,
+      "error": "Project not found"
+    }
+  ]
+}
+```
+
+Hiểu ngắn gọn:
+
+- endpoint này không chạy async thật
+- nhưng rất hữu ích để luyện:
+  - `missing / duplicate`
+  - đối chiếu `input vs output`
+  - bài toán retry và idempotency ở mức tester
+
 ## GET /tasks
 
 Lấy danh sách task với lọc và phân trang.

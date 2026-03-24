@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateTaskBatchDto } from './dto/create-task-batch.dto';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { QueryTaskDto } from './dto/query-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -12,6 +13,36 @@ import { TasksService } from './tasks.service';
 @UseGuards(AuthGuard('jwt'))
 export class TasksController {
   constructor(private tasksService: TasksService) {}
+
+  @Post('batch')
+  @ApiOperation({ summary: 'Create multiple tasks in one batch request' })
+  @ApiResponse({ status: 200, description: 'Batch processed', schema: {
+    example: {
+      total: 3,
+      createdCount: 2,
+      failedCount: 1,
+      results: [
+        {
+          index: 0,
+          clientRef: 'row-001',
+          ok: true,
+          taskId: 'uuid',
+          title: 'Batch import row 1',
+          projectId: 'uuid',
+          status: 'TODO',
+        },
+        {
+          index: 1,
+          clientRef: 'row-002',
+          ok: false,
+          error: 'Project not found',
+        },
+      ],
+    },
+  }})
+  createBatch(@Body() dto: CreateTaskBatchDto, @Request() req) {
+    return this.tasksService.createBatch(dto, req.user.id);
+  }
 
   @Post()
   @ApiOperation({ summary: 'Create a new task' })

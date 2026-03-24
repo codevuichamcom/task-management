@@ -33,11 +33,17 @@
 <li><code>Tasks</code></li>
 <li>một nhóm <code>Negative Checks</code> để test nhanh validation và unauthorized</li>
 </ul>
+<p>Lưu ý:</p>
+<ul>
+<li>phần <code>batch practice</code> hiện được hướng dẫn riêng ở <a href="./batch-practice-guide.html">Batch practice guide</a></li>
+<li>bạn có thể tạo thêm một request thủ công trong Postman cho <code>POST /tasks/batch</code></li>
+</ul>
 <p>Collection có sẵn script để:</p>
 <ul>
 <li>tự lưu <code>access_token</code> sau khi login</li>
 <li>tự lưu <code>project_id</code> sau khi tạo project</li>
 <li>tự lưu <code>task_id</code> sau khi tạo task</li>
+<li>tự lưu <code>batch_created_task_id</code> sau khi chạy batch request</li>
 <li>kiểm tra schema cơ bản của response ở từng request</li>
 </ul>
 <p>Hiểu ngắn gọn:</p>
@@ -126,7 +132,9 @@
 <li><code>02 Projects / List My Projects</code></li>
 <li><code>02 Projects / Update Project</code></li>
 <li><code>03 Tasks / Create Task</code></li>
+<li><code>03 Tasks / Create Tasks - Batch All Valid</code></li>
 <li><code>03 Tasks / List Tasks - All</code></li>
+<li><code>03 Tasks / Create Tasks - Batch Mixed Result</code></li>
 <li><code>03 Tasks / Update Task - Valid Status</code></li>
 <li><code>03 Tasks / List Tasks - Filtered By Status</code></li>
 <li><code>04 Negative Checks / Register - Invalid Email</code></li>
@@ -139,7 +147,8 @@
 <ol>
 <li><code>Login - Seed User</code></li>
 <li><code>Create Project</code></li>
-<li><code>Create Task</code></li>
+<li><code>Create Tasks - Batch All Valid</code></li>
+<li><code>Create Tasks - Batch Mixed Result</code></li>
 <li><code>Update Task - Valid Status</code></li>
 <li><code>List Tasks - Filtered By Status</code></li>
 <li><code>Delete Task</code></li>
@@ -160,6 +169,8 @@
 <h2><code>03 Tasks</code></h2>
 <ul>
 <li><code>Create Task</code>: dùng <code>project_id</code> đã lưu, tạo task mới và lưu <code>task_id</code>.</li>
+<li><code>Create Tasks - Batch All Valid</code>: gửi 2 dòng hợp lệ trong một request để luyện case <code>all success</code>.</li>
+<li><code>Create Tasks - Batch Mixed Result</code>: gửi 2 dòng trong một request, cố ý để 1 dòng hợp lệ và 1 dòng lỗi để luyện <code>partial success</code> và <code>batch reconciliation</code>.</li>
 <li><code>List Tasks - All</code>: check schema list response và <code>meta</code>.</li>
 <li><code>Update Task - Valid Status</code>: update status sang <code>IN_PROGRESS</code>.</li>
 <li><code>List Tasks - Filtered By Status</code>: verify filter <code>statusFilter</code>.</li>

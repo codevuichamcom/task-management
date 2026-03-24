@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>batch practice guide</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #333; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; }
+    a { color: #0066cc; }
+  </style>
+</head>
+<body>
+<h1>Hướng dẫn thực hành Batch với project task-management</h1>
+<p>Tài liệu này giúp bạn luyện phần <code>batch</code> theo cách sát phỏng vấn tester nhưng không cần dựng một hệ thống async phức tạp.</p>
+<p>Project đã được thêm một endpoint mới:</p>
+<ul>
+<li><code>POST /tasks/batch</code></li>
+</ul>
+<p>Mục tiêu của endpoint này không phải mô phỏng enterprise batch thật 100%.
+Mục tiêu là tạo một chỗ để bạn luyện:</p>
+<ul>
+<li>gửi nhiều record trong một request</li>
+<li>đối chiếu <code>input</code> và <code>output</code></li>
+<li>kiểm tra <code>missing</code>, <code>duplicate</code>, <code>failed row</code></li>
+<li>dùng <code>Postman</code> và <code>SQL</code> để làm evidence</li>
+</ul>
+<hr>
+<h2>1. Endpoint này dùng để làm gì</h2>
+<p><code>POST /tasks/batch</code> nhận một mảng <code>items</code>.</p>
+<p>Mỗi item là một task cần tạo.</p>
+<p>Response trả về:</p>
+<ul>
+<li><code>total</code></li>
+<li><code>createdCount</code></li>
+<li><code>failedCount</code></li>
+<li><code>results</code> theo từng dòng</li>
+</ul>
+<p>Nói ngắn gọn:</p>
+<pre><code class="language-text">input nhiều dòng
+-&gt; server xử lý từng dòng
+-&gt; trả về kết quả từng dòng
+</code></pre>
+<p>Đây là kiểu rất tốt để tập tư duy <code>batch reconciliation</code>.</p>
+<hr>
+<h2>2. Trước khi chạy cần chuẩn bị gì</h2>
+<p>Bạn cần:</p>
+<ul>
+<li>API đang chạy ở <code>http://localhost:3000</code></li>
+<li>có token login</li>
+<li>có sẵn <code>projectId</code> hợp lệ</li>
+<li>nếu muốn gán người nhận task thì cần <code>assigneeId</code> hợp lệ</li>
+</ul>
+<p>Nếu muốn thao tác nhanh, dùng:</p>
+<ul>
+<li><a href="./postman-guide.html">Postman guide</a></li>
+</ul>
+<p>Collection hiện đã có sẵn request:</p>
+<ul>
+<li><code>03 Tasks / Create Tasks - Batch All Valid</code></li>
+<li><code>03 Tasks / Create Tasks - Batch Mixed Result</code></li>
+</ul>
+<p>Nếu muốn tra contract:</p>
+<ul>
+<li><a href="./api-spec.html">Đặc tả API</a></li>
+</ul>
+<hr>
+<h2>3. Request mẫu đầu tiên</h2>
+<p>Ví dụ:</p>
+<pre><code class="language-json">{
+  &quot;items&quot;: [
+    {
+      &quot;clientRef&quot;: &quot;row-001&quot;,
+      &quot;title&quot;: &quot;Batch row 1&quot;,
+      &quot;description&quot;: &quot;Valid row&quot;,
+      &quot;status&quot;: &quot;TODO&quot;,
+      &quot;projectId&quot;: &quot;&lt;project-id&gt;&quot;
+    },
+    {
+      &quot;clientRef&quot;: &quot;row-002&quot;,
+      &quot;title&quot;: &quot;Batch row 2&quot;,
+      &quot;description&quot;: &quot;Another valid row&quot;,
+      &quot;status&quot;: &quot;IN_PROGRESS&quot;,
+      &quot;projectId&quot;: &quot;&lt;project-id&gt;&quot;
+    }
+  ]
+}
+</code></pre>
+<p>Header:</p>
+<pre><code class="language-text">Authorization: Bearer &lt;access_token&gt;
+Content-Type: application/json
+</code></pre>
+<hr>
+<h2>4. Cách luyện bằng Postman</h2>
+<h3>Bước 1</h3>
+<p>Login bằng collection sẵn có để lấy token.</p>
+<h3>Bước 2</h3>
+<p>Tạo hoặc lấy một <code>projectId</code>.</p>
+<h3>Bước 3</h3>
+<p>Tạo request mới:</p>
+<ul>
+<li>method: <code>POST</code></li>
+<li>url: <code>{{baseUrl}}/tasks/batch</code></li>
+</ul>
+<h3>Bước 4</h3>
+<p>Gắn token vào header.</p>
+<h3>Bước 5</h3>
+<p>Paste request body mẫu và gửi.</p>
+<p>Nếu muốn chạy nhanh ngay bằng collection, dùng:</p>
+<ul>
+<li><code>Create Tasks - Batch All Valid</code> cho case tất cả dòng đều thành công</li>
+<li><code>Create Tasks - Batch Mixed Result</code> cho case vừa thành công vừa lỗi</li>
+</ul>
+<hr>
+<h2>5. 5 bài tập nên làm</h2>
+<h2>Bài 1: Batch toàn bộ hợp lệ</h2>
+<p>Mục tiêu:</p>
+<ul>
+<li>tất cả dòng đều tạo thành công</li>
+</ul>
+<p>Bạn cần check:</p>
+<ul>
+<li><code>total = 2</code></li>
+<li><code>createdCount = 2</code></li>
+<li><code>failedCount = 0</code></li>
+<li>trong DB thực sự có đủ 2 task mới</li>
+</ul>
+<h2>Bài 2: Batch trộn đúng và sai</h2>
+<p>Ví dụ:</p>
+<ul>
+<li>1 dòng dùng <code>projectId</code> hợp lệ</li>
+<li>1 dòng dùng <code>projectId</code> giả</li>
+</ul>
+<p>Mục tiêu:</p>
+<ul>
+<li>xem response có phản ánh đúng số dòng fail không</li>
+<li>dòng fail có trả <code>error</code> rõ không</li>
+<li>dòng đúng có vẫn được tạo không</li>
+</ul>
+<p>Đây là bài rất hay để luyện <code>partial success</code>.</p>
+<h2>Bài 3: Batch có duplicate title</h2>
+<p>Gửi 2 dòng có cùng <code>title</code> trong cùng project.</p>
+<p>Mục tiêu:</p>
+<ul>
+<li>kiểm tra hệ thống hiện tại có cho tạo cả hai không</li>
+<li>nếu có, đó có phải bug nghiệp vụ không</li>
+<li>dùng SQL để chứng minh duplicate</li>
+</ul>
+<h2>Bài 4: Retry cùng một payload</h2>
+<p>Gửi cùng một body hai lần liên tiếp.</p>
+<p>Mục tiêu:</p>
+<ul>
+<li>xem hệ thống có tạo trùng không</li>
+<li>nếu tạo trùng, bạn sẽ report đây là gì:<ul>
+<li>expected behavior</li>
+<li>hay bug idempotency</li>
+</ul>
+</li>
+</ul>
+<h2>Bài 5: Đối soát input và output</h2>
+<p>Dùng <code>clientRef</code> để đối chiếu:</p>
+<ul>
+<li>input có bao nhiêu dòng</li>
+<li>response success bao nhiêu dòng</li>
+<li>response fail bao nhiêu dòng</li>
+<li>DB thực tế lưu bao nhiêu record</li>
+</ul>
+<p>Đây là bài sát nhất với tư duy <code>batch tester</code>.</p>
+<hr>
+<h2>6. SQL nên dùng để verify</h2>
+<p>Ví dụ query kiểm tra các task vừa tạo:</p>
+<pre><code class="language-sql">SELECT id, title, status, &quot;projectId&quot;, &quot;assigneeId&quot;, &quot;createdAt&quot;
+FROM tasks
+WHERE title IN (&#39;Batch row 1&#39;, &#39;Batch row 2&#39;)
+ORDER BY &quot;createdAt&quot; DESC;
+</code></pre>
+<p>Ví dụ query tìm duplicate title trong cùng project:</p>
+<pre><code class="language-sql">SELECT &quot;projectId&quot;, title, COUNT(*) AS duplicate_count
+FROM tasks
+GROUP BY &quot;projectId&quot;, title
+HAVING COUNT(*) &gt; 1;
+</code></pre>
+<p>Nếu muốn luyện sâu hơn phần đối soát:</p>
+<ul>
+<li><a href="./sql-practice-answers.html">SQL practice answers</a></li>
+</ul>
+<hr>
+<h2>7. Nên kết luận bài test như thế nào</h2>
+<p>Đừng chỉ nói:</p>
+<ul>
+<li>batch chạy được</li>
+</ul>
+<p>Hãy nói kiểu có evidence:</p>
+<pre><code class="language-text">Em gửi batch gồm 3 dòng.
+Kết quả API trả createdCount = 2, failedCount = 1.
+Hai dòng hợp lệ được lưu trong DB, một dòng dùng projectId không tồn tại nên fail với thông báo &quot;Project not found&quot;.
+Kết quả input, response và DB khớp nhau.
+</code></pre>
+<p>Hoặc:</p>
+<pre><code class="language-text">Em gửi lại cùng một payload hai lần và hệ thống tạo trùng task.
+Nếu nghiệp vụ yêu cầu idempotent retry thì đây là bug duplicate data.
+</code></pre>
+<hr>
+<h2>8. Có nên sửa code thêm nữa không</h2>
+<p>Có thể, nhưng chỉ nên sửa nhẹ.</p>
+<p>Mức hiện tại đã đủ tốt để luyện:</p>
+<ul>
+<li>batch input/output</li>
+<li>mixed success</li>
+<li>duplicate</li>
+<li>retry</li>
+<li>SQL reconciliation</li>
+</ul>
+<p>Chỉ nên nâng thêm nếu bạn thật sự còn thời gian, ví dụ:</p>
+<ul>
+<li>thêm <code>dryRun</code></li>
+<li>thêm <code>batchId</code></li>
+<li>thêm <code>createdByBatchAt</code></li>
+<li>thêm endpoint async kiểu <code>POST /imports</code> rồi <code>GET /imports/:id</code></li>
+</ul>
+<p>Nếu đang ôn gấp, chưa cần đi xa đến đó.</p>
+
+</body>
+</html>

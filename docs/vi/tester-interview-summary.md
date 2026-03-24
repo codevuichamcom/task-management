@@ -9,7 +9,7 @@ Mục tiêu:
 - nắm được các khái niệm cốt lõi theo cách đơn giản
 - có khung tư duy để trả lời phỏng vấn rõ ràng, không lan man
 
-## 1. JD này đang tìm người như thế nào
+## I. JD này đang tìm người như thế nào
 
 Đây không phải JD cho tester chỉ test UI.
 
@@ -18,7 +18,7 @@ Nhà tuyển dụng đang tìm người có thể:
 - viết test case tốt
 - test `API`
 - verify dữ liệu bằng `SQL`
-- hiểu `batch`, `async`, `microservices`
+- hiểu `batch`, `async`
 - biết nhìn `risk`
 - báo cáo bug và evidence rõ ràng
 - nếu senior hơn thì có tư duy review, report, quản lý chất lượng
@@ -27,14 +27,14 @@ Hiểu ngắn gọn:
 
 `Họ cần một tester thiên về hệ thống, dữ liệu và logic nghiệp vụ, không phải click tester.`
 
-## 2. Bản đồ kiến thức cần ôn
+## II. Bản đồ kiến thức cần ôn
 
 Hãy nhớ theo 6 trụ cột:
 
 1. `Test Design`
 2. `API Testing`
 3. `SQL / Data Verification`
-4. `Batch / Async / Microservices`
+4. `Batch / Async`
 5. `Bug Report / Test Evidence`
 6. `Performance + tư duy senior`
 
@@ -47,9 +47,9 @@ Nếu ít thời gian, ưu tiên học theo thứ tự:
 5. `Bug report / Evidence`
 6. `Performance`
 
-## 3. Trụ cột 1: Test Design
+## III. Trụ cột 1: Test Design
 
-## Test Design là gì
+### A. Test Design là gì
 
 Là cách suy nghĩ để tạo test case có hệ thống, không test theo cảm giác.
 
@@ -59,9 +59,9 @@ Mục tiêu:
 - không chỉ test happy path
 - tập trung vào chỗ dễ lỗi và có risk cao
 
-## 4 kỹ thuật nên nhớ
+### B. 4 kỹ thuật nên nhớ
 
-### 1. Equivalence Partitioning
+#### 1. Equivalence Partitioning
 
 Chia dữ liệu thành các nhóm tương đương.
 
@@ -75,7 +75,7 @@ Ví dụ:
 - mỗi nhóm chỉ cần chọn vài đại diện
 - không cần test mọi giá trị
 
-### 2. Boundary Value Analysis
+#### 2. Boundary Value Analysis
 
 Lỗi hay xuất hiện ở biên.
 
@@ -88,7 +88,7 @@ Nhớ nhanh:
 
 `đừng chỉ test ở giữa, hãy test ở mép`
 
-### 3. Decision Table Test
+#### 3. Decision Table Test
 
 Dùng khi hệ thống có nhiều điều kiện kết hợp.
 
@@ -107,7 +107,7 @@ Rất hợp với:
 - permission rule
 - business rule nhiều nhánh
 
-### 4. State Transition
+#### 4. State Transition
 
 Dùng khi đối tượng có trạng thái.
 
@@ -123,7 +123,7 @@ Cần kiểm tra:
 - chuyển trạng thái có đúng không
 - có case nào bị chuyển sai không
 
-## Tư duy quan trọng
+### C. Tư duy quan trọng
 
 Đừng chỉ hỏi:
 
@@ -137,9 +137,9 @@ Hãy hỏi thêm:
 - `case quyền không đúng thì sao`
 - `case dữ liệu lưu xuống DB có đúng không`
 
-## 4. Trụ cột 2: API Testing
+## IV. Trụ cột 2: API Testing
 
-## API là gì
+### A. API là gì
 
 API là nơi frontend hoặc hệ thống khác gọi vào để lấy hoặc cập nhật dữ liệu.
 
@@ -152,9 +152,9 @@ Tester cần hiểu:
 - status code
 - auth token
 
-## 5 thứ phải kiểm khi test API
+### B. 5 thứ phải kiểm khi test API
 
-### 1. Status code
+#### 1. Status code
 
 Ví dụ:
 
@@ -166,7 +166,7 @@ Ví dụ:
 - `404`: không tìm thấy
 - `500`: lỗi server
 
-### 2. Response body
+#### 2. Response body
 
 Phải kiểm:
 
@@ -175,7 +175,7 @@ Phải kiểm:
 - type có đúng không
 - value có đúng business không
 
-### 3. Validation
+#### 3. Validation
 
 Ví dụ cần test:
 
@@ -185,20 +185,20 @@ Ví dụ cần test:
 - sai enum
 - format email sai
 
-### 4. Authorization
+#### 4. Authorization
 
 Ví dụ:
 
 - Bob có sửa được project của Alice không
 - user A có xem được task của user B không
 
-### 5. DB persistence
+#### 5. DB persistence
 
 Sau khi gọi API, dữ liệu trong DB có đúng như response không.
 
 Đây là chỗ `API + SQL` đi cùng nhau.
 
-## Cách nhớ nhanh khi test API
+### C. Cách nhớ nhanh khi test API
 
 Hãy tự hỏi 5 câu:
 
@@ -214,9 +214,9 @@ Tài liệu thực hành liên quan:
 - `postman/task-management.postman_collection.json`
 - `postman/task-management.local.postman_environment.json`
 
-## 5. Trụ cột 3: SQL / Data Verification
+## V. Trụ cột 3: SQL / Data Verification
 
-## Vì sao SQL quan trọng
+### A. Vì sao SQL quan trọng
 
 Vì tester senior không chỉ nhìn UI hay response.
 
@@ -227,7 +227,7 @@ Tester cần biết:
 - record nào sai
 - có thiếu, trùng, mồ côi hay không
 
-## Những keyword phải quen
+### B. Những keyword phải quen
 
 - `SELECT`
 - `WHERE`
@@ -240,16 +240,16 @@ Tester cần biết:
 - `IS NULL`
 - `CTE`
 
-## 4 bài toán SQL hay gặp nhất
+### C. 4 bài toán SQL hay gặp nhất
 
-### 1. Verify dữ liệu sau API
+#### 1. Verify dữ liệu sau API
 
 Ví dụ:
 
 - gọi API update task
 - query DB xem status thật là gì
 
-### 2. Kiểm tra integrity
+#### 2. Kiểm tra integrity
 
 Ví dụ:
 
@@ -258,14 +258,14 @@ Ví dụ:
 
 Đây là `orphan data`
 
-### 3. Kiểm tra duplicate hoặc missing
+#### 3. Kiểm tra duplicate hoặc missing
 
 Ví dụ:
 
 - trùng title trong cùng project
 - thiếu record sau khi import batch
 
-### 4. Làm report hoặc đối soát
+#### 4. Làm report hoặc đối soát
 
 Ví dụ:
 
@@ -273,7 +273,7 @@ Ví dụ:
 - đếm task theo owner
 - so sánh expected và actual
 
-## Cách nhớ tư duy SQL
+### D. Cách nhớ tư duy SQL
 
 SQL không chỉ để “lấy dữ liệu”.
 
@@ -289,9 +289,9 @@ Tài liệu thực hành liên quan:
 - [SQL practice compact](./sql-practice-compact.md)
 - [SQL practice answers](./sql-practice-answers.md)
 
-## 6. Trụ cột 4: Batch / Async / Microservices
+## VI. Trụ cột 4: Batch / Async
 
-## Batch là gì
+### A. Batch là gì
 
 Batch là xử lý dữ liệu theo lô, theo đợt.
 
@@ -301,7 +301,7 @@ Ví dụ:
 - chạy cuối ngày
 - đồng bộ dữ liệu giữa 2 hệ thống
 
-## Async là gì
+### B. Async là gì
 
 Async là xử lý không trả kết quả hoàn tất ngay.
 
@@ -312,30 +312,30 @@ Ví dụ:
 - hệ thống xử lý phía sau
 - một lúc sau DB mới cập nhật
 
-## Tester cần quan tâm gì
+### C. Tester cần quan tâm gì
 
-### 1. Missing record
+#### 1. Missing record
 
 Đáng ra có 100 record, thực tế chỉ lưu 98.
 
-### 2. Duplicate record
+#### 2. Duplicate record
 
 Một record bị xử lý 2 lần.
 
-### 3. Wrong mapping
+#### 3. Wrong mapping
 
 Dữ liệu vào đúng nhưng dữ liệu ra map sai field.
 
-### 4. Timing issue
+#### 4. Timing issue
 
 Kiểm tra quá sớm thì chưa có dữ liệu.
 Kiểm tra quá muộn có thể bị process khác ghi đè.
 
-### 5. Retry / idempotency
+#### 5. Retry / idempotency
 
 Gọi lại nhiều lần có bị nhân đôi dữ liệu không.
 
-## Cách nhớ nhanh
+### D. Cách nhớ nhanh
 
 Khi test batch hoặc async, luôn nghĩ:
 
@@ -346,9 +346,15 @@ Khi test batch hoặc async, luôn nghĩ:
 - đúng trạng thái không
 - đúng thời điểm kiểm tra chưa
 
-## 7. Trụ cột 5: Bug Report và Test Evidence
+Tài liệu thực hành liên quan:
 
-## Bug report tốt cần gì
+- [Batch practice guide](./batch-practice-guide.md)
+- [Postman guide](./postman-guide.md)
+- [SQL practice answers](./sql-practice-answers.md)
+
+## VII. Trụ cột 5: Bug Report và Test Evidence
+
+### A. Bug report tốt cần gì
 
 Một bug report tốt phải giúp dev hoặc lead hiểu ngay:
 
@@ -358,7 +364,7 @@ Một bug report tốt phải giúp dev hoặc lead hiểu ngay:
 - actual là gì
 - mức độ nghiêm trọng ra sao
 
-## Khung bug report đơn giản
+### B. Khung bug report đơn giản
 
 - `Title`
 - `Environment`
@@ -368,7 +374,7 @@ Một bug report tốt phải giúp dev hoặc lead hiểu ngay:
 - `Evidence`
 - `Severity`
 
-## Evidence tốt là gì
+### C. Evidence tốt là gì
 
 Nên có kết hợp:
 
@@ -377,7 +383,7 @@ Nên có kết hợp:
 - ảnh chụp giao diện nếu có
 - output SQL nếu liên quan dữ liệu
 
-## Ví dụ ngắn
+### D. Ví dụ ngắn
 
 Expected:
 
@@ -394,9 +400,9 @@ Evidence:
 - response body
 - query SQL theo `task id`
 
-## 8. Trụ cột 6: Performance và tư duy senior
+## VIII. Trụ cột 6: Performance và tư duy senior
 
-## Performance testing mức cơ bản
+### A. Performance testing mức cơ bản
 
 Không cần quá sâu, nhưng nên hiểu:
 
@@ -413,7 +419,7 @@ Ví dụ:
 
 `P95 <= 800ms` nghĩa là đa số request phải phản hồi trong 800ms hoặc nhanh hơn.
 
-## Tư duy senior tester
+### B. Tư duy senior tester
 
 Senior tester khác ở chỗ:
 
@@ -423,7 +429,7 @@ Senior tester khác ở chỗ:
 - biết dùng evidence để nói chuyện với dev/PM
 - biết phân biệt bug spec, bug logic, bug data, bug auth
 
-## Khi deadline gấp, test theo gì
+### C. Khi deadline gấp, test theo gì
 
 Ưu tiên:
 
@@ -433,7 +439,7 @@ Senior tester khác ở chỗ:
 4. rule nghiệp vụ
 5. case dễ gây ảnh hưởng rộng
 
-## 9. Phần nghiệp vụ tài chính cần nắm mức cơ bản
+## IX. Phần nghiệp vụ tài chính cần nắm mức cơ bản
 
 JD nhắc đến tài chính, nhưng trong phỏng vấn tester thường chỉ cần hiểu ở mức nền.
 
@@ -450,11 +456,11 @@ Vì sao tester tài chính phải kỹ:
 - sai quyền truy cập có thể lộ dữ liệu nhạy cảm
 - sai timing hoặc duplicate có thể gây lệch giao dịch
 
-## 10. Khung tư duy 5 bước khi gặp một tính năng mới
+## X. Khung tư duy 5 bước khi gặp một tính năng mới
 
 Khi được đưa một chức năng để test, hãy đi theo 5 bước:
 
-### 1. Hiểu chức năng làm gì
+### A. Hiểu chức năng làm gì
 
 Ví dụ:
 
@@ -462,14 +468,14 @@ Ví dụ:
 - update status
 - list task có filter
 
-### 2. Xác định rule chính
+### B. Xác định rule chính
 
 Ví dụ:
 
 - status chỉ nhận `TODO`, `IN_PROGRESS`, `DONE`
 - user chỉ được sửa dữ liệu của mình
 
-### 3. Xác định dữ liệu vào và dữ liệu ra
+### C. Xác định dữ liệu vào và dữ liệu ra
 
 Ví dụ:
 
@@ -477,7 +483,7 @@ Ví dụ:
 - response body
 - record trong DB
 
-### 4. Liệt kê risk
+### D. Liệt kê risk
 
 Ví dụ:
 
@@ -487,7 +493,7 @@ Ví dụ:
 - sai dữ liệu DB
 - duplicate hoặc missing
 
-### 5. Chuẩn bị evidence
+### E. Chuẩn bị evidence
 
 Ví dụ:
 
@@ -495,29 +501,29 @@ Ví dụ:
 - response
 - SQL query
 
-## 11. Mẫu trả lời ngắn trong phỏng vấn
+## XI. Mẫu trả lời ngắn trong phỏng vấn
 
-## Nếu bị hỏi: Em mạnh nhất phần nào
+### A. Nếu bị hỏi: Em mạnh nhất phần nào
 
 `Em mạnh ở API testing và SQL verification. Em thường không chỉ dừng ở response mà còn kiểm tra dữ liệu trong DB để chắc rằng hệ thống lưu đúng và không có lỗi integrity như missing, duplicate hoặc orphan data.`
 
-## Nếu bị hỏi: Em thiết kế test case như thế nào
+### B. Nếu bị hỏi: Em thiết kế test case như thế nào
 
 `Em bắt đầu từ business rule, sau đó xác định happy path, abnormal case, boundary và các trường hợp quyền truy cập. Nếu rule có nhiều điều kiện kết hợp thì em ưu tiên dùng Decision Table để tránh sót case.`
 
-## Nếu bị hỏi: Em dùng SQL để làm gì
+### C. Nếu bị hỏi: Em dùng SQL để làm gì
 
 `Em dùng SQL để verify dữ liệu sau khi gọi API, đối soát expected và actual, kiểm tra integrity và tạo evidence rõ ràng cho bug report.`
 
-## Nếu bị hỏi: Khi nào dùng LEFT JOIN
+### D. Nếu bị hỏi: Khi nào dùng LEFT JOIN
 
 `Em dùng LEFT JOIN khi muốn giữ toàn bộ dữ liệu bảng chính kể cả khi bảng liên quan không có record khớp, ví dụ task chưa có assignee hoặc project chưa có task.`
 
-## Nếu bị hỏi: Em test batch thế nào
+### E. Nếu bị hỏi: Em test batch thế nào
 
 `Em sẽ kiểm tra số lượng input và output, record thiếu, record trùng, mapping field, trạng thái xử lý và thời điểm verify vì batch hoặc async có thể chưa cập nhật DB ngay.`
 
-## 12. Checklist ôn nhanh trước phỏng vấn
+## XII. Checklist ôn nhanh trước phỏng vấn
 
 Trước buổi phỏng vấn, chỉ cần chắc những ý này:
 
@@ -528,7 +534,7 @@ Trước buổi phỏng vấn, chỉ cần chắc những ý này:
 - biết viết bug report và chuẩn bị evidence
 - nói được tư duy risk-based testing
 
-## 13. Cách học tài liệu này cho dễ nhớ
+## XIII. Cách học tài liệu này cho dễ nhớ
 
 Đừng cố học thuộc từng dòng.
 

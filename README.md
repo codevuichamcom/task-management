@@ -74,6 +74,7 @@ On first startup, the database is seeded with:
 | PATCH | /projects/:id | Yes | Update a project owned by the current user |
 | DELETE | /projects/:id | Yes | Delete a project owned by the current user |
 | POST | /tasks | Yes | Create a new task |
+| POST | /tasks/batch | Yes | Create multiple tasks and return per-row results |
 | GET | /tasks | Yes | List tasks with filters and pagination |
 | PATCH | /tasks/:id | Yes | Update a task if current user is the project owner or assignee |
 | DELETE | /tasks/:id | Yes | Delete a task if current user is the project owner or assignee |
@@ -93,6 +94,33 @@ GET /tasks?page=1&limit=10&statusFilter=TODO&projectId=<uuid>
 ```
 
 `statusFilter` is the primary query parameter. The legacy alias `status` is still accepted temporarily for compatibility.
+
+### Batch Task Import
+
+The API also supports a lightweight batch practice endpoint:
+
+```text
+POST /tasks/batch
+```
+
+Request body shape:
+
+```json
+{
+  "items": [
+    {
+      "clientRef": "row-001",
+      "title": "Batch row 1",
+      "description": "Created from a batch request",
+      "status": "TODO",
+      "projectId": "<uuid>",
+      "assigneeId": "<uuid>"
+    }
+  ]
+}
+```
+
+The response includes `total`, `createdCount`, `failedCount`, and per-row results so testers can practice reconciliation and mixed-success scenarios.
 
 ## PostgreSQL Direct Access
 

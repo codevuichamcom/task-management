@@ -285,6 +285,118 @@
           "response": []
         },
         {
+          "name": "Create Tasks - Batch Mixed Result",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.environment.set('batch_title_prefix', `Postman Batch ${ts}`);",
+                  "if (!pm.environment.get('batch_invalid_project_id')) {",
+                  "  pm.environment.set('batch_invalid_project_id', '00000000-0000-0000-0000-000000000999');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test('Batch response summary is correct', function () {",
+                  "  pm.expect(data.total).to.eql(2);",
+                  "  pm.expect(data.createdCount).to.eql(1);",
+                  "  pm.expect(data.failedCount).to.eql(1);",
+                  "  pm.expect(data.results).to.be.an('array').with.lengthOf(2);",
+                  "});",
+                  "const okRow = data.results.find((item) => item.clientRef === 'row-001');",
+                  "const failRow = data.results.find((item) => item.clientRef === 'row-002');",
+                  "pm.test('Successful row is returned with taskId', function () {",
+                  "  pm.expect(okRow.ok).to.eql(true);",
+                  "  pm.expect(okRow.taskId).to.be.a('string').and.not.empty;",
+                  "  pm.expect(okRow.title).to.include(pm.environment.get('batch_title_prefix'));",
+                  "});",
+                  "pm.test('Failed row is returned with an error message', function () {",
+                  "  pm.expect(failRow.ok).to.eql(false);",
+                  "  pm.expect(failRow.error).to.be.a('string').and.not.empty;",
+                  "});",
+                  "pm.environment.set('batch_created_task_id', okRow.taskId);",
+                  "pm.environment.set('task_id', okRow.taskId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"clientRef\": \"row-001\",\n      \"title\": \"{{batch_title_prefix}} - Valid\",\n      \"description\": \"Valid batch row from Postman collection\",\n      \"status\": \"TODO\",\n      \"projectId\": \"{{project_id}}\",\n      \"assigneeId\": \"{{assignee_id}}\"\n    },\n    {\n      \"clientRef\": \"row-002\",\n      \"title\": \"{{batch_title_prefix}} - Invalid\",\n      \"description\": \"Invalid project to simulate partial success\",\n      \"status\": \"TODO\",\n      \"projectId\": \"{{batch_invalid_project_id}}\",\n      \"assigneeId\": \"{{assignee_id}}\"\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/tasks/batch"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tasks - Batch All Valid",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.environment.set('batch_all_valid_prefix', `Postman Batch Valid ${ts}`);",
+                  "if (!pm.environment.get('assignee_id') && pm.environment.get('current_user_id')) { pm.environment.set('assignee_id', pm.environment.get('current_user_id')); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test('All rows succeeded', function () {",
+                  "  pm.expect(data.total).to.eql(2);",
+                  "  pm.expect(data.createdCount).to.eql(2);",
+                  "  pm.expect(data.failedCount).to.eql(0);",
+                  "  pm.expect(data.results).to.be.an('array').with.lengthOf(2);",
+                  "  data.results.forEach((item) => {",
+                  "    pm.expect(item.ok).to.eql(true);",
+                  "    pm.expect(item.taskId).to.be.a('string').and.not.empty;",
+                  "    pm.expect(item.projectId).to.eql(pm.environment.get('project_id'));",
+                  "  });",
+                  "});",
+                  "pm.environment.set('batch_created_task_id', data.results[0].taskId);",
+                  "pm.environment.set('task_id', data.results[0].taskId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"clientRef\": \"row-101\",\n      \"title\": \"{{batch_all_valid_prefix}} - A\",\n      \"description\": \"All valid batch row A\",\n      \"status\": \"TODO\",\n      \"projectId\": \"{{project_id}}\",\n      \"assigneeId\": \"{{assignee_id}}\"\n    },\n    {\n      \"clientRef\": \"row-102\",\n      \"title\": \"{{batch_all_valid_prefix}} - B\",\n      \"description\": \"All valid batch row B\",\n      \"status\": \"IN_PROGRESS\",\n      \"projectId\": \"{{project_id}}\",\n      \"assigneeId\": \"{{assignee_id}}\"\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/tasks/batch"
+          },
+          "response": []
+        },
+        {
           "name": "List Tasks - All",
           "event": [
             {

@@ -9,6 +9,18 @@ Bạn có thể dùng theo 2 cách:
 
 ---
 
+## 0. Tài nguyên thực hành nhanh
+
+Nếu cần vào thẳng công cụ hoặc file để luyện thực hành, dùng các mục này:
+
+- `postman/task-management.postman_collection.json`: collection Postman chính
+- `postman/task-management.local.postman_environment.json`: environment local cho Postman
+- `jmeter/task-management-login-tasks.jmx`: test plan JMeter mẫu
+- `jmeter/users.csv`: dữ liệu account cho JMeter
+- `POST /tasks/batch`: endpoint luyện batch reconciliation
+
+---
+
 ## 1. Bắt đầu nhanh
 
 Nếu mới vào project, nên đi theo thứ tự này:
@@ -18,10 +30,11 @@ Nếu mới vào project, nên đi theo thứ tự này:
 3. [Jira tickets](./jira-tickets.md)
 4. [Tổng ôn phỏng vấn tester](./tester-interview-summary.md)
 5. [Postman guide](./postman-guide.md)
-6. [SQL practice compact](./sql-practice-compact.md)
-7. [SQL practice answers](./sql-practice-answers.md)
-8. [JMeter review guide](./jmeter-review-guide.md)
-9. [JMeter practice guide](./jmeter-practice-guide.md)
+6. [Batch practice guide](./batch-practice-guide.md)
+7. [SQL practice compact](./sql-practice-compact.md)
+8. [SQL practice answers](./sql-practice-answers.md)
+9. [JMeter review guide](./jmeter-review-guide.md)
+10. [JMeter practice guide](./jmeter-practice-guide.md)
 
 ---
 
@@ -93,6 +106,21 @@ Tài liệu thực hành đi cùng file mẫu trong repo, dùng khi cần mở `
 
 ---
 
+## Ôn Batch / Async
+
+### [Batch practice guide](./batch-practice-guide.md)
+
+Dùng khi cần luyện tư duy kiểm thử `batch` bằng dữ liệu thật trong repo: gửi nhiều record trong một request, đối chiếu `input`, `response` và `DB`.
+
+### Tài nguyên batch trong repo
+
+- endpoint thực hành: `POST /tasks/batch`
+- có sẵn request trong Postman collection:
+  - `03 Tasks / Create Tasks - Batch All Valid`
+  - `03 Tasks / Create Tasks - Batch Mixed Result`
+
+---
+
 ## 3. Chọn tài liệu theo nhu cầu
 
 Nếu bạn đang cần:
@@ -103,6 +131,7 @@ Nếu bạn đang cần:
 - ôn phỏng vấn tổng quát: xem [Tổng ôn phỏng vấn tester](./tester-interview-summary.md)
 - luyện SQL từ ngắn đến sâu: xem [SQL practice compact](./sql-practice-compact.md) rồi sang [SQL practice answers](./sql-practice-answers.md)
 - luyện Postman: xem [Postman guide](./postman-guide.md), rồi import `postman/task-management.postman_collection.json`
+- luyện batch: xem [Batch practice guide](./batch-practice-guide.md)
 - ôn JMeter lý thuyết: xem [JMeter review guide](./jmeter-review-guide.md)
 - chạy JMeter thực chiến: xem [JMeter practice guide](./jmeter-practice-guide.md)
 
@@ -116,8 +145,9 @@ Phù hợp khi cần ôn rất nhanh trước buổi phỏng vấn:
 
 1. [Tổng ôn phỏng vấn tester](./tester-interview-summary.md)
 2. [Postman guide](./postman-guide.md)
-3. [SQL practice compact](./sql-practice-compact.md)
-4. [JMeter review guide](./jmeter-review-guide.md)
+3. [Batch practice guide](./batch-practice-guide.md)
+4. [SQL practice compact](./sql-practice-compact.md)
+5. [JMeter review guide](./jmeter-review-guide.md)
 
 ## Lộ trình 1 buổi
 
@@ -127,10 +157,11 @@ Phù hợp khi cần vừa ôn vừa hiểu rõ project:
 2. [Đặc tả API](./api-spec.md)
 3. [Jira tickets](./jira-tickets.md)
 4. [Postman guide](./postman-guide.md)
-5. [SQL practice compact](./sql-practice-compact.md)
-6. [SQL practice answers](./sql-practice-answers.md)
-7. [JMeter review guide](./jmeter-review-guide.md)
-8. [JMeter practice guide](./jmeter-practice-guide.md)
+5. [Batch practice guide](./batch-practice-guide.md)
+6. [SQL practice compact](./sql-practice-compact.md)
+7. [SQL practice answers](./sql-practice-answers.md)
+8. [JMeter review guide](./jmeter-review-guide.md)
+9. [JMeter practice guide](./jmeter-practice-guide.md)
 
 ---
 
