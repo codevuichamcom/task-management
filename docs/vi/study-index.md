@@ -9,6 +9,14 @@ Bạn có thể dùng theo 2 cách:
 
 ---
 
+## AI hỗ trợ kiểm thử (UI)
+
+### [Antigravity — test UI với AI](./antigravity-ui-testing-guide.md)
+
+Dùng khi muốn làm quen **Google Antigravity** (agent có điều khiển trình duyệt), quy trình gợi ý, mẫu prompt và nguyên tắc an toàn khi dùng AI trong testing — phù hợp bổ sung kỹ năng QC hiện đại.
+
+---
+
 ## 0. Tài nguyên thực hành nhanh
 
 Nếu cần vào thẳng công cụ hoặc file để luyện thực hành, dùng các mục này:
@@ -36,6 +44,7 @@ Nếu mới vào project, nên đi theo thứ tự này:
 9. [JMeter review guide](./jmeter-review-guide.md)
 10. [JMeter practice guide](./jmeter-practice-guide.md)
 11. [Mock Interview QA](./mock-interview-qa.md)
+12. [Antigravity — test UI với AI](./antigravity-ui-testing-guide.md)
 
 ---
 
@@ -136,6 +145,7 @@ Nếu bạn đang cần:
 - ôn JMeter lý thuyết: xem [JMeter review guide](./jmeter-review-guide.md)
 - chạy JMeter thực chiến: xem [JMeter practice guide](./jmeter-practice-guide.md)
 - luyện trả lời miệng trước phỏng vấn: xem [Mock Interview QA](./mock-interview-qa.md)
+- dùng AI (Antigravity) để khám phá và test UI: xem [Antigravity — test UI với AI](./antigravity-ui-testing-guide.md)
 
 ---
 
